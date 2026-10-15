@@ -105,6 +105,46 @@ func test_fit_scale() -> void:
 	assert_eq(AF.fit_scale(Vector2i(0, 0), 40.0), Vector2.ONE, "size 0 tra ve ONE")
 
 
+func test_skin_registry() -> void:
+	const Skins = preload("res://resources/character_skins.gd")
+	assert_eq(Skins.all_skins(), ["bird", "bunny", "frog"], "3 skins da dinh nghia")
+	for skin in Skins.all_skins():
+		assert_true(FileAccess.file_exists(Skins.sheet_of(str(skin))), "sheet %s ton tai" % str(skin))
+		for st in ["idle", "run", "jump"]:
+			var key: String = st if Skins.has_state(str(skin), st) else ("run_right" if st == "run" else st)
+			assert_true(Skins.has_state(str(skin), key), "%s co state %s" % [str(skin), key])
+	assert_eq(Skins.sheet_of("skin-la"), "", "skin la tra ve rong")
+	assert_eq(Skins.state_frames("skin-la", "idle"), [], "skin la khong frame")
+
+
+func test_skin_state_frames() -> void:
+	const Skins = preload("res://resources/character_skins.gd")
+	var total: int = AF.frame_count(Catalog.CHARACTER_SHEET)
+	for idx in (Skins.states("bird")["run_right"] as Array):
+		assert_true(int(idx) >= 0 and int(idx) < total, "bird run_right index hop le")
+	assert_eq((Skins.state_frames("bird", "run_right") as Array).size(), 3, "bird run 3 frame")
+	assert_eq((Skins.state_frames("frog", "idle") as Array).size(), 8, "frog idle 8 frame")
+	assert_eq((Skins.state_frames("bunny", "crouch") as Array).size(), 4, "bunny crouch 4 frame")
+	var frog_tex: Texture2D = (Skins.state_frames("frog", "jump") as Array)[0]
+	assert_true(frog_tex is ImageTexture, "frog nen trang dung frame tach nen")
+	var bunny_tex: Texture2D = (Skins.state_frames("bunny", "run") as Array)[0]
+	assert_true(bunny_tex is AtlasTexture, "bunny co alpha dung Atlas truc tiep")
+
+
+func test_make_skin_visual() -> void:
+	const Skins = preload("res://resources/character_skins.gd")
+	var root: Node2D = Skins.make_skin_visual("bunny", "jump", 10.0)
+	assert_eq(root.name, "VisualRoot", "skin visual ghep vao player duoc")
+	var body: AnimatedSprite2D = root.get_node_or_null("Body") as AnimatedSprite2D
+	assert_true(body != null and body.is_playing(), "Body tu chay")
+	assert_eq(body.sprite_frames.get_frame_count("default"), 4, "bunny jump 4 frame")
+	assert_near(body.sprite_frames.get_animation_speed("default"), 10.0, 0.001, "fps theo cau hinh")
+	root.free()
+	var empty: Node2D = Skins.make_skin_visual("skin-la", "idle")
+	assert_eq((empty.get_node("Body") as AnimatedSprite2D).sprite_frames.get_frame_count("default"), 0, "skin la khong crash")
+	empty.free()
+
+
 func test_row_frames() -> void:
 	var row0: Array = AF.row_frames(Catalog.CHARACTER_SHEET, 0)
 	assert_eq(row0.size(), 3, "character 1 hang = 3 frame")

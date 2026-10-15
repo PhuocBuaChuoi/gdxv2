@@ -114,6 +114,7 @@
                                      "resources/asset_frames.gd",
                                      "resources/ASSET_PROVENANCE.md",
                                      "resources/SPRITE_CASTING.md",
+                                     "resources/character_skins.gd",
                                      "levels/stage_background.tscn",
                                      "levels/stage_background.gd",
                                      "levels/base_level.tscn",

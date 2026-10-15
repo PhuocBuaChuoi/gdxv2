@@ -1,43 +1,52 @@
 # Chọn sprite cho chi tiết nào (Sprite Casting)
 
 > Khảo sát trực tiếp 5 file `potential_Assets/` ngày 2026-10-16.
-> Nguyên tắc: neon procedural vẫn là visual chính (mã màu P1 cyan/P2 cam);
-> sprite là skin thay thế + enemy. Code: `resources/asset_frames.gd`.
+> **3 sheet = 3 skin nhân vật** (không phải địch). Định nghĩa state trong
+> `resources/character_skins.gd`; helpers trong `resources/asset_frames.gd`.
+> Neon procedural vẫn là visual mặc định (mã màu P1 cyan/P2 cam); skin là
+> lớp thay thế khi muốn look pixel-art.
 
-## Nhân vật chính — chim tròn xanh (252x408, 3 cột x 4 hàng, frame 84x102)
+## Skin bird — chim tròn xanh (252x408, 3 cột x 4 hàng, frame 84x102, nền trắng)
 
-| Hàng | Frame | Nội dung | Dùng cho |
+| State | Frame | Nội dung | Dùng khi |
 |---|---|---|---|
-| 0 | 0–2 | Nhìn thẳng, 3 nhịp nhún | Idle / mặt trước Cube |
-| 1 | 3–5 | Nghiêng trái, 3 nhịp bước | Chạy sang trái |
-| 2 | 6–8 | Nghiêng phải, 3 nhịp bước | Chạy sang phải |
-| 3 | 9–11 | Nhìn sau lưng | Đảo trọng lực / leo trần |
+| idle | 0–2 | Nhìn thẳng, 3 nhịp nhún | Đứng yên / mặt trước |
+| run_left | 3–5 | Nghiêng trái, 3 nhịp bước | Chạy sang trái |
+| run_right | 6–8 | Nghiêng phải, 3 nhịp bước | Chạy sang phải |
+| jump | 7 | Giữa nhịp chạy phải | Airborne (giữ 1 frame) |
+| flip | 9–11 | Nhìn sau lưng | Đảo trọng lực / đi trần (T6) |
 
-- Dáng tròn ~84px, scale về cao 48px vừa hitbox (`make_animated_visual(..., 48.0)`).
-- LƯU Ý cho agent player (T4): Cube xoay 90° khi bay — skin sprite thì TẮT xoay
-  hoặc chỉ xoay khi ở dạng Dash, nếu không nhân vật sẽ trồng cây chuối.
-- P1/P2 phân biệt bằng modulate nhẹ hoặc giữ nguyên (xanh ≈ cyan); đừng tint
-  cam lên thân xanh (nhân ra màu bùn).
+## Skin bunny — thỏ trắng (288x576, 4 cột x 8 hàng, frame 72x72, nền đen)
 
-## Địch loại A — ếch xanh (640x320, 8 cột x 4 hàng, frame 80x80, nền trắng)
-
-| Hàng | Frame | Nội dung (xác minh lại trong editor) | Dùng cho |
+| State | Frame | Nội dung | Dùng khi |
 |---|---|---|---|
-| 0 | 0–7 | Nhìn thẳng, biến thể miệng/nhảy | Ếch đứng gác / idle |
-| 1–2 | 8–23 | Nghiêng các tư thế nhảy | Ếch nhảy qua hố gai |
-| 3 | 24–31 | Nhìn sau | Quay lưng / trinh sát |
+| idle | 0–3 | Ngồi thẳng, tai dựng | Đứng yên |
+| run | 20–23 | Chu kỳ chạy sang phải | Chạy (trái: `flip_h`) |
+| jump | 4–7 | Chu kỳ hop bổng | Airborne (chạy cả chu kỳ cho nảy) |
+| crouch | 24–27 | Ngồi xổm thấp | Tiếp đất / nấp |
 
-- Nền trắng → dùng `keyed_frame()` (đã tách nền, test khóa).
-- Màu xanh lá nổi trên nền tối — hợp vai hazard/critter, KHÔNG nên làm P2
-  (xanh lá dễ lẫn vùng an toàn P1... thực tế P1 là cyan, vẫn phân biệt được;
-  quyết định cuối thuộc về design).
+- 8 hàng là 8 bộ pose (không theo lưới 4 hướng) — state map theo hàng đã
+  khảo sát, không suy diễn thêm.
 
-## Địch loại B / trang trí — thỏ trắng (288x576, 4 cột x 8 hàng, frame 72x72)
+## Skin frog — ếch xanh (640x320, 8 cột x 4 hàng, frame 80x80, nền trắng)
 
-- 8 hàng = 8 bộ pose (ngồi, nhảy, chạy), mỗi hàng 4 frame — KHÔNG theo lưới
-  4 hướng như 2 sheet kia, dùng nguyên hàng làm 1 chu kỳ (`row_frames`).
-- Trắng trên nền tối cực nổi — hợp làm collectible/linh vật dẫn đường.
-- Nền đen → `white_to_alpha` tách theo pixel góc (đã test).
+| State | Frame | Nội dung (verify lại hướng trong editor) | Dùng khi |
+|---|---|---|---|
+| idle | 0–7 | Nhìn thẳng, ộp miệng 8 nhịp | Đứng yên (chu kỳ 1s @8fps) |
+| run | 16–23 | Nghiêng bước | Chạy |
+| jump | 8–15 | Nghiêng hop | Airborne |
+| flip | 24–31 | Nhìn sau | Đảo trọng lực |
+
+## Quy ước chung 3 skins
+
+- **Không có state chết**: chết = `death_explosion` VFX (T2.04) cho cả 3 skin.
+- **Xoay Cube**: skin sprite thì TẮT xoay 90° khi bay (agent player T4 lưu ý),
+  chỉ xoay khi Dash — nếu không nhân vật trồng cây chuối.
+- P1/P2 dùng skin khác nhau (vd. P1 bird, P2 frog) thay vì tint màu lên sprite
+  (tint cam lên thân xanh ra màu bùn).
+- Scale chuẩn: cao frame về 48px vừa hitbox (`target_height` mặc định).
+- Hướng mặt các hàng ếch/thỏ cần confirm lại trong editor khi gắn lần đầu
+  (ảnh khảo sát nhỏ, pose complex).
 
 ## Background
 
