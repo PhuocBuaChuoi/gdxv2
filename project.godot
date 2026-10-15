@@ -48,6 +48,7 @@ renderer/rendering_method.mobile="gl_compatibility"
 
 Events="*res://autoloads/events.gd"
 LevelManager="*res://autoloads/level_manager.gd"
+AudioManager="*res://autoloads/audio_manager.gd"
 
 [input]
 
