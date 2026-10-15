@@ -51,14 +51,17 @@ static func ufo_disc(width: float = 56.0, height: float = 22.0, segments: int = 
 ## Mũi tên Dash: chevron ">" căn giữa bounding-box — 6 điểm.
 static func dash_arrow(size: float = 48.0) -> PackedVector2Array:
 	var s: float = size / 48.0
-	return PackedVector2Array([
+	var pts := PackedVector2Array([
 		Vector2(18.0, 0.0),
 		Vector2(-18.0, -16.0),
 		Vector2(-18.0, -7.0),
 		Vector2(-2.0, 0.0),
 		Vector2(-18.0, 7.0),
 		Vector2(-18.0, 16.0),
-	]) * s
+	])
+	for i in range(pts.size()):
+		pts[i] *= s
+	return pts
 
 
 ## Gai tam giác cân, đáy dưới — 3 điểm.

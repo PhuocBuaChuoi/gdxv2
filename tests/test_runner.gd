@@ -37,6 +37,7 @@ func _run_suite() -> int:
 		if not (t.has_method("assert_action_keys") and t.has_method("action_keys")):
 			printerr("SKIP (not a GdxTest): ", path)
 			continue
+		t.set("host_root", root)
 		print("== ", path)
 		for m in t.get_method_list():
 			var mname: String = str(m["name"])

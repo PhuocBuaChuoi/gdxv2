@@ -3,6 +3,7 @@ extends "res://tests/gdx_test.gd"
 ## Khóa spec Giai đoạn 2 (T2.01–T2.06: Neon VFX + procedural shapes).
 
 const Shapes = preload("res://scripts/procedural_shapes.gd")
+const Palette = preload("res://resources/color_palette.gd")
 
 
 func test_shape_point_counts() -> void:
@@ -96,3 +97,123 @@ func test_ground_sparks() -> void:
 	sparks.set_active(false)
 	assert_true(not sparks.emitting, "T2.06 set_active(false) tat")
 	sparks.free()
+
+
+func test_shape_bbox_sizes() -> void:
+	assert_near(_span(Shapes.square_chamfered(), true), 48.0, 0.01, "vuong rong 48")
+	assert_near(_span(Shapes.square_chamfered(), false), 48.0, 0.01, "vuong cao 48")
+	assert_near(_span(Shapes.spike_triangle(), true), 48.0, 0.01, "gai day 48")
+	assert_near(_span(Shapes.spike_triangle(), false), 48.0, 0.01, "gai cao 48")
+	assert_near(_span(Shapes.ufo_disc(), true), 56.0, 0.01, "ufo rong 56")
+	assert_near(_span(Shapes.ufo_disc(), false), 22.0, 0.01, "ufo cao 22")
+
+
+func _span(pts: PackedVector2Array, use_x: bool) -> float:
+	var mn: float = (pts[0] as Vector2).x if use_x else (pts[0] as Vector2).y
+	var mx: float = mn
+	for p in pts:
+		var v: float = p.x if use_x else p.y
+		mn = minf(mn, v)
+		mx = maxf(mx, v)
+	return mx - mn
+
+
+func test_circle_closed() -> void:
+	var c: PackedVector2Array = Shapes.circle_points(10.0, 24)
+	assert_eq(c.size(), 25, "tron 24+1 diem")
+	assert_near(c[0].x, c[c.size() - 1].x, 0.0001, "tron khep kin x")
+	assert_near(c[0].y, c[c.size() - 1].y, 0.0001, "tron khep kin y")
+
+
+func test_make_visual_guard() -> void:
+	var root: Node2D = Shapes.make_visual(PackedVector2Array([Vector2.ZERO]), Color.BLACK, Color.WHITE)
+	assert_eq(root.name, "VisualRoot", "guard van co root")
+	assert_true(root.get_child_count() == 0, "guard <3 diem thi khong tao fill/outline")
+	root.free()
+
+
+func test_make_visual_colors() -> void:
+	var root: Node2D = Shapes.make_visual(Shapes.square_chamfered(), Color(1, 0, 0, 0.5), Color(0, 1, 0), 5.0)
+	assert_eq((root.get_node("FillPolygon") as Polygon2D).color, Color(1, 0, 0, 0.5), "fill dung mau/alpha")
+	var line: Line2D = root.get_node("OutlineLine") as Line2D
+	assert_eq(line.default_color, Color(0, 1, 0), "vien dung mau")
+	assert_near(line.width, 5.0, 0.001, "width tuy chinh duoc")
+	root.free()
+
+
+func test_square_texture() -> void:
+	var tex: ImageTexture = Shapes.square_texture(8)
+	assert_eq(tex.get_width(), 8, "texture particle rong 8")
+	assert_eq(tex.get_height(), 8, "texture particle cao 8")
+
+
+func test_environment_bg_matches_palette() -> void:
+	var we: WorldEnvironment = (load("res://levels/default_world_environment.tscn") as PackedScene).instantiate() as WorldEnvironment
+	assert_eq(we.environment.background_color, Palette.COLOR_BG_DARK, "env dung mau nen chuan")
+	we.free()
+
+
+func test_explosion_material() -> void:
+	var inst: Node = (load("res://vfx/death_explosion.tscn") as PackedScene).instantiate()
+	var burst: GPUParticles2D = inst.find_child("BurstParticles", true, false) as GPUParticles2D
+	var mat: ParticleProcessMaterial = burst.process_material as ParticleProcessMaterial
+	assert_true(mat != null, "explosion co ParticleProcessMaterial")
+	assert_near(mat.spread, 180.0, 0.001, "no tung 360 do")
+	assert_true(mat.initial_velocity_max >= mat.initial_velocity_min, "van toc min<=max")
+	assert_true(mat.initial_velocity_min >= 150.0, "manh vang du manh (>=150)")
+	inst.free()
+
+
+func test_sparks_material() -> void:
+	var sparks: GPUParticles2D = (load("res://vfx/ground_sparks.tscn") as PackedScene).instantiate() as GPUParticles2D
+	var mat: ParticleProcessMaterial = sparks.process_material as ParticleProcessMaterial
+	assert_true(mat != null, "sparks co ParticleProcessMaterial")
+	assert_true(not sparks.local_coords, "sparks de lai vet khi player chay (world space)")
+	sparks.free()
+
+
+func test_trail_width_map() -> void:
+	var trail: Line2D = (load("res://vfx/motion_trail.tscn") as PackedScene).instantiate() as Line2D
+	var want: Dictionary = {&"CUBE": 4.0, &"SHIP": 6.0, &"UFO": 4.0, &"DASH": 8.0}
+	for f in want.keys():
+		trail.call("set_width_for_form", f)
+		assert_near(trail.width, float(want[f]), 0.001, "width dang %s" % f)
+	trail.call("set_width_for_form", &"UNKNOWN_FORM")
+	assert_near(trail.width, 4.0, 0.001, "dang la mac dinh 4.0")
+	trail.free()
+
+
+func test_trail_setup_and_tracking() -> void:
+	var trail: Line2D = (load("res://vfx/motion_trail.tscn") as PackedScene).instantiate() as Line2D
+	host_root.add_child(trail)
+	var target := Node2D.new()
+	host_root.add_child(target)
+	trail.call("setup", target, Color.RED)
+	assert_eq(trail.get_point_count(), 0, "setup xoa vet cu")
+	assert_eq(trail.default_color, Color.RED, "setup gan mau player")
+	target.position = Vector2.ZERO
+	for i in range(20):
+		target.position += Vector2(10.0, 0.0)
+		trail._physics_process(1.0 / 60.0)
+	assert_eq(trail.get_point_count(), 15, "trail tran dung 15 diem sau 20 frame")
+	assert_eq(trail.get_point_position(14), target.position, "diem moi nhat = vi tri target")
+	assert_eq(trail.get_point_position(0), Vector2(60.0, 0.0), "diem cu nhat truot dung")
+	host_root.remove_child(trail)
+	host_root.remove_child(target)
+	trail.free()
+	target.free()
+
+
+func test_explosion_play_runtime() -> void:
+	var inst: Node = (load("res://vfx/death_explosion.tscn") as PackedScene).instantiate()
+	host_root.add_child(inst)
+	inst.call("play", Color(0.0, 0.9, 1.0))
+	var burst: GPUParticles2D = inst.find_child("BurstParticles", true, false) as GPUParticles2D
+	assert_true(burst.texture is ImageTexture, "play gan texture cho hat")
+	assert_eq((burst.texture as ImageTexture).get_width(), 8, "texture hat 8x8")
+	assert_eq(burst.modulate, Color(0.0, 0.9, 1.0), "play nhuom mau player")
+	var ring: Line2D = inst.find_child("Shockwave", true, false) as Line2D
+	assert_eq(ring.points.size(), 25, "shockwave co 25 diem")
+	assert_eq(ring.default_color, Color(0.0, 0.9, 1.0), "shockwave cung mau player")
+	host_root.remove_child(inst)
+	inst.free()
