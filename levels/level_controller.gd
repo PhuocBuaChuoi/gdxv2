@@ -47,5 +47,5 @@ func reset_stats() -> void:
 ## Vị trí spawn theo id (dùng khi T4/T5 đặt player vào màn).
 func get_spawn(player_id: int) -> Vector2:
 	if player_id == 2:
-		return spawn_p2.position
-	return spawn_p1.position
+		return spawn_p2.global_position
+	return spawn_p1.global_position

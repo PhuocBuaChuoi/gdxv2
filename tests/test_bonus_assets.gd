@@ -72,6 +72,19 @@ func test_hitbox_and_pivot() -> void:
 	assert_eq(AF.PIVOT_FEET, Vector2(0.5, 1.0), "pivot chan chuan")
 
 
+func test_sheet_validation() -> void:
+	for sheet in Catalog.sprite_sheets():
+		assert_eq(AF.validate_sheet(str(sheet)), [], "metadata khop file that %s" % str(sheet).get_file())
+	assert_true(AF.validate_sheet("res://khong_ton_tai.png").size() > 0, "sheet la bao loi")
+	assert_true(FileAccess.file_exists("res://resources/ASSET_PROVENANCE.md"), "co ho so provenance")
+
+
+func test_frame_rect_clamped() -> void:
+	var last: Rect2i = AF.frame_rect(Catalog.FROG_SHEET, 31)
+	assert_eq(AF.frame_rect(Catalog.FROG_SHEET, 999), last, "index qua lon kep ve frame cuoi")
+	assert_eq(AF.frame_rect(Catalog.FROG_SHEET, -5), AF.frame_rect(Catalog.FROG_SHEET, 0), "index am kep ve frame 0")
+
+
 func test_stage_background() -> void:
 	var ps: PackedScene = load("res://levels/stage_background.tscn") as PackedScene
 	assert_true(ps != null, "stage_background load duoc")

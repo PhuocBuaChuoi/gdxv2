@@ -10,6 +10,9 @@ if (-not (Test-Path -LiteralPath $Godot)) {
 }
 # Import truoc de texture/atlas (.png/.svg) load duoc headless ke ca tren clone moi.
 # (Khong gate tren buoc nay — suite tu quyet dinh xanh/do.)
-& $Godot --headless --path "$Root" --editor --quit
+# Dat GDX_SKIP_IMPORT=1 de bo qua khi can chay nhanh.
+if ($env:GDX_SKIP_IMPORT -ne "1") {
+  & $Godot --headless --path "$Root" --editor --quit
+}
 & $Godot --headless --path "$Root" -s res://tests/test_runner.gd
 exit $LASTEXITCODE

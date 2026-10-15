@@ -41,8 +41,10 @@ func level_count() -> int:
 func load_level(index: int) -> bool:
 	if index < 0 or index >= levels.size():
 		return false
+	if get_tree().change_scene_to_file(levels[index]) != OK:
+		return false
 	current_index = index
-	return get_tree().change_scene_to_file(levels[index]) == OK
+	return true
 
 
 func load_next_level() -> bool:

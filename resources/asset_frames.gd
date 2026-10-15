@@ -34,11 +34,13 @@ static func frame_count(sheet_path: String) -> int:
 
 
 ## Rect frame thứ index (hàng trên xuống, trái sang phải).
+## Index ngoài biên được kẹp để không bao giờ trả về rect rác.
 static func frame_rect(sheet_path: String, index: int) -> Rect2i:
 	var g: Dictionary = grid(sheet_path)
 	var cols: int = maxi(int(g.get("columns", 1)), 1)
 	var fs: Vector2i = g.get("frame_size", Vector2i(1, 1))
-	return Rect2i(Vector2i((index % cols) * fs.x, (index / cols) * fs.y), fs)
+	var safe: int = clampi(index, 0, maxi(frame_count(sheet_path) - 1, 0))
+	return Rect2i(Vector2i((safe % cols) * fs.x, (safe / cols) * fs.y), fs)
 
 
 static func frame_texture(sheet_path: String, index: int) -> AtlasTexture:
@@ -88,3 +90,28 @@ static func hitbox_rect(frame_size: Vector2i, inset_ratio: float = 0.12) -> Rect
 	var ix: int = int(frame_size.x * inset_ratio)
 	var iy: int = int(frame_size.y * inset_ratio)
 	return Rect2i(ix, iy, maxi(frame_size.x - ix * 2, 1), maxi(frame_size.y - iy * 2, 1))
+
+
+## Kiểm khớp metadata vs file thật: trả về danh sách lỗi (rỗng = chuẩn).
+## Dùng để phát hiện sheet bị thay/sai metadata trước khi vào gameplay.
+static func validate_sheet(sheet_path: String) -> Array[String]:
+	var problems: Array[String] = []
+	var g: Dictionary = grid(sheet_path)
+	if g.is_empty():
+		problems.append("thieu metadata cho " + sheet_path)
+		return problems
+	var cols: int = int(g.get("columns", 0))
+	var rows: int = int(g.get("rows", 0))
+	var fs: Vector2i = g.get("frame_size", Vector2i.ZERO)
+	if cols <= 0 or rows <= 0 or fs.x <= 0 or fs.y <= 0:
+		problems.append("columns/rows/frame_size khong hop le")
+		return problems
+	var tex: Texture2D = sheet_texture(sheet_path)
+	if tex == null:
+		problems.append("khong load duoc texture")
+		return problems
+	var real := Vector2i(tex.get_width(), tex.get_height())
+	var expect := Vector2i(cols * fs.x, rows * fs.y)
+	if real != expect:
+		problems.append("kich thuoc that %s != metadata %s" % [str(real), str(expect)])
+	return problems
