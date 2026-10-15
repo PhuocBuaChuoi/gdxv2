@@ -113,6 +113,7 @@
                        "paths":  [
                                      "resources/asset_frames.gd",
                                      "resources/ASSET_PROVENANCE.md",
+                                     "resources/SPRITE_CASTING.md",
                                      "levels/stage_background.tscn",
                                      "levels/stage_background.gd",
                                      "levels/base_level.tscn",
@@ -120,7 +121,7 @@
                                      "tests/test_phase7_levels.gd"
                                  ],
                        "status":  "active",
-                       "updated":  "2026-10-15"
+                       "updated":  "2026-10-16"
                    }
                ]
 }

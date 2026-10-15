@@ -120,6 +120,58 @@ static func fit_scale(frame_size: Vector2i, target_height: float) -> Vector2:
 	return Vector2(s, s)
 
 
+## Toàn bộ frame của 1 hàng (chu kỳ đi/bay): tôn trọng alpha như frame_texture.
+static func row_frames(sheet_path: String, row: int) -> Array:
+	var g: Dictionary = grid(sheet_path)
+	var cols: int = maxi(int(g.get("columns", 0)), 1)
+	var use_alpha: bool = bool(g.get("has_alpha", true))
+	var out: Array = []
+	for c in range(cols):
+		var idx: int = row * cols + c
+		if use_alpha:
+			out.append(frame_texture(sheet_path, idx))
+		else:
+			out.append(keyed_frame(sheet_path, idx))
+	return out
+
+
+## VisualRoot nhân vật chạy animation theo hàng (đặt vào player/enemy được ngay).
+## Sprite căn giữa để pivot xoay đúng kiểu Cube GD.
+static func make_animated_visual(sheet_path: String, row: int, fps: float = 8.0, target_height: float = 48.0, modulate: Color = Color.WHITE) -> Node2D:
+	var root := Node2D.new()
+	root.name = "VisualRoot"
+	var g: Dictionary = grid(sheet_path)
+	var anim := AnimatedSprite2D.new()
+	anim.name = "Body"
+	anim.centered = true
+	var frames := SpriteFrames.new()
+	frames.set_animation_speed("default", maxf(fps, 0.01))
+	for t in row_frames(sheet_path, row):
+		frames.add_frame("default", t, 1.0 / maxf(fps, 0.01))
+	anim.frames = frames
+	var fs: Vector2i = g.get("frame_size", Vector2i(1, 1))
+	anim.scale = fit_scale(fs, target_height)
+	anim.modulate = modulate
+	anim.play("default")
+	root.add_child(anim)
+	return root
+
+
+## Tỉ lệ pixel đặc (alpha>0.5). Dùng kiểm frame có nội dung thật, không trống/lệch.
+static func opaque_ratio(img: Image, step: int = 1) -> float:
+	if img.is_empty():
+		return 0.0
+	var st: int = maxi(step, 1)
+	var total := 0
+	var opaque := 0
+	for y in range(0, img.get_height(), st):
+		for x in range(0, img.get_width(), st):
+			total += 1
+			if img.get_pixel(x, y).a > 0.5:
+				opaque += 1
+	return float(opaque) / float(maxi(total, 1))
+
+
 ## Kiểm khớp metadata vs file thật: trả về danh sách lỗi (rỗng = chuẩn).
 ## Dùng để phát hiện sheet bị thay/sai metadata trước khi vào gameplay.
 static func validate_sheet(sheet_path: String) -> Array[String]:

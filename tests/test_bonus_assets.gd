@@ -105,6 +105,38 @@ func test_fit_scale() -> void:
 	assert_eq(AF.fit_scale(Vector2i(0, 0), 40.0), Vector2.ONE, "size 0 tra ve ONE")
 
 
+func test_row_frames() -> void:
+	var row0: Array = AF.row_frames(Catalog.CHARACTER_SHEET, 0)
+	assert_eq(row0.size(), 3, "character 1 hang = 3 frame")
+	assert_true(row0[0] is ImageTexture, "sheet nen trang tra frame da tach nen")
+	var brow: Array = AF.row_frames(Catalog.BUNNY_SHEET, 2)
+	assert_eq(brow.size(), 4, "bunny 1 hang = 4 frame")
+	assert_true(brow[0] is AtlasTexture, "sheet alpha tra AtlasTexture truc tiep")
+
+
+func test_make_animated_visual() -> void:
+	var root: Node2D = AF.make_animated_visual(Catalog.CHARACTER_SHEET, 1, 8.0)
+	assert_eq(root.name, "VisualRoot", "animated goc VisualRoot ghep vao player duoc")
+	var body: AnimatedSprite2D = root.get_node_or_null("Body") as AnimatedSprite2D
+	assert_true(body != null, "co AnimatedSprite2D Body")
+	assert_true(body.centered, "can giua de pivot xoay")
+	assert_true(body.is_playing(), "tu chay animation")
+	assert_eq(body.sprite_frames.get_frame_count("default"), 3, "hang character 3 frame")
+	assert_near(body.scale.y * 102.0, 48.0, 0.5, "cao frame vua hitbox 48")
+	assert_near(body.scale.x, body.scale.y, 0.0001, "scale giu ti le")
+	root.free()
+
+
+func test_all_frames_have_content() -> void:
+	# Mọi frame sau khi tách nền phải có nội dung thật (3–97% đặc):
+	# bắt frame trống/lệch lưới. step=3 cho nhanh mà vẫn đại diện.
+	for sheet in Catalog.sprite_sheets():
+		for i in range(AF.frame_count(str(sheet))):
+			var keyed: ImageTexture = AF.keyed_frame(str(sheet), i)
+			var r: float = AF.opaque_ratio(keyed.get_image(), 3)
+			assert_true(r > 0.03 and r < 0.97, "frame %d %s co noi dung (%.2f)" % [i, str(sheet).get_file(), r])
+
+
 func test_stage_background() -> void:
 	var ps: PackedScene = load("res://levels/stage_background.tscn") as PackedScene
 	assert_true(ps != null, "stage_background load duoc")
@@ -120,5 +152,8 @@ func test_stage_background() -> void:
 	bg.set("background", "BRIGHT")
 	bg.call("apply_background")
 	assert_eq(spr.texture.get_width(), 735, "doi sang nen sang")
+	bg.set("dim", 0.5)
+	bg.call("apply_background")
+	assert_near(spr.modulate.r, 0.5, 0.001, "dim ha sang nen dem")
 	host_root.remove_child(bg)
 	bg.free()
