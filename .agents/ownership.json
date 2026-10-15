@@ -85,8 +85,8 @@
                                      "characters/player.tscn",
                                      "tests/test_phase4_state_machine.gd"
                                  ],
-                       "status":  "active",
-                       "updated":  "2026-10-15"
+                       "status":  "done",
+                       "updated":  "2026-10-16"
                    },
                    {
                        "id":  "phase7-levels",
