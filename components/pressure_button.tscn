@@ -1,0 +1,24 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://components/pressure_button.gd" id="1_button"]
+
+[sub_resource type="RectangleShape2D" id="Rectangle_pressure_button"]
+size = Vector2(72, 20)
+
+[node name="PressureButton" type="Area2D"]
+collision_layer = 64
+collision_mask = 134
+script = ExtResource("1_button")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Rectangle_pressure_button")
+
+[node name="Visual" type="Node2D" parent="."]
+
+[node name="Plate" type="Polygon2D" parent="Visual"]
+polygon = PackedVector2Array(-36, -7, 36, -7, 36, 7, -36, 7)
+color = Color(0.45, 0.5, 0.6, 0.95)
+
+[node name="Base" type="Polygon2D" parent="Visual"]
+polygon = PackedVector2Array(-38, 7, 38, 7, 38, 14, -38, 14)
+color = Color(0.25, 0.28, 0.35, 1)

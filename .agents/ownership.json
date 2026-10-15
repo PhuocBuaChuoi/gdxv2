@@ -121,7 +121,20 @@
                                      "components/gravity_portal.gd",
                                      "components/dash_orb.gd",
                                      "tests/test_join_level_components.gd",
-                                     "autoloads/events.gd"
+                                     "autoloads/events.gd",
+                                     "components/form_portal.gd",
+                                     "components/form_portal.tscn",
+                                     "components/jump_pad.gd",
+                                     "components/jump_pad.tscn",
+                                     "components/jump_orb.gd",
+                                     "components/jump_orb.tscn",
+                                     "components/pressure_button.gd",
+                                     "components/pressure_button.tscn",
+                                     "components/mechanized_platform.gd",
+                                     "components/mechanized_platform.tscn",
+                                     "components/breakable_dash_block.gd",
+                                     "components/breakable_dash_block.tscn",
+                                     "tests/test_phase6_tools.gd"
                                  ],
                        "status":  "active",
                        "updated":  "2026-10-16"

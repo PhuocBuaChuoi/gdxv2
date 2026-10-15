@@ -1,0 +1,22 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://components/mechanized_platform.gd" id="1_platform"]
+
+[sub_resource type="RectangleShape2D" id="Rectangle_mechanized_platform"]
+size = Vector2(96, 24)
+
+[node name="MechanizedPlatform" type="AnimatableBody2D"]
+collision_layer = 1
+collision_mask = 0
+script = ExtResource("1_platform")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Rectangle_mechanized_platform")
+
+[node name="Deck" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-48, -12, 48, -12, 48, 12, -48, 12)
+color = Color(0.55, 0.6, 0.75, 1)
+
+[node name="GlowLine" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-48, -12, 48, -12, 48, -8, -48, -8)
+color = Color(0.3, 0.9, 1, 0.8)

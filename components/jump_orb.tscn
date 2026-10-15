@@ -1,0 +1,28 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://components/jump_orb.gd" id="1_orb"]
+
+[sub_resource type="CircleShape2D" id="Circle_jump_orb"]
+radius = 18.0
+
+[node name="JumpOrb" type="Area2D"]
+collision_layer = 64
+collision_mask = 6
+script = ExtResource("1_orb")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Circle_jump_orb")
+
+[node name="Orb" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, -16, 12, 0, 0, 16, -12, 0)
+color = Color(1, 0.85, 0, 0.95)
+
+[node name="Glow" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, -23, 18, 0, 0, 23, -18, 0)
+color = Color(1, 0.85, 0, 0.18)
+z_index = -1
+
+[node name="Ring" type="Line2D" parent="."]
+points = PackedVector2Array(14, -8, 20, 0, 14, 8, -14, 8, -20, 0, -14, -8, 14, -8)
+width = 2.0
+default_color = Color(1, 1, 1, 0.5)

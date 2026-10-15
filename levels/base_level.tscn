@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://levels/level_controller.gd" id="1"]
 [ext_resource type="PackedScene" path="res://levels/default_world_environment.tscn" id="2"]
@@ -16,6 +16,12 @@
 [ext_resource type="PackedScene" path="res://components/coop_box.tscn" id="14_box"]
 [ext_resource type="PackedScene" path="res://components/balanced_float_pair.tscn" id="15_pair"]
 [ext_resource type="PackedScene" path="res://components/dual_exit_gate.tscn" id="16_gate"]
+[ext_resource type="PackedScene" path="res://components/form_portal.tscn" id="17_form"]
+[ext_resource type="PackedScene" path="res://components/jump_pad.tscn" id="18_pad"]
+[ext_resource type="PackedScene" path="res://components/jump_orb.tscn" id="19_orb"]
+[ext_resource type="PackedScene" path="res://components/pressure_button.tscn" id="20_button"]
+[ext_resource type="PackedScene" path="res://components/mechanized_platform.tscn" id="21_platform"]
+[ext_resource type="PackedScene" path="res://components/breakable_dash_block.tscn" id="22_break"]
 
 [node name="LevelRoot" type="Node2D"]
 script = ExtResource("1")
@@ -39,6 +45,10 @@ tile_set = ExtResource("3")
 [node name="GravityPortal" parent="Portals" instance=ExtResource("12_portal")]
 position = Vector2(576, -64)
 
+[node name="FormPortal" parent="Portals" instance=ExtResource("17_form")]
+target_form = "SHIP"
+position = Vector2(1152, -64)
+
 [node name="Mechanisms" type="Node2D" parent="."]
 
 [node name="DashOrb" parent="Mechanisms" instance=ExtResource("13_orb")]
@@ -52,6 +62,23 @@ position = Vector2(1104, -64)
 
 [node name="DualExitGate" parent="Mechanisms" instance=ExtResource("16_gate")]
 position = Vector2(480, -48)
+
+[node name="JumpPad" parent="Mechanisms" instance=ExtResource("18_pad")]
+position = Vector2(600, 48)
+
+[node name="JumpOrb" parent="Mechanisms" instance=ExtResource("19_orb")]
+position = Vector2(1296, -128)
+
+[node name="PressureButton" parent="Mechanisms" instance=ExtResource("20_button")]
+position = Vector2(720, 0)
+
+[node name="MechanizedPlatform" parent="Mechanisms" instance=ExtResource("21_platform")]
+position = Vector2(720, -96)
+linked_triggers = Array[NodePath]([NodePath("../PressureButton")])
+move_offset = Vector2(0, -96)
+
+[node name="BreakableDashBlock" parent="Mechanisms" instance=ExtResource("22_break")]
+position = Vector2(1440, -72)
 
 [node name="Checkpoints" type="Node2D" parent="."]
 

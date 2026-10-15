@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://components/form_portal.gd" id="1_portal"]
+
+[sub_resource type="RectangleShape2D" id="Rectangle_form_portal"]
+size = Vector2(56, 96)
+
+[node name="FormPortal" type="Area2D"]
+collision_layer = 64
+collision_mask = 6
+script = ExtResource("1_portal")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Rectangle_form_portal")
+
+[node name="Frame" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-28, -48, 28, -48, 28, 48, 16, 56, -16, 56, -28, 48)
+color = Color(1, 1, 1, 0.9)
+
+[node name="Inner" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-18, -38, 18, -38, 18, 40, 0, 48, -18, 40)
+color = Color(1, 1, 1, 0.3)
+
+[node name="Glow" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-34, -54, 34, -54, 34, 54, 0, 62, -34, 54)
+color = Color(1, 1, 1, 0.12)
+z_index = -1
