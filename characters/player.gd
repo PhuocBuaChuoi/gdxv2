@@ -1,6 +1,7 @@
 class_name GdxPlayer
 extends CharacterBody2D
 
+signal death_requested(player_id: int, death_pos: Vector2)
 
 ## T3.01-T3.06 + T4.01-T4.08 — Player hoàn chỉnh với FSM cho 4 dạng biến hình.
 ## Quản lý trạng thái: Cube / Ship / UFO / Dash với transition mượt.
@@ -8,18 +9,23 @@ extends CharacterBody2D
 
 const Shapes = preload("res://scripts/procedural_shapes.gd")
 const Palette = preload("res://resources/color_palette.gd")
+const Skins = preload("res://resources/character_skins.gd")
 const BASE_GRAVITY: float = 1800.0
 const MOVE_SPEED: float = 420.0
 const MOVE_ACCEL: float = 4000.0
 const JUMP_VELOCITY: float = 650.0
+const PUSH_FORCE: float = 700.0 # T6.09 - luc day khoi Pushable_Blocks khi ap sat
 const COYOTE_TIME: float = 0.08
 const JUMP_BUFFER_TIME: float = 0.10
 
 
 @export_range(1, 2) var player_id: int = 1
 @export var gravity_direction: int = 1
+@export_enum("NONE", "BIRD", "BUNNY", "FROG") var skin: String = "NONE"
 var form: StringName = &"CUBE"
 var control_locked: bool = false
+var _last_push_targets: Array = [] # T6.09 - khoi dang day (de ngat luc khi roi)
+var _death_reported: bool = false
 
 # State Machine
 var current_state: PlayerFormState = null
@@ -35,16 +41,24 @@ var last_facing_dir: int = 1
 @onready var hazard_detector: Area2D = $HazardDetector
 @onready var visual_controller: Node2D = $VisualRoot
 @onready var head_platform: AnimatableBody2D = $HeadPlatform
+var _skin_visual: Node2D
+var _skin_body: AnimatedSprite2D
+var _skin_animation: String = ""
 
 
 func _ready() -> void:
 	player_id = clampi(player_id, 1, 2)
 	_setup_collision_layers()
+	if not hazard_detector.area_entered.is_connected(_on_hazard_area_entered):
+		hazard_detector.area_entered.connect(_on_hazard_area_entered)
+	if not hazard_detector.body_entered.is_connected(_on_hazard_body_entered):
+		hazard_detector.body_entered.connect(_on_hazard_body_entered)
 	_setup_state_machine()
 	
 	up_direction = Vector2.UP if gravity_direction == 1 else Vector2.DOWN
 	
 	switch_form(&"CUBE")
+	_setup_skin_visual()
 
 
 func _setup_collision_layers() -> void:
@@ -57,7 +71,7 @@ func _setup_collision_layers() -> void:
 	hazard_detector.collision_layer = 0
 	hazard_detector.collision_mask = hazard_mask
 	
-	collision_mask = 1 << 0
+	collision_mask = (1 << 0) | (1 << 7) # World_Terrain + Pushable_Blocks (T6.09)
 	head_platform.collision_layer = 1 << player_id
 	head_platform.collision_mask = 1 << (2 if player_id == 1 else 1)
 
@@ -108,6 +122,7 @@ func switch_form(new_form_name: StringName) -> void:
 	_update_form_visibility()
 	if visual_controller.has_method("switch_form"):
 		visual_controller.call("switch_form", form)
+	_sync_skin_rotation()
 	show_transformation_effect()
 	
 	# Signal form change
@@ -117,6 +132,7 @@ func switch_form(new_form_name: StringName) -> void:
 func set_gravity_direction(direction: int) -> void:
 	gravity_direction = 1 if direction >= 0 else -1
 	up_direction = Vector2.UP if gravity_direction == 1 else Vector2.DOWN
+	_update_skin_animation()
 
 func set_control_locked(locked: bool) -> void:
 	control_locked = locked
@@ -154,12 +170,59 @@ func _physics_process(delta: float) -> void:
 			if dash_state != null:
 				dash_state.recharge_dash()
 	
-	# Base gravity only applies when not overridden by state
-	var dash_active := form == &"DASH" and current_state is DashState and (current_state as DashState).is_dashing
-	if not is_on_floor() and form != "SHIP" and not dash_active:
-		velocity.y += BASE_GRAVITY * gravity_direction * delta
+	_apply_base_gravity(delta)
 	
 	move_and_slide()
+	_push_blocks()
+	_update_skin_animation()
+
+
+func _push_blocks() -> void:
+	"""T6.09 - Cube day khoi Pushable_Blocks (layer 8) khi ap sat vao."""
+	var dir := signf(velocity.x)
+	var targets: Array = []
+	if dir != 0.0:
+		for i in range(get_slide_collision_count()):
+			var body := get_slide_collision(i).get_collider()
+			if body is RigidBody2D and (body.collision_layer & (1 << 7)) != 0:
+				targets.append(body)
+	for body in _last_push_targets:
+		if is_instance_valid(body) and not targets.has(body):
+			_push_box(body, 0.0)
+	for body in targets:
+		_push_box(body, dir)
+	_last_push_targets = targets
+
+
+func _push_box(body: RigidBody2D, dir: float) -> void:
+	"""T6.09 - gan luc day lien tuc khi ap sat (0 = ngat)."""
+	body.constant_force = Vector2(dir * PUSH_FORCE, 0.0)
+
+
+func _apply_base_gravity(delta: float) -> void:
+	# Ship and UFO own their vertical gravity; active Dash locks it.
+	var dash_active := form == &"DASH" and current_state is DashState and (current_state as DashState).is_dashing
+	if not is_on_floor() and form != &"SHIP" and form != &"UFO" and not dash_active:
+		velocity.y += BASE_GRAVITY * gravity_direction * delta
+
+
+func _on_hazard_area_entered(area: Area2D) -> void:
+	_report_hazard_death(area)
+
+
+func _on_hazard_body_entered(body: Node2D) -> void:
+	_report_hazard_death(body)
+
+
+func _report_hazard_death(_hazard: Node2D) -> void:
+	if control_locked or _death_reported:
+		return
+	_death_reported = true
+	death_requested.emit(player_id, global_position)
+
+
+func reset_death_state() -> void:
+	_death_reported = false
 
 
 func _handle_input_logic() -> void:
@@ -217,9 +280,81 @@ func _update_visual() -> void:
 	var color: Color = _get_color_for_form()
 	
 	if fill_poly != null:
-		fill_poly.color = Color(color, 0.70)
+		fill_poly.color = Color(color, 0.16 if _skin_visual != null else 0.70)
 	if outline_line != null:
 		outline_line.default_color = color
+		outline_line.width = 4.0 if _skin_visual != null else 3.0
+
+
+func _setup_skin_visual() -> void:
+	var skin_name := skin.to_lower()
+	if skin_name == "none" or not Skins.all_skins().has(skin_name):
+		skin = "NONE"
+		return
+	_skin_visual = Skins.make_skin_visual(skin_name, "idle", 8.0, 48.0)
+	_skin_visual.name = "SkinVisual"
+	_skin_visual.z_index = 2
+	visual_root.add_child(_skin_visual)
+	_skin_body = _skin_visual.get_node_or_null("Body") as AnimatedSprite2D
+	if _skin_body == null:
+		_skin_visual.queue_free()
+		_skin_visual = null
+		return
+	_skin_body.z_index = 2
+	_update_visual()
+	_set_skin_animation("idle")
+
+
+func _skin_state_for_animation() -> String:
+	var skin_name := skin.to_lower()
+	if gravity_direction < 0 and Skins.has_state(skin_name, "flip"):
+		return "flip"
+	if not is_on_floor() and Skins.has_state(skin_name, "jump"):
+		return "jump"
+	if absf(velocity.x) > 35.0:
+		if skin_name == Skins.BIRD:
+			return "run_left" if velocity.x < 0.0 else "run_right"
+		if Skins.has_state(skin_name, "run"):
+			return "run"
+	return "idle"
+
+
+func _set_skin_animation(state: String) -> void:
+	if _skin_body == null or state == _skin_animation:
+		return
+	var frames_list: Array = Skins.state_frames(skin.to_lower(), state)
+	var frames := SpriteFrames.new()
+	frames.set_animation_speed("default", 8.0)
+	for texture in frames_list:
+		frames.add_frame("default", texture, 1.0)
+	_skin_body.sprite_frames = frames
+	_skin_animation = state
+	if frames.get_frame_count("default") > 0:
+		_skin_body.play("default")
+	else:
+		_skin_body.stop()
+
+
+func _update_skin_animation() -> void:
+	if _skin_body == null:
+		return
+	_set_skin_animation(_skin_state_for_animation())
+	if _skin_animation == "run" and skin.to_lower() != Skins.BIRD:
+		_skin_body.flip_h = velocity.x < -35.0
+	else:
+		_skin_body.flip_h = false
+	# Cube rotation communicates gameplay in the neon outline; keep the
+	# authored character upright so it stays readable during jumps.
+	_sync_skin_rotation()
+
+
+func _sync_skin_rotation() -> void:
+	if _skin_visual == null:
+		return
+	if form == &"CUBE":
+		_skin_visual.rotation = -visual_root.rotation
+	else:
+		_skin_visual.rotation = 0.0
 
 func _update_form_visibility() -> void:
 	var forms := visual_root.get_node_or_null("FormVisuals")

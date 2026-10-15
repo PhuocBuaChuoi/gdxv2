@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3]
+[gd_scene load_steps=25 format=3]
 
 [ext_resource type="Script" path="res://levels/level_controller.gd" id="1"]
 [ext_resource type="PackedScene" path="res://levels/default_world_environment.tscn" id="2"]
@@ -22,6 +22,8 @@
 [ext_resource type="PackedScene" path="res://components/pressure_button.tscn" id="20_button"]
 [ext_resource type="PackedScene" path="res://components/mechanized_platform.tscn" id="21_platform"]
 [ext_resource type="PackedScene" path="res://components/breakable_dash_block.tscn" id="22_break"]
+[ext_resource type="PackedScene" path="res://components/spike_hazard.tscn" id="23_spike"]
+[ext_resource type="PackedScene" path="res://components/laser_hazard.tscn" id="24_laser"]
 
 [node name="LevelRoot" type="Node2D"]
 script = ExtResource("1")
@@ -39,6 +41,17 @@ motion_scale = Vector2(0.3, 0.3)
 tile_set = ExtResource("3")
 
 [node name="Hazards" type="Node2D" parent="."]
+
+[node name="SpikeNeutral" parent="Hazards" instance=ExtResource("23_spike")]
+position = Vector2(0, 0)
+
+[node name="SpikeCyan" parent="Hazards" instance=ExtResource("23_spike")]
+position = Vector2(160, 0)
+hazard_type = 1
+
+[node name="LaserOrange" parent="Hazards" instance=ExtResource("24_laser")]
+position = Vector2(320, -60)
+hazard_type = 2
 
 [node name="Portals" type="Node2D" parent="."]
 
@@ -95,9 +108,11 @@ position = Vector2(96, 0)
 
 [node name="PlayerP1" parent="Players" instance=ExtResource("4_player")]
 player_id = 1
+skin = "BIRD"
 
 [node name="PlayerP2" parent="Players" instance=ExtResource("4_player")]
 player_id = 2
+skin = "FROG"
 
 [node name="RespawnCoordinator" type="Node" parent="."]
 script = ExtResource("5_respawn")

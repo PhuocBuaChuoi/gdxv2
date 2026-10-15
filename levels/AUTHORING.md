@@ -22,6 +22,8 @@
      `JumpPad` (Vàng/Hồng/Đỏ), `JumpOrb` (YELLOW/BLUE/DASH),
      `PressureButton` (HOLD/TOGGLE/SIMULTANEOUS) + `MechanizedPlatform`
      nối `linked_triggers`, `BreakableDashBlock` (chỉ Dash lướt phá được)
+   - `Hazards/`: `SpikeHazard` (NEUTRAL/CYAN_SAFE_P1/ORANGE_SAFE_P2 —
+     Detector của player tự bắt theo mask), `LaserHazard` (chớp tắt theo chu kỳ)
 6. Chạy test: `powershell -ExecutionPolicy Bypass -File tools/run_tests.ps1`
    (xanh mới push).
 

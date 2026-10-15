@@ -134,7 +134,16 @@
                                      "components/mechanized_platform.tscn",
                                      "components/breakable_dash_block.gd",
                                      "components/breakable_dash_block.tscn",
-                                     "tests/test_phase6_tools.gd"
+                                     "tests/test_phase6_tools.gd",
+                                     "characters/player.gd",
+                                     "components/spike_hazard.gd",
+                                     "components/spike_hazard.tscn",
+                                     "components/laser_hazard.gd",
+                                     "components/laser_hazard.tscn",
+                                     "components/respawn_coordinator.gd",
+                                     "components/restore_point.gd",
+                                     "components/coop_box.tscn",
+                                     "components/floating_box.gd"
                                  ],
                        "status":  "active",
                        "updated":  "2026-10-16"
