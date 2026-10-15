@@ -85,6 +85,26 @@ func test_frame_rect_clamped() -> void:
 	assert_eq(AF.frame_rect(Catalog.FROG_SHEET, -5), AF.frame_rect(Catalog.FROG_SHEET, 0), "index am kep ve frame 0")
 
 
+func test_make_sprite_visual() -> void:
+	var root: Node2D = AF.make_sprite_visual(Catalog.BUNNY_SHEET, 3)
+	assert_eq(root.name, "VisualRoot", "goc VisualRoot ghep thang vao player duoc")
+	var spr: Sprite2D = root.get_node_or_null("Sprite") as Sprite2D
+	assert_true(spr != null and spr.texture != null, "co Sprite + texture")
+	assert_true(spr.centered, "sprite can giua de pivot xoay")
+	assert_eq((spr.texture as AtlasTexture).region, Rect2(AF.frame_rect(Catalog.BUNNY_SHEET, 3)), "bunny frame 3")
+	assert_near(spr.scale.x * 72.0, 48.0, 0.01, "scale vua hitbox 48px")
+	root.free()
+	var frog_root: Node2D = AF.make_sprite_visual(Catalog.FROG_SHEET, 0)
+	var frog_tex: Texture2D = (frog_root.get_node("Sprite") as Sprite2D).texture
+	assert_true(frog_tex is ImageTexture, "sheet nen trang dung frame da tach nen")
+	frog_root.free()
+
+
+func test_fit_scale() -> void:
+	assert_eq(AF.fit_scale(Vector2i(80, 80), 40.0), Vector2(0.5, 0.5), "fit 80->40 giu ti le")
+	assert_eq(AF.fit_scale(Vector2i(0, 0), 40.0), Vector2.ONE, "size 0 tra ve ONE")
+
+
 func test_stage_background() -> void:
 	var ps: PackedScene = load("res://levels/stage_background.tscn") as PackedScene
 	assert_true(ps != null, "stage_background load duoc")

@@ -92,6 +92,34 @@ static func hitbox_rect(frame_size: Vector2i, inset_ratio: float = 0.12) -> Rect
 	return Rect2i(ix, iy, maxi(frame_size.x - ix * 2, 1), maxi(frame_size.y - iy * 2, 1))
 
 
+## Dựng VisualRoot từ sprite sheet để gameplay gắn vào (player/enemy).
+## - Sheet có alpha: AtlasTexture trực tiếp; nền trắng: frame đã tách nền.
+## - Sprite căn GIỮA để pivot xoay đúng kiểu Cube; scale vừa chiều cao mục tiêu.
+static func make_sprite_visual(sheet_path: String, index: int, target_height: float = 48.0, modulate: Color = Color.WHITE) -> Node2D:
+	var root := Node2D.new()
+	root.name = "VisualRoot"
+	var g: Dictionary = grid(sheet_path)
+	var spr := Sprite2D.new()
+	spr.name = "Sprite"
+	if bool(g.get("has_alpha", true)):
+		spr.texture = frame_texture(sheet_path, index)
+	else:
+		spr.texture = keyed_frame(sheet_path, index)
+	var fs: Vector2i = g.get("frame_size", Vector2i(1, 1))
+	spr.scale = fit_scale(fs, target_height)
+	spr.modulate = modulate
+	root.add_child(spr)
+	return root
+
+
+## Tỉ lệ scale để frame cao đúng target_height px (giữ tỉ lệ).
+static func fit_scale(frame_size: Vector2i, target_height: float) -> Vector2:
+	if frame_size.y <= 0 or target_height <= 0.0:
+		return Vector2.ONE
+	var s: float = target_height / float(frame_size.y)
+	return Vector2(s, s)
+
+
 ## Kiểm khớp metadata vs file thật: trả về danh sách lỗi (rỗng = chuẩn).
 ## Dùng để phát hiện sheet bị thay/sai metadata trước khi vào gameplay.
 static func validate_sheet(sheet_path: String) -> Array[String]:

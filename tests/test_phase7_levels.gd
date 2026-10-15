@@ -116,3 +116,20 @@ func test_base_level_background() -> void:
 	if bg != null:
 		assert_true(bg.get_node_or_null("FarLayer/Sprite2D") is Sprite2D, "background co sprite nen")
 	lvl.free()
+
+
+func test_level_background_select() -> void:
+	var lvl: Node = (load("res://levels/base_level.tscn") as PackedScene).instantiate()
+	host_root.add_child(lvl)
+	assert_eq(str(lvl.get("background")), "FOREST", "mac dinh nen rung (hanh vi cu)")
+	var spr_before: Sprite2D = lvl.get_node_or_null("StageBackground/FarLayer/Sprite2D") as Sprite2D
+	assert_true(spr_before != null, "background sprite ton tai ban dau")
+	if spr_before != null:
+		assert_near(float(spr_before.texture.get_width()), 1199.0, 1.0, "nen mac dinh la forest")
+	lvl.set("background", "BRIGHT")
+	var spr_after: Sprite2D = lvl.get_node_or_null("StageBackground/FarLayer/Sprite2D") as Sprite2D
+	assert_true(spr_after != null, "background sprite van ton sau khi doi")
+	if spr_after != null:
+		assert_near(float(spr_after.texture.get_width()), 1199.0, 1.0, "doi nen sang theo cau hinh man")
+	host_root.remove_child(lvl)
+	lvl.free()

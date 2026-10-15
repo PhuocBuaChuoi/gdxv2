@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://levels/level_controller.gd" id="1"]
 [ext_resource type="PackedScene" path="res://levels/default_world_environment.tscn" id="2"]
@@ -7,6 +7,7 @@
 [ext_resource type="Script" path="res://components/respawn_coordinator.gd" id="5_respawn"]
 [ext_resource type="PackedScene" path="res://components/coop_camera.tscn" id="6_camera"]
 [ext_resource type="PackedScene" path="res://levels/stage_background.tscn" id="7_bg"]
+[ext_resource type="PackedScene" path="res://components/restore_point.tscn" id="8_checkpoint"]
 
 [node name="LevelRoot" type="Node2D"]
 script = ExtResource("1")
@@ -31,6 +32,9 @@ tile_set = ExtResource("3")
 
 [node name="Checkpoints" type="Node2D" parent="."]
 
+[node name="RestorePointStart" parent="Checkpoints" instance=ExtResource("8_checkpoint")]
+checkpoint_order = 0
+
 [node name="SpawnP1" type="Marker2D" parent="."]
 position = Vector2(-96, 0)
 
@@ -53,3 +57,8 @@ position_smoothing_enabled = true
 
 [node name="LevelHUD" type="CanvasLayer" parent="."]
 layer = 10
+
+[node name="AttemptLabel" type="Label" parent="LevelHUD"]
+offset_left = 24.0
+offset_top = 20.0
+text = "Attempt #0"
