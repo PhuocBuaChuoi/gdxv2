@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3]
+[gd_scene load_steps=17 format=3]
 
 [ext_resource type="Script" path="res://levels/level_controller.gd" id="1"]
 [ext_resource type="PackedScene" path="res://levels/default_world_environment.tscn" id="2"]
@@ -11,10 +11,15 @@
 [ext_resource type="PackedScene" path="res://ui/level_hud.tscn" id="9_hud"]
 [ext_resource type="PackedScene" path="res://ui/pause_menu.tscn" id="10_pause"]
 [ext_resource type="PackedScene" path="res://ui/level_complete_popup.tscn" id="11_popup"]
+[ext_resource type="PackedScene" path="res://components/gravity_portal.tscn" id="12_portal"]
+[ext_resource type="PackedScene" path="res://components/dash_orb.tscn" id="13_orb"]
+[ext_resource type="PackedScene" path="res://components/coop_box.tscn" id="14_box"]
+[ext_resource type="PackedScene" path="res://components/balanced_float_pair.tscn" id="15_pair"]
+[ext_resource type="PackedScene" path="res://components/dual_exit_gate.tscn" id="16_gate"]
 
 [node name="LevelRoot" type="Node2D"]
 script = ExtResource("1")
-level_index = 1
+level_index = 0
 background = "BRIGHT"
 ascii_map = PackedStringArray("                                ", "    .       .       .       .    ", "                                ", "            ----                ", "                                ", "      ----                      ", "      ####    ====              ", "    ######                      ", "  ########                      ", "################################", "################################", "################################")
 
@@ -34,7 +39,22 @@ tile_set = ExtResource("3")
 
 [node name="Portals" type="Node2D" parent="."]
 
+[node name="GravityPortal" parent="Portals" instance=ExtResource("12_portal")]
+position = Vector2(640, 376)
+
 [node name="Mechanisms" type="Node2D" parent="."]
+
+[node name="DashOrb" parent="Mechanisms" instance=ExtResource("13_orb")]
+position = Vector2(960, 340)
+
+[node name="CoopBox" parent="Mechanisms" instance=ExtResource("14_box")]
+position = Vector2(860, 412)
+
+[node name="FloatPair" parent="Mechanisms" instance=ExtResource("15_pair")]
+position = Vector2(480, 300)
+
+[node name="DualExitGate" parent="Mechanisms" instance=ExtResource("16_gate")]
+position = Vector2(1450, 376)
 
 [node name="Checkpoints" type="Node2D" parent="."]
 
@@ -47,10 +67,10 @@ position = Vector2(1150, 380)
 checkpoint_order = 2
 
 [node name="SpawnP1" type="Marker2D" parent="."]
-position = Vector2(120, 400)
+position = Vector2(120, 336)
 
 [node name="SpawnP2" type="Marker2D" parent="."]
-position = Vector2(200, 400)
+position = Vector2(160, 336)
 
 [node name="Players" type="Node2D" parent="."]
 
@@ -72,6 +92,7 @@ layer = 10
 [node name="AttemptLabel" type="Label" parent="LevelHUD"]
 text = "Attempt #1"
 position = Vector2(120, 40)
+visible = false
 
 [node name="HUD" parent="LevelHUD" instance=ExtResource("9_hud")]
 

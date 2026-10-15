@@ -17,6 +17,17 @@ var best: Dictionary = {}
 func _ready() -> void:
 	rescan()
 	load_progress()
+	Events.level_completed.connect(_on_level_completed)
+
+
+func _exit_tree() -> void:
+	if Events.level_completed.is_connected(_on_level_completed):
+		Events.level_completed.disconnect(_on_level_completed)
+
+
+## T6.10 → T7.04: khi màn hoàn thành, lưu tiến độ/kỷ lục (sao theo WBS).
+func _on_level_completed(level_index: int, deaths: int, time_taken: float) -> void:
+	record_result(level_index, time_taken, deaths)
 
 
 func rescan() -> void:

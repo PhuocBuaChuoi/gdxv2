@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://components/dual_exit_gate.gd" id="1_gate"]
+
+[sub_resource type="RectangleShape2D" id="Rectangle_gate"]
+size = Vector2(140, 110)
+
+[node name="DualExitGate" type="Area2D"]
+collision_layer = 0
+collision_mask = 6
+script = ExtResource("1_gate")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Rectangle_gate")
+
+[node name="PostLeft" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-70, 55, -54, 55, -54, -55, -70, -55)
+color = Color(0.2, 0.9, 1, 0.85)
+
+[node name="PostRight" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(54, 55, 70, 55, 70, -55, 54, -55)
+color = Color(1, 0.6, 0.1, 0.85)
+
+[node name="Arch" type="Line2D" parent="."]
+points = PackedVector2Array(-70, -55, -30, -68, 30, -68, 70, -55)
+width = 6.0
+default_color = Color(1, 1, 1, 0.6)

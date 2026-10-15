@@ -56,8 +56,19 @@ func _on_select_pressed() -> bool:
 
 
 func _coordinator() -> Node:
+	var ancestor: Node = get_parent()
+	while ancestor != null:
+		var nested := ancestor.get_node_or_null("RespawnCoordinator")
+		if nested != null:
+			return nested
+		ancestor = ancestor.get_parent()
 	var sc: Node = get_tree().current_scene
-	return sc.get_node_or_null("RespawnCoordinator") if sc != null else null
+	if sc == null:
+		return null
+	var direct := sc.get_node_or_null("RespawnCoordinator")
+	if direct != null:
+		return direct
+	return sc.find_child("RespawnCoordinator", true, false)
 
 
 func _manager_reload() -> void:

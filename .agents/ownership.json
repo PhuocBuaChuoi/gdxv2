@@ -115,7 +115,13 @@
                                      "ui/level_complete_popup.tscn",
                                      "ui/level_complete_popup.gd",
                                      "autoloads/audio_manager.gd",
-                                     "tests/test_phase8_ui.gd"
+                                     "tests/test_phase8_ui.gd",
+                                     "components/dual_exit_gate.gd",
+                                     "components/dual_exit_gate.tscn",
+                                     "components/gravity_portal.gd",
+                                     "components/dash_orb.gd",
+                                     "tests/test_join_level_components.gd",
+                                     "autoloads/events.gd"
                                  ],
                        "status":  "active",
                        "updated":  "2026-10-16"

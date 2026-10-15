@@ -60,6 +60,8 @@ func test_hud_wiring() -> void:
 	var forms: Label = lvl.get_node_or_null("LevelHUD/HUD/TopRight/FormsLabel") as Label
 	var time_l: Label = lvl.get_node_or_null("LevelHUD/HUD/TopRight/TimeLabel") as Label
 	assert_true(attempt != null and forms != null and time_l != null, "T8.03 du 3 nhan HUD")
+	assert_eq(attempt.text, "Attempt 0", "T8.03 HUD dong bo attempt ban dau")
+	assert_true(not (lvl.get_node("LevelHUD/AttemptLabel") as Label).visible, "T8.03 label legacy an de tranh chong HUD")
 	Events.player_form_changed.emit(1, &"SHIP")
 	assert_eq(forms.text, "P1: SHIP   P2: CUBE", "T8.03 doi dang P1 qua Events")
 	var coord: Node = lvl.get_node_or_null("RespawnCoordinator")
@@ -71,6 +73,28 @@ func test_hud_wiring() -> void:
 	hud.call("_process", 0.0)
 	assert_eq(time_l.text, "00:00.50", "T8.03 dong ho theo controller")
 	_despawn(lvl)
+
+
+func test_completion_popup_listens_to_level_event() -> void:
+	var lvl: Node = (load("res://levels/base_level.tscn") as PackedScene).instantiate()
+	host_root.add_child(lvl)
+	var popup := lvl.get_node("LevelHUD/CompletePopup") as Control
+	assert_true(not popup.visible, "T8.05 popup an truoc khi hoan thanh")
+	Events.level_completed.emit(0, 1, 12.5)
+	assert_true(popup.visible, "T8.05 popup tu mo khi nhan level_completed")
+	assert_true((popup.get_node("PanelBox/TimeLabel") as Label).text.contains("00:12"), "T8.05 popup nhan dung thoi gian")
+	_despawn(lvl)
+
+
+func test_pause_menu_finds_nested_coordinator() -> void:
+	var level := (load("res://levels/base_level.tscn") as PackedScene).instantiate()
+	host_root.add_child(level)
+	var pause := (load("res://ui/pause_menu.tscn") as PackedScene).instantiate() as Control
+	level.add_child(pause)
+	assert_true(pause.call("_coordinator") == level.get_node("RespawnCoordinator"), "T8.04 pause tim coordinator long qua Main/BaseLevel")
+	level.remove_child(pause)
+	pause.free()
+	_despawn(level)
 
 
 func test_pause_toggle() -> void:

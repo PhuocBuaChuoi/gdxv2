@@ -18,13 +18,33 @@ func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_level = _find_level_root()
 	if _level != null:
-		_title.text = "Màn %d" % (int(_level.get("level_index")) + 1)
-	_refresh_attempt()
+		var level_index = _level.get("level_index")
+		if level_index != null:
+			_title.text = "Màn %d" % (int(level_index) + 1)
+		var p1: Node = _level.get_node_or_null("Players/PlayerP1")
+		var p2: Node = _level.get_node_or_null("Players/PlayerP2")
+		if p1 != null:
+			_forms[1] = p1.get("form")
+		if p2 != null:
+			_forms[2] = p2.get("form")
 	_refresh_forms()
-	Events.player_form_changed.connect(_on_form_changed)
-	var coord: Node = get_parent().get_node_or_null("../RespawnCoordinator") if get_parent() != null else null
+	if not Events.player_form_changed.is_connected(_on_form_changed):
+		Events.player_form_changed.connect(_on_form_changed)
+	var coord: Node = _level.get_node_or_null("RespawnCoordinator") if _level != null else null
+	if coord == null:
+		var ancestor: Node = get_parent()
+		while ancestor != null and coord == null:
+			coord = ancestor.get_node_or_null("RespawnCoordinator")
+			ancestor = ancestor.get_parent()
 	if coord != null and coord.has_signal("attempt_changed"):
+		_attempts = int(coord.get("attempt_count"))
 		coord.connect("attempt_changed", _on_attempt_changed)
+	_refresh_attempt()
+
+
+func _exit_tree() -> void:
+	if Events.player_form_changed.is_connected(_on_form_changed):
+		Events.player_form_changed.disconnect(_on_form_changed)
 
 
 func _find_level_root() -> Node:

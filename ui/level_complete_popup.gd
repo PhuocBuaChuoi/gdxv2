@@ -16,6 +16,29 @@ func _ready() -> void:
 	if manager == null:
 		manager = get_node_or_null("/root/LevelManager")
 	visible = false
+	if not Events.level_completed.is_connected(_on_level_completed):
+		Events.level_completed.connect(_on_level_completed)
+
+
+func _exit_tree() -> void:
+	if Events.level_completed.is_connected(_on_level_completed):
+		Events.level_completed.disconnect(_on_level_completed)
+
+
+func _on_level_completed(level_index: int, deaths: int, time_taken: float) -> void:
+	var level := _find_level_root()
+	if level != null and int(level.get("level_index")) != level_index:
+		return
+	show_result(time_taken, deaths)
+
+
+func _find_level_root() -> Node:
+	var node: Node = get_parent()
+	while node != null:
+		if node.name == "LevelRoot" or node.has_method("get_player_positions"):
+			return node
+		node = node.get_parent()
+	return null
 
 
 static func stars_for(death_count: int) -> int:

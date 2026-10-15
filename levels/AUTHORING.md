@@ -15,6 +15,9 @@
    `Players`, đặt `player_id` = 1 và 2.
 5. Đặt object T6 vào đúng container: gai → `Hazards`, cổng → `Portals`,
    nút/cửa → `Mechanisms`, checkpoint → `Checkpoints`.
+   `base_level.tscn` đã gắn sẵn 4 object bonus — duplicate xong xoá/di chuyển
+   theo bàn chơi: `Portals/GravityPortal`, `Mechanisms/DashOrb`,
+   `Mechanisms/CoopBox`, `Mechanisms/FloatPair` (BalancedFloatPair).
 6. Chạy test: `powershell -ExecutionPolicy Bypass -File tools/run_tests.ps1`
    (xanh mới push).
 
