@@ -70,6 +70,25 @@
                        "updated":  "2026-10-15"
                    },
                    {
+                       "id":  "phase4-state-machine",
+                       "owner":  "opencode",
+                       "branch":  "feature/phase4-state-machine",
+                       "paths":  [
+                                     "scripts/player_form_state.gd",
+                                     "scripts/cube_state.gd",
+                                     "scripts/ship_state.gd",
+                                     "scripts/ufo_state.gd",
+                                     "scripts/dash_state.gd",
+                                     "scripts/state_machine.gd",
+                                     "scripts/visual_root.gd",
+                                     "characters/player.gd",
+                                     "characters/player.tscn",
+                                     "tests/test_phase4_state_machine.gd"
+                                 ],
+                       "status":  "active",
+                       "updated":  "2026-10-15"
+                   },
+                   {
                        "id":  "phase7-levels",
                        "owner":  "opencode",
                        "branch":  "feature/phase7-levels",
