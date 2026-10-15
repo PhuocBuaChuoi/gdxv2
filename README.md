@@ -160,6 +160,11 @@ git commit -m "chore: release lock on MainScene.tscn"
 | `scenes/levels/*.tscn` | 🟡 Trung bình | Mỗi level là file riêng |
 | `assets/*` | 🟢 Thấp | Thường không conflict |
 
+### Kiểm thử tự động & phối hợp nhiều agent
+
+- Chạy test trước khi push (bắt buộc xanh): `powershell -ExecutionPolicy Bypass -File tools/run_tests.ps1`
+- Đọc `.agents/COLLAB.md` và đăng ký claim trong `.agents/ownership.json` trước khi sửa file — áp dụng cho cả agent và người.
+
 ---
 
 ## Git Workflow

@@ -1,0 +1,38 @@
+{
+    "version": 1,
+    "protocol": "Xem .agents/COLLAB.md. Quy tac: claim truoc khi sua, release (done) sau khi PR merge. Chi duoc sua claim cua minh.",
+    "claims": [
+        {
+            "id": "phase1-setup",
+            "owner": "opencode",
+            "branch": "feature/phase1-setup",
+            "paths": [
+                "project.godot",
+                "autoloads/events.gd",
+                "resources/color_palette.gd",
+                "characters/",
+                "components/",
+                "levels/",
+                "ui/",
+                "vfx/",
+                "assets/sprites/icon.svg"
+            ],
+            "status": "done",
+            "updated": "2026-10-15"
+        },
+        {
+            "id": "test-and-collab",
+            "owner": "opencode",
+            "branch": "feature/test-and-collab",
+            "paths": [
+                "tests/",
+                "tools/",
+                ".agents/ownership.json",
+                ".agents/COLLAB.md",
+                "README.md"
+            ],
+            "status": "active",
+            "updated": "2026-10-15"
+        }
+    ]
+}
