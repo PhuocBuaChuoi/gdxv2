@@ -1,38 +1,54 @@
-{
-    "version": 1,
-    "protocol": "Xem .agents/COLLAB.md. Quy tac: claim truoc khi sua, release (done) sau khi PR merge. Chi duoc sua claim cua minh.",
-    "claims": [
-        {
-            "id": "phase1-setup",
-            "owner": "opencode",
-            "branch": "feature/phase1-setup",
-            "paths": [
-                "project.godot",
-                "autoloads/events.gd",
-                "resources/color_palette.gd",
-                "characters/",
-                "components/",
-                "levels/",
-                "ui/",
-                "vfx/",
-                "assets/sprites/icon.svg"
-            ],
-            "status": "done",
-            "updated": "2026-10-15"
-        },
-        {
-            "id": "test-and-collab",
-            "owner": "opencode",
-            "branch": "feature/test-and-collab",
-            "paths": [
-                "tests/",
-                "tools/",
-                ".agents/ownership.json",
-                ".agents/COLLAB.md",
-                "README.md"
-            ],
-            "status": "active",
-            "updated": "2026-10-15"
-        }
-    ]
+﻿{
+    "version":  1,
+    "protocol":  "Xem .agents/COLLAB.md. Quy tac: claim truoc khi sua, release (done) sau khi PR merge. Chi duoc sua claim cua minh.",
+    "claims":  [
+                   {
+                       "id":  "phase1-setup",
+                       "owner":  "opencode",
+                       "branch":  "feature/phase1-setup",
+                       "paths":  [
+                                     "project.godot",
+                                     "autoloads/events.gd",
+                                     "resources/color_palette.gd",
+                                     "characters/",
+                                     "components/",
+                                     "levels/",
+                                     "ui/",
+                                     "vfx/",
+                                     "assets/sprites/icon.svg"
+                                 ],
+                       "status":  "done",
+                       "updated":  "2026-10-15"
+                   },
+                   {
+                       "id":  "test-and-collab",
+                       "owner":  "opencode",
+                       "branch":  "feature/test-and-collab",
+                       "paths":  [
+                                     "tests/gdx_test.gd",
+                                     "tests/test_runner.gd",
+                                     "tests/test_phase1_setup.gd",
+                                     "tests/test_collab_registry.gd",
+                                     "tools/",
+                                     "README.md",
+                                     ".agents/ownership.json",
+                                     ".agents/COLLAB.md"
+                                 ],
+                       "status":  "active",
+                       "updated":  "2026-10-15"
+                   },
+                   {
+                       "id":  "phase2-vfx",
+                       "owner":  "opencode",
+                       "branch":  "feature/phase2-vfx",
+                       "paths":  [
+                                     "vfx/",
+                                     "scripts/procedural_shapes.gd",
+                                     "levels/default_world_environment.tscn",
+                                     "tests/test_phase2_vfx.gd"
+                                 ],
+                       "status":  "active",
+                       "updated":  "2026-10-15"
+                   }
+               ]
 }
