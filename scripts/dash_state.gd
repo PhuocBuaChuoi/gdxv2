@@ -47,11 +47,10 @@ func physics_update(delta: float) -> void:
 			if dash_timer <= 0.0:
 				_reset_dash()
 			
-			# Bay theo hướng cuối cùng hoặc hướng di chuyển
+			# Khóa hướng trong suốt thời gian lướt.
 			if last_facing_dir != 0:
-				player.velocity.y = 0.0 # Giữ nguyên Y khi bay ngang
-				if absf(axis) > 0.1:
-					player.velocity.x = sign(axis) * DASH_SPEED
+				player.velocity.y = 0.0
+				player.velocity.x = DASH_SPEED * last_facing_dir
 
 
 # Hàm xử lý khi kích hoạt Dash (gọi từ player.gd khi nhấn phím jump)

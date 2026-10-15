@@ -26,6 +26,8 @@ func exit() -> void:
 
 
 func physics_update(delta: float) -> void:
+	var axis := player.get_move_axis()
+	player.velocity.x = move_toward(player.velocity.x, axis * 420.0, 4000.0 * delta)
 	var thrust_enabled: bool = player.is_jump_pressed()
 	
 	if thrust_enabled:
@@ -49,13 +51,8 @@ func physics_update(delta: float) -> void:
 	player.velocity.y = clampf(player.velocity.y, -MAX_FALL_SPEED, MAX_FALL_SPEED)
 	
 	# Tự động xoay mũi tàu theo velocity.y
-	var target_tilt: float = player.velocity.y * TILT_SENSITIVITY
+	var target_tilt: float = player.velocity.y * TILT_SENSITIVITY * signf(player.last_facing_dir)
 	target_tilt = clampf(target_tilt, -TILT_MAX, TILT_MAX)
-	
-	# Giữ chiều hướng mặt trước dựa trên axis cuối cùng
-	if absf(player.velocity.x) > 1.0:
-		var sign_dir: int = 1 if player.velocity.x >= 0 else -1
-		target_tilt *= sign_dir
 	
 	player.visual_root.rotation = lerp(player.visual_root.rotation, target_tilt, 10.0 * delta)
 	var platform := player.get_node_or_null("HeadPlatform") as AnimatableBody2D
@@ -82,7 +79,7 @@ func is_floating() -> bool:
 
 func get_tether_beam() -> Area2D:
 	"""Trả về Tether Beam cho Ship co-op (T4.05)."""
-	var tether_node: Node = player.get_node_or_null("TetherBeam") as Node
+	var tether_node: Node = player.visual_root.get_node_or_null("TetherBeam") as Node
 	if tether_node == null:
 		tether_node = _create_tether_beam()
 	return tether_node as Area2D
@@ -108,10 +105,13 @@ func _create_tether_beam() -> Area2D:
 	line.name = "TetherLine"
 	line.width = 2.0
 	line.default_color = Color(0.3, 0.7, 1.0, 0.5)
+	line.visible = false
+	line.points = PackedVector2Array([Vector2.ZERO, Vector2(0, 140)])
 	tether.add_child(line)
 	
 	# Kết nối với VisualRoot để position đúng
 	player.visual_root.add_child(tether)
+	tether.position = Vector2(0, 28)
 	
 	return tether
 

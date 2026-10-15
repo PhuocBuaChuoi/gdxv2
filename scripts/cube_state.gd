@@ -1,6 +1,8 @@
 class_name CubeState
 extends PlayerFormState
 
+const CarrierScript = preload("res://components/carrier_platform.gd")
+
 
 ## T4.02 — Cube State (Dạng thường của Geometry Dash).
 ## Physics: Tăng tốc cao, dừng gần tức thì, nhảy GD-style, xoay trên không, tự làm tròn khi chạm đất.
@@ -58,9 +60,10 @@ func physics_update(delta: float) -> void:
 
 func update_visuals(delta: float) -> void:
 	# Hiệu ứng squash & stretch khi nhảy
-	if player.is_jump_just_pressed() and player.is_on_floor():
+	if player.is_jump_just_pressed() and (player.is_on_floor() or player._coyote_timer > 0.0):
 		var target_scale: Vector2 = Vector2(1.3, 0.7)
 		var tween: Tween = player.create_tween().set_trans(Tween.TRANS_ELASTIC)
+		player.visual_root.scale = target_scale
 		tween.tween_property(player.visual_root, "scale", Vector2.ONE, 0.15)
 		tween.tween_callback(func(): pass) # Cleanup
 	
@@ -75,24 +78,29 @@ func is_floating() -> bool:
 	return false
 
 
-func get_head_platform() -> Area2D:
+func get_head_platform() -> AnimatableBody2D:
 	"""Trả về head platform node để đồng đội đứng lên."""
 	var platform_node: Node = player.get_node_or_null("HeadPlatform") as Node
-	if platform_node == null:
+	if platform_node == null or not is_instance_valid(platform_node):
 		platform_node = _create_head_platform()
-	return platform_node as Area2D
+	return platform_node as AnimatableBody2D
 
 
-func _create_head_platform() -> Area2D:
+func _create_head_platform() -> AnimatableBody2D:
 	"""Tạo Head Platform nếu chưa tồn tại (cho Cube-on-Cube T4.03)."""
-	var platform := Area2D.new()
+	var platform := AnimatableBody2D.new()
 	platform.name = "HeadPlatform"
-	platform.collision_layer = 0 # Chỉ detect người chơi khác
+	platform.set_script(CarrierScript)
+	platform.collision_layer = 1 << player.player_id
+	platform.collision_mask = 1 << (2 if player.player_id == 1 else 1)
 	
 	var shape := CollisionShape2D.new()
+	shape.name = "CollisionShape2D"
 	shape.shape = RectangleShape2D.new()
 	shape.shape.size = Vector2(44, 4)
+	shape.one_way_collision = true
 	platform.add_child(shape)
 	
-	player.visual_root.add_child(platform)
+	platform.position = Vector2(0, -25)
+	player.add_child(platform)
 	return platform

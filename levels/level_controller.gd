@@ -30,6 +30,7 @@ func _ready() -> void:
 	player_one.switch_form(start_form_p1)
 	player_two.switch_form(start_form_p2)
 	respawn_coordinator.register_players(player_one, player_two)
+	respawn_coordinator.level_reset_to_checkpoint.connect(_on_level_reset_to_checkpoint)
 	respawn_coordinator.attempt_changed.connect(_on_attempt_changed)
 	coop_camera.set_players(player_one, player_two)
 	coop_camera.set_terrain_limits(terrain_layer)
@@ -51,6 +52,11 @@ func _process(delta: float) -> void:
 func _on_attempt_changed(value: int) -> void:
 	if attempt_label != null:
 		attempt_label.text = "Attempt #%d" % value
+
+func _on_level_reset_to_checkpoint(snapshot: CheckpointSnapshot) -> void:
+	for node in get_tree().get_nodes_in_group("checkpoint_resettable"):
+		if node.has_method("reset_to_checkpoint"):
+			node.reset_to_checkpoint(snapshot)
 
 
 func add_death() -> void:

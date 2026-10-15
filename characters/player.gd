@@ -33,6 +33,7 @@ var last_facing_dir: int = 1
 @onready var ground_sparks: GPUParticles2D = $GroundSparks
 @onready var motion_trail: Line2D = $MotionTrail
 @onready var hazard_detector: Area2D = $HazardDetector
+@onready var visual_controller: Node2D = $VisualRoot
 @onready var head_platform: AnimatableBody2D = $HeadPlatform
 
 
@@ -105,6 +106,8 @@ func switch_form(new_form_name: StringName) -> void:
 	# Update visuals with effect
 	_update_visual()
 	_update_form_visibility()
+	if visual_controller.has_method("switch_form"):
+		visual_controller.call("switch_form", form)
 	show_transformation_effect()
 	
 	# Signal form change
@@ -152,7 +155,8 @@ func _physics_process(delta: float) -> void:
 				dash_state.recharge_dash()
 	
 	# Base gravity only applies when not overridden by state
-	if not is_on_floor() and form != "SHIP" and form != "UFO":
+	var dash_active := form == &"DASH" and current_state is DashState and (current_state as DashState).is_dashing
+	if not is_on_floor() and form != "SHIP" and not dash_active:
 		velocity.y += BASE_GRAVITY * gravity_direction * delta
 	
 	move_and_slide()

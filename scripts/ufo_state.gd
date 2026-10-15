@@ -48,6 +48,7 @@ func physics_update(delta: float) -> void:
 	
 	# Hiệu ứng co giãn (squash & stretch) mỗi lần bật
 	# Được handle trong update_visuals bằng tween
+	player.velocity.y += player.BASE_GRAVITY * player.gravity_direction * delta
 
 
 func update_visuals(delta: float) -> void:
