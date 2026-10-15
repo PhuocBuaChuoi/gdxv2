@@ -94,6 +94,7 @@
                        "branch":  "feature/phase7-levels",
                        "paths":  [
                                      "levels/level_controller.gd",
+                                     "levels/level_01.tscn",
                                      "levels/AUTHORING.md",
                                      "autoloads/level_manager.gd",
                                      "project.godot",
@@ -101,10 +102,11 @@
                                      "resources/neon_tiles_atlas.png",
                                      "tools/gen_neon_tileset.gd",
                                      "tools/build_tileset.ps1",
-                                     "tools/run_tests.ps1"
+                                     "tools/run_tests.ps1",
+                                     "tests/test_phase7_levels.gd"
                                  ],
                        "status":  "active",
-                       "updated":  "2026-10-15"
+                       "updated":  "2026-10-16"
                    },
                    {
                        "id":  "assets-integration",
@@ -118,8 +120,7 @@
                                      "levels/stage_background.tscn",
                                      "levels/stage_background.gd",
                                      "levels/base_level.tscn",
-                                     "tests/test_bonus_assets.gd",
-                                     "tests/test_phase7_levels.gd"
+                                     "tests/test_bonus_assets.gd"
                                  ],
                        "status":  "active",
                        "updated":  "2026-10-16"

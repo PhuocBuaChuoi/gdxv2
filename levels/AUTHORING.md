@@ -18,6 +18,22 @@
 6. Chạy test: `powershell -ExecutionPolicy Bypass -File tools/run_tests.ps1`
    (xanh mới push).
 
+## Vẽ terrain bằng text (khuyên dùng)
+
+Thay vì vẽ tile trong editor, điền export `ascii_map` của LevelRoot
+(xem `levels/level_01.tscn` làm mẫu). Mỗi chuỗi = 1 hàng tile 48px:
+
+| Ký tự | Tile | Collision |
+|---|---|---|
+| `#` | (0,0) khối đặc | full ô |
+| `=` | (1,0) khối viền neon | full ô |
+| `-` | (2,0) bệ mỏng | một chiều (nhảy xuyên từ dưới) |
+| `.` | (3,0) trang trí | không |
+| ` ` (cách) | trống | không |
+
+Controller tự `paint_terrain()` trong `_ready` — diff review được,
+test đọc lại cell để khóa layout.
+
 ## Quy ước bắt buộc
 
 - Tile physics đã gán sẵn layer 1 `World_Terrain` — không sửa collision trong

@@ -10,6 +10,12 @@ extends Node2D
 @export var start_form_p2: StringName = &"CUBE"
 @export_enum("FOREST", "BRIGHT") var background: String = "FOREST"
 
+## Terrain vẽ bằng text ('#' đặc, '=' viền, '-' 1 chiều, '.' trang trí).
+## Review diff dễ, không cần mở editor. Xem levels/AUTHORING.md.
+@export var ascii_map: PackedStringArray = []
+
+const ASCII_TILES := {"#": Vector2i(0, 0), "=": Vector2i(1, 0), "-": Vector2i(2, 0), ".": Vector2i(3, 0)}
+
 var level_time: float = 0.0
 var deaths: int = 0
 var running: bool = false
@@ -26,6 +32,7 @@ var running: bool = false
 
 func _ready() -> void:
 	running = true
+	paint_terrain()
 	_position_players()
 	player_one.switch_form(start_form_p1)
 	player_two.switch_form(start_form_p2)
@@ -73,6 +80,21 @@ func get_spawn(player_id: int) -> Vector2:
 	if player_id == 2:
 		return spawn_p2.global_position
 	return spawn_p1.global_position
+
+
+## Vẽ ascii_map lên TerrainLayer (gọi trong _ready, gọi lại được khi cần).
+func paint_terrain() -> void:
+	if ascii_map.is_empty():
+		return
+	var layer := get_node_or_null("TerrainLayer") as TileMapLayer
+	if layer == null:
+		return
+	for y in range(ascii_map.size()):
+		var row: String = ascii_map[y]
+		for x in range(row.length()):
+			var atlas: Vector2i = ASCII_TILES.get(row.substr(x, 1), Vector2i(-1, -1))
+			if atlas.x >= 0:
+				layer.set_cell(Vector2i(x, y), 0, atlas)
 
 
 func get_player_positions() -> Dictionary:

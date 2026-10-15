@@ -118,6 +118,40 @@ func test_base_level_background() -> void:
 	lvl.free()
 
 
+func test_level_01_loads_and_paints() -> void:
+	var ps: PackedScene = load("res://levels/level_01.tscn") as PackedScene
+	assert_true(ps != null, "level_01 load duoc")
+	var lvl: Node = ps.instantiate()
+	assert_eq(int(lvl.get("level_index")), 1, "level_01 index 1")
+	host_root.add_child(lvl)
+	var terrain: TileMapLayer = lvl.get_node("TerrainLayer") as TileMapLayer
+	assert_eq(terrain.get_cell_atlas_coords(Vector2i(0, 9)), Vector2i(0, 0), "san solid")
+	assert_eq(terrain.get_cell_atlas_coords(Vector2i(6, 6)), Vector2i(0, 0), "khoi solid")
+	assert_eq(terrain.get_cell_atlas_coords(Vector2i(14, 6)), Vector2i(1, 0), "khoi vien neon")
+	assert_eq(terrain.get_cell_atlas_coords(Vector2i(12, 3)), Vector2i(2, 0), "cau mot chieu")
+	assert_eq(terrain.get_cell_atlas_coords(Vector2i(0, 0)), Vector2i(-1, -1), "troi trong")
+	var p1: Node2D = lvl.get_node("Players/PlayerP1") as Node2D
+	assert_eq(p1.global_position, (lvl.get_node("SpawnP1") as Marker2D).global_position, "P1 dung vi tri spawn")
+	var cps: Array = lvl.get_node("Checkpoints").get_children()
+	assert_eq(cps.size(), 2, "level_01 co 2 restore points")
+	var orders: Array = []
+	for c in cps:
+		orders.append(int(c.get("checkpoint_order")))
+	orders.sort()
+	assert_eq(orders, [1, 2], "checkpoint order 1,2")
+	host_root.remove_child(lvl)
+	lvl.free()
+
+
+func test_manager_finds_level_01() -> void:
+	var mgr: Node = (load("res://autoloads/level_manager.gd") as Script).new()
+	host_root.add_child(mgr)
+	mgr.call("rescan")
+	assert_true((mgr.get("levels") as Array).has("res://levels/level_01.tscn"), "manager tu thay level_01 khong can dang ky")
+	host_root.remove_child(mgr)
+	mgr.free()
+
+
 func test_level_background_select() -> void:
 	var lvl: Node = (load("res://levels/base_level.tscn") as PackedScene).instantiate()
 	host_root.add_child(lvl)
