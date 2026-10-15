@@ -2,10 +2,7 @@ extends "res://tests/gdx_test.gd"
 
 ## Phase 3 — kiểm theo implementation thực tế của characters/ (agent T3)
 ## + contract độc lập (layers/input runtime). Merge từ bản support và bản T3.
-## Ghi chú review (chờ chốt Tech Lead):
-##  - Chưa có HazardDetector/HeadPlatform/StateMachine như T3.02 (có thể để GĐ4-5).
-##  - Body mask hiện tại gồm cả layer Hazard (P1=9, P2=17): gai đang là tường
-##    đặc thay vì vùng chết — T5 cần quyết định (detector riêng hay giữ).
+## T3.02 nodes and hazard separation are enforced by the structural/runtime tests.
 
 const PLAYER_SCENE := "res://characters/player.tscn"
 
@@ -82,8 +79,8 @@ func test_player_instances_configure_layers() -> void:
 	p1.set("player_id", 1)
 	host_root.add_child(p1)
 	assert_eq(p1.collision_layer, 2, "T3.04 P1 o layer 2")
-	assert_true((p1.collision_mask & 1) == 1, "P1 va cham World_Terrain")
-	print("INFO P1 body mask=", p1.collision_mask, " (review: dang gom ca Hazard — cho T5 quyet dinh)")
+	assert_eq(p1.collision_mask, 1, "P1 body chi va cham World_Terrain")
+	assert_eq((p1.get_node("HazardDetector") as Area2D).collision_mask, 40, "P1 detector Neutral + P2Safe")
 	Input.action_press("p1_right")
 	assert_near(float(p1.call("get_move_axis")), 1.0, 0.001, "T3.03 P1 axis phai = +1")
 	Input.action_release("p1_right")
@@ -96,10 +93,23 @@ func test_player_instances_configure_layers() -> void:
 	p2.set("player_id", 2)
 	host_root.add_child(p2)
 	assert_eq(p2.collision_layer, 4, "T3.04 P2 o layer 3 (bit value 4)")
-	assert_true((p2.collision_mask & 1) == 1, "P2 va cham World_Terrain")
-	print("INFO P2 body mask=", p2.collision_mask, " (review: dang gom ca Hazard — cho T5 quyet dinh)")
+	assert_eq(p2.collision_mask, 1, "P2 body chi va cham World_Terrain")
+	assert_eq((p2.get_node("HazardDetector") as Area2D).collision_mask, 24, "P2 detector Neutral + P1Safe")
 	Input.action_press("p2_jump")
 	assert_true(bool(p2.call("is_jump_pressed")), "T3.03 P2 Up = nhay")
 	Input.action_release("p2_jump")
 	host_root.remove_child(p2)
 	p2.free()
+
+
+func test_coyote_jump_physics() -> void:
+	var packed: PackedScene = load(PLAYER_SCENE) as PackedScene
+	var player: GdxPlayer = packed.instantiate() as GdxPlayer
+	host_root.add_child(player)
+	player._coyote_timer = 0.04
+	Input.action_press("p1_jump")
+	player._physics_process(1.0 / 120.0)
+	Input.action_release("p1_jump")
+	assert_true(player.velocity.y < 0.0, "coyote jump applies upward velocity")
+	host_root.remove_child(player)
+	player.free()

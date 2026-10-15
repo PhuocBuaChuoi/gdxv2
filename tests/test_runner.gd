@@ -25,6 +25,9 @@ func _run_suite() -> int:
 	if files.is_empty():
 		printerr("NO TEST FILES FOUND in res://tests/")
 		return 1
+	var preflight_fail: int = _preflight_shapes_contract()
+	if preflight_fail > 0:
+		return preflight_fail
 	for path in files:
 		var script: Script = load(path) as Script
 		if script == null or not script.can_instantiate():
@@ -35,7 +38,8 @@ func _run_suite() -> int:
 		# Duck-typing thay vì `is GdxTest`: chạy được ngay cả khi
 		# global class cache (.godot/) chưa được editor build.
 		if not (t.has_method("assert_action_keys") and t.has_method("action_keys")):
-			printerr("SKIP (not a GdxTest): ", path)
+			printerr("LOAD FAIL (invalid test contract): ", path)
+			total_fail += 1
 			continue
 		t.set("host_root", root)
 		print("== ", path)
@@ -53,6 +57,19 @@ func _run_suite() -> int:
 	else:
 		print("ALL TESTS PASSED")
 	return total_fail
+
+
+func _preflight_shapes_contract() -> int:
+	var shapes_script: Script = load("res://scripts/procedural_shapes.gd") as Script
+	if shapes_script == null:
+		printerr("PREFLIGHT FAIL: procedural_shapes.gd did not load")
+		return 1
+	var required: Array[StringName] = [&"square_chamfered", &"ship_shape", &"ufo_disc", &"dash_arrow", &"spike_triangle", &"circle_points", &"make_visual", &"square_texture"]
+	for method_name in required:
+		if not shapes_script.has_method(method_name):
+			printerr("PREFLIGHT FAIL: procedural_shapes.gd missing method ", method_name)
+			return 1
+	return 0
 
 
 func _discover() -> Array[String]:

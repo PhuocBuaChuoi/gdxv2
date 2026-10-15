@@ -19,6 +19,7 @@ const JUMP_BUFFER_TIME: float = 0.10
 @export_range(1, 2) var player_id: int = 1
 @export var gravity_direction: int = 1
 var form: StringName = &"CUBE"
+var control_locked: bool = false
 
 # State Machine
 var current_state: PlayerFormState = null
@@ -32,6 +33,7 @@ var last_facing_dir: int = 1
 @onready var ground_sparks: GPUParticles2D = $GroundSparks
 @onready var motion_trail: Line2D = $MotionTrail
 @onready var hazard_detector: Area2D = $HazardDetector
+@onready var head_platform: AnimatableBody2D = $HeadPlatform
 
 
 func _ready() -> void:
@@ -55,6 +57,8 @@ func _setup_collision_layers() -> void:
 	hazard_detector.collision_mask = hazard_mask
 	
 	collision_mask = 1 << 0
+	head_platform.collision_layer = 1 << player_id
+	head_platform.collision_mask = 1 << (2 if player_id == 1 else 1)
 
 
 func _setup_state_machine() -> void:
@@ -98,12 +102,9 @@ func switch_form(new_form_name: StringName) -> void:
 		"DASH":
 			current_state = _state_machine.get_dash_state(self, current_state)
 	
-	# Enter new state
-	if current_state != null:
-		current_state.enter(self, null)
-	
 	# Update visuals with effect
 	_update_visual()
+	_update_form_visibility()
 	show_transformation_effect()
 	
 	# Signal form change
@@ -114,8 +115,15 @@ func set_gravity_direction(direction: int) -> void:
 	gravity_direction = 1 if direction >= 0 else -1
 	up_direction = Vector2.UP if gravity_direction == 1 else Vector2.DOWN
 
+func set_control_locked(locked: bool) -> void:
+	control_locked = locked
+
 
 func _physics_process(delta: float) -> void:
+	if control_locked:
+		velocity = Vector2.ZERO
+		ground_sparks.set_active(false)
+		return
 	# Coyote Time & Jump Buffer (T3.05)
 	if is_on_floor():
 		_coyote_timer = COYOTE_TIME
@@ -127,18 +135,26 @@ func _physics_process(delta: float) -> void:
 	else:
 		_jump_buffer_timer = maxf(_jump_buffer_timer - delta, 0.0)
 	
-	# Handle jump input based on form
+	# Handle jump input based on form (cho Cube/UFO/Dash)
 	_handle_input_logic()
-	
-	# Update state physics
-	if current_state != null:
-		current_state.physics_update(delta)
 	
 	# Horizontal movement (base)
 	var axis := get_move_axis()
 	last_facing_dir = 1 if axis >= 0 else -1 if axis < 0 else last_facing_dir
 	
-	gravity_update(delta)
+	# Update state physics (Ship/UFO/Dash handle their own vertical movement)
+	if current_state != null:
+		current_state.physics_update(delta)
+		current_state.update_visuals(delta)
+		if form == &"DASH" and is_on_floor():
+			var dash_state := current_state as DashState
+			if dash_state != null:
+				dash_state.recharge_dash()
+	
+	# Base gravity only applies when not overridden by state
+	if not is_on_floor() and form != "SHIP" and form != "UFO":
+		velocity.y += BASE_GRAVITY * gravity_direction * delta
+	
 	move_and_slide()
 
 
@@ -164,8 +180,8 @@ func _handle_input_logic() -> void:
 			pass
 			
 		"DASH":
-			# T4.07: Kích hoạt dash khi nhấn nhảy trên không
-			if jump_just_pressed and not is_on_floor() and _can_activate_dash():
+			# T4.07: Kích hoạt bằng jump hoặc action.
+			if (jump_just_pressed or is_action_pressed()) and _can_activate_dash():
 				var dash_state = _get_dash_state()
 				if dash_state != null:
 					dash_state.activate_dash(last_facing_dir)
@@ -189,12 +205,6 @@ func _get_dash_state() -> DashState:
 	return null
 
 
-func gravity_update(delta: float) -> void:
-	"""Base gravity physics (không override trong ship/ufo/dash)."""
-	if not is_on_floor():
-		velocity.y += BASE_GRAVITY * gravity_direction * delta
-
-
 func _update_visual() -> void:
 	"""Cập nhật màu sắc theo player_id và form."""
 	var fill_poly: Polygon2D = visual_root.get_node_or_null("FillPolygon") as Polygon2D
@@ -206,6 +216,13 @@ func _update_visual() -> void:
 		fill_poly.color = Color(color, 0.70)
 	if outline_line != null:
 		outline_line.default_color = color
+
+func _update_form_visibility() -> void:
+	var forms := visual_root.get_node_or_null("FormVisuals")
+	if forms == null:
+		return
+	for child in forms.get_children():
+		child.visible = str(child.name).to_upper().begins_with(str(form))
 
 
 func _get_color_for_form() -> Color:

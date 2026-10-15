@@ -29,10 +29,6 @@ func physics_update(delta: float) -> void:
 	var axis: float = player.get_move_axis()
 	player.velocity.x = move_toward(player.velocity.x, axis * BASE_SPEED, ACCEL * delta)
 	
-	# Gravity cơ bản đã xử lý ở player.gd
-	if player.gravity_direction == -1:
-		player.velocity.y -= player.BASE_GRAVITY * 0.9 * delta # Giảm gravity nhẹ khi đi trần
-	
 	# Nhảy giữ phím (GD-style continuous jump)
 	if player.is_jump_pressed():
 		if player.is_on_floor() or player._coyote_timer > 0.0:

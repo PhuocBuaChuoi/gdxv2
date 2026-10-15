@@ -51,13 +51,14 @@ func physics_update(delta: float) -> void:
 			if last_facing_dir != 0:
 				player.velocity.y = 0.0 # Giữ nguyên Y khi bay ngang
 				if absf(axis) > 0.1:
-					player.velocity.x = axis * DASH_SPEED * sign(last_facing_dir)
+					player.velocity.x = sign(axis) * DASH_SPEED
 
 
 # Hàm xử lý khi kích hoạt Dash (gọi từ player.gd khi nhấn phím jump)
 func activate_dash(facing_direction: int) -> void:
 	if not is_dashing and dash_ready:
 		is_dashing = true
+		dash_ready = false
 		dash_timer = DASH_DURATION
 		last_facing_dir = facing_direction
 		player.velocity.x = DASH_SPEED * sign(facing_direction)
@@ -68,7 +69,7 @@ func _reset_dash() -> void:
 	"""Reset trạng thái Dash về bình thường."""
 	is_dashing = false
 	dash_timer = 0.0
-	dash_ready = true
+	dash_ready = false
 	# Tạo hiệu ứng visual khi reset
 	_update_dash_indicator()
 
@@ -92,4 +93,10 @@ func is_floating() -> bool:
 func _update_dash_indicator() -> void:
 	"""Tắt/bật đèn chỉ báo năng lượng ở tâm nhân vật."""
 	# Có thể thêm node "DashIndicator" vào VisualRoot để hiển thị
-	pass
+	var indicator := player.visual_root.get_node_or_null("DashIndicator") as Polygon2D
+	if indicator != null:
+		indicator.color = Color(1, 1, 1, 1) if dash_ready else Color(0.15, 0.15, 0.2, 1)
+
+func recharge_dash() -> void:
+	dash_ready = true
+	_update_dash_indicator()

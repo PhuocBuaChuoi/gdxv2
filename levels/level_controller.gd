@@ -14,10 +14,20 @@ var running: bool = false
 
 @onready var spawn_p1: Marker2D = $SpawnP1
 @onready var spawn_p2: Marker2D = $SpawnP2
+@onready var player_one: GdxPlayer = $Players/PlayerP1
+@onready var player_two: GdxPlayer = $Players/PlayerP2
+@onready var respawn_coordinator: RespawnCoordinator = $RespawnCoordinator
+@onready var coop_camera: CoopCamera = $CoopCamera
 
 
 func _ready() -> void:
 	running = true
+	player_one.global_position = spawn_p1.global_position
+	player_two.global_position = spawn_p2.global_position
+	player_one.switch_form(start_form_p1)
+	player_two.switch_form(start_form_p2)
+	respawn_coordinator.register_players(player_one, player_two)
+	coop_camera.set_players(player_one, player_two)
 
 
 func _process(delta: float) -> void:

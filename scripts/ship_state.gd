@@ -49,7 +49,7 @@ func physics_update(delta: float) -> void:
 	player.velocity.y = clampf(player.velocity.y, -MAX_FALL_SPEED, MAX_FALL_SPEED)
 	
 	# Tự động xoay mũi tàu theo velocity.y
-	var target_tilt: float = -player.velocity.y * TILT_SENSITIVITY
+	var target_tilt: float = player.velocity.y * TILT_SENSITIVITY
 	target_tilt = clampf(target_tilt, -TILT_MAX, TILT_MAX)
 	
 	# Giữ chiều hướng mặt trước dựa trên axis cuối cùng
@@ -58,6 +58,10 @@ func physics_update(delta: float) -> void:
 		target_tilt *= sign_dir
 	
 	player.visual_root.rotation = lerp(player.visual_root.rotation, target_tilt, 10.0 * delta)
+	var platform := player.get_node_or_null("HeadPlatform") as AnimatableBody2D
+	if platform != null:
+		platform.global_rotation = 0.0
+	_update_tether(delta)
 
 
 func update_visuals(delta: float) -> void:
@@ -89,6 +93,8 @@ func _create_tether_beam() -> Area2D:
 	var tether := Area2D.new()
 	tether.name = "TetherBeam"
 	tether.collision_layer = 0 # Chỉ detect objects cần kéo
+	tether.collision_mask = (1 << (2 if player.player_id == 1 else 1)) | (1 << 7)
+	tether.monitoring = true
 	
 	# Shape hình chữ nhật ngang dưới bụng tàu
 	var shape := CollisionShape2D.new()
@@ -108,3 +114,25 @@ func _create_tether_beam() -> Area2D:
 	player.visual_root.add_child(tether)
 	
 	return tether
+
+func _update_tether(delta: float) -> void:
+	var tether := get_tether_beam()
+	var active := player.is_action_pressed()
+	var line := tether.get_node_or_null("TetherLine") as Line2D
+	if line != null:
+		line.visible = active
+	if not active:
+		return
+	for body in tether.get_overlapping_bodies():
+		apply_tether_force(body as Node2D, delta)
+
+func apply_tether_force(body: Node2D, delta: float) -> void:
+	if body == null or body == player:
+		return
+	var lift := 900.0 * delta
+	if body is CharacterBody2D:
+		var character := body as CharacterBody2D
+		character.velocity.y = move_toward(character.velocity.y, player.velocity.y - lift, 1200.0 * delta)
+	elif body is RigidBody2D:
+		var rigid := body as RigidBody2D
+		rigid.apply_central_force(Vector2(0.0, -1200.0 * rigid.mass))

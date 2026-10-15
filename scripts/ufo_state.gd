@@ -32,6 +32,19 @@ func physics_update(delta: float) -> void:
 	# Nhảy bấm từng nhịp (không tự nhảy khi giữ phím)
 	if player.is_jump_just_pressed():
 		player.velocity.y = -HOP_SPEED * player.gravity_direction
+		var tween: Tween = player.create_tween()
+		tween.tween_property(player.visual_root, "scale", Vector2(SQUASH_STRETCH_SCALE, 1.0 / SQUASH_STRETCH_SCALE), 0.06)
+		tween.tween_property(player.visual_root, "scale", Vector2.ONE, 0.12)
+		var wave := Line2D.new()
+		wave.name = "UfoHopWave"
+		wave.points = PackedVector2Array([Vector2(-10, 20), Vector2(0, 26), Vector2(10, 20)])
+		wave.width = 2.0
+		wave.default_color = Color(1.0, 0.9, 0.2, 0.8)
+		player.visual_root.add_child(wave)
+		var wave_tween: Tween = player.create_tween()
+		wave_tween.tween_property(wave, "scale", Vector2(2.0, 2.0), 0.18)
+		wave_tween.parallel().tween_property(wave, "modulate:a", 0.0, 0.18)
+		wave_tween.tween_callback(wave.queue_free)
 	
 	# Hiệu ứng co giãn (squash & stretch) mỗi lần bật
 	# Được handle trong update_visuals bằng tween
