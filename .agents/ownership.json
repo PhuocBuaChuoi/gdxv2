@@ -107,6 +107,19 @@
                                  ],
                        "status":  "active",
                        "updated":  "2026-10-15"
+                   },
+                   {
+                       "id":  "assets-integration",
+                       "owner":  "opencode",
+                       "branch":  "feature/phase7-levels",
+                       "paths":  [
+                                     "resources/asset_frames.gd",
+                                     "levels/stage_background.tscn",
+                                     "levels/stage_background.gd",
+                                     "tests/test_bonus_assets.gd"
+                                 ],
+                       "status":  "active",
+                       "updated":  "2026-10-15"
                    }
                ]
 }
