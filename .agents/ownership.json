@@ -58,6 +58,16 @@
                                  ],
                        "status":  "active",
                        "updated":  "2026-10-15"
+                   },
+                   {
+                       "id":  "support-t3",
+                       "owner":  "opencode",
+                       "branch":  "feature/support-t3",
+                       "paths":  [
+                                     "tests/test_phase3_player.gd"
+                                 ],
+                       "status":  "active",
+                       "updated":  "2026-10-15"
                    }
                ]
 }
