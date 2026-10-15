@@ -43,3 +43,6 @@ desktop.ini
 
 # Godot downloaded ZIP (not part of repo)
 godot_*.zip
+
+# Godot Engine binary folder (local only, not committed)
+godot_engine/
