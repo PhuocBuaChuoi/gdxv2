@@ -219,3 +219,40 @@ var health: int = 100
 ---
 
 *Cập nhật lần cuối: 2026-10-15*
+
+
+---
+
+## 🤖 MCP Server — Godot Engine Integration
+
+### Cài đặt đã thực hiện
+
+| Thành phần | Chi tiết |
+|---|---|
+| Package | `@coding-solo/godot-mcp` v0.1.1 |
+| Cài đặt | Global npm (`%APPDATA%\npm\godot-mcp`) |
+| Config | `.agents/mcp_config.json` |
+| Godot Path | `%LOCALAPPDATA%\Programs\Godot\godot.exe` |
+
+### Godot MCP cho phép AI agent làm gì?
+
+- **Launch editor**: Mở Godot editor lên từ code
+- **Run project**: Chạy game ở debug mode, capture output
+- **Scene management**: Tạo scene, thêm node, set properties
+- **Script editing**: Viết/sửa GDScript file trực tiếp
+- **Debug output**: Đọc console log, stack trace realtime
+- **UID management**: Quản lý resource UIDs (Godot 4.4+)
+
+### Cách dùng MCP với Antigravity IDE
+
+Config tại `.agents/mcp_config.json` sẽ tự động được load khi làm việc trong workspace này.
+
+### Cài thủ công (nếu máy khác)
+
+```bash
+# 1. Cài Godot 4.7.2 và để path vào biến môi trường GODOT_PATH
+# 2. Cài MCP server
+npm install -g @coding-solo/godot-mcp
+
+# 3. Đảm bảo .agents/mcp_config.json có đường dẫn đúng
+```
