@@ -1,0 +1,15 @@
+﻿{
+    "mcpServers":  {
+                       "godot":  {
+                                     "args":  [
+
+                                              ],
+                                     "env":  {
+                                                 "GODOT_PROJECT_PATH":  "C:\\Users\\Doan Nhat Phuoc\\Downloads\\gdxv2",
+                                                 "GODOT_PATH":  "C:\\Users\\Doan Nhat Phuoc\\AppData\\Local\\Programs\\Godot\\godot.exe",
+                                                 "DEBUG":  "false"
+                                             },
+                                     "command":  "godot-mcp"
+                                 }
+                   }
+}
