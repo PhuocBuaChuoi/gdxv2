@@ -1,0 +1,399 @@
+Dưới góc độ **Trưởng nhóm Kỹ thuật (Tech Lead)**, trước khi đi vào danh sách đầu việc chi tiết (Work Breakdown Structure), tôi đã rà soát toàn bộ yêu cầu thiết kế của bạn để chốt **kiến trúc kỹ thuật tối ưu nhất trên Godot 4.x**, đảm bảo không phát sinh nợ kỹ thuật (technical debt) hay lỗi vật lý khi mở rộng.
+
+---
+
+## PHẦN 1: KIỂM ĐỊNH KỸ THUẬT & GIẢI PHÁP TRIỂN KHAI (TECH REVIEW)
+
+Để dự án **Geometry Dash Co-op (GD Platformer + Lửa & Nước)** dễ làm, ổn định và dễ thêm màn/thay đồ hoạ về sau, chúng ta chốt 6 quyết định kỹ thuật cốt lõi sau:
+
+| Hạng mục | Rủi ro nếu làm cách thông thường | Giải pháp chuẩn áp dụng cho dự án |
+| --- | --- | --- |
+| **1. Điều khiển 2 người chơi (WASD + Mũi tên)** | Viết 2 file script riêng cho P1 và P2 dẫn đến khi sửa vật lý phải sửa 2 nơi, dễ lệch cảm giác nhảy. | Dùng chung **1 Scene & 1 Script (`player.gd`)** duy nhất. Phân biệt bằng biến `@export var player_id: int = 1` để tự nối tiền tố input (`p1_left`, `p2_left`...) và tự đổi màu chủ đạo. |
+| **2. Chuyển đổi 4 Dạng (Cube, Ship, UFO, Dash)** | Xoá nhân vật cũ và tạo Scene mới khi qua cổng (Portal) làm mất vận tốc (`velocity`), đứt tham chiếu Camera và giật khung hình. | Dùng **Finite State Machine (FSM)** ngay trên 1 `CharacterBody2D`. Khi qua Portal chỉ chuyển State, thay đổi công thức trọng lực/nhảy và đổi hình vẽ hiển thị; giữ nguyên vận tốc quán tính. |
+| **3. Tương tác Co-op của Dạng Tàu (Ship) & Đồng đội** | Trong Godot 4, 2 `CharacterBody2D` va chạm trực tiếp thường bị trượt hoặc đẩy nhau hỗn loạn khi bay. | Gắn một bệ đỡ một chiều (`OneWayCollision`) trên nóc nhân vật và cơ chế **Vùng Kéo Từ Tính (Tether/Carrier Zone)** dưới bụng Tàu để Tàu có thể cõng đồng đội trên lưng hoặc kéo đồng đội/khối hộp qua hố gai. |
+| **4. Chết & Restore Point (Checkpoint) trong Co-op** | Nếu chỉ hồi sinh 1 người vừa chết về Checkpoint, người còn lại đã đi qua cửa 1 chiều sẽ bị kẹt vĩnh viễn (Softlock). | Khi **1 trong 2 người chết**: Phát hiệu ứng nổ hạt kiểu GD, khoá điều khiển `0.35s`, sau đó **đồng bộ hồi sinh cả 2 người chơi** về Restore Point gần nhất (kèm khôi phục lại đúng **Dạng (Form)** và trạng thái cửa/công tắc tại thời điểm lưu). |
+| **5. Đồ hoạ Tối thiểu (Zero-Asset) & Mở rộng** | Vẽ hình trực tiếp gắn chặt với `CollisionShape2D` khiến sau này thêm ảnh Sprite/Animation phải đập đi làm lại. | Tách hoàn toàn node `VisualRoot` khỏi `CollisionShape2D`. Ban đầu dùng `Polygon2D` + `Line2D` + `GPUParticles2D` kết hợp `WorldEnvironment (Glow/Bloom)` tạo đồ hoạ Neon chuẩn chất GD. Sau này chỉ cần gắn `Sprite2D` vào `VisualRoot`. |
+| **6. Hệ thống `/levels` dễ tạo/sửa bằng tay** | Copy-paste các màn chơi độc lập khiến khi sửa UI hay Camera phải mở từng màn ra sửa lại. | Dùng **Scene Inheritance** từ `res://levels/base_level.tscn` + `TileMapLayer` (chuẩn Godot 4.3+). Tạo màn mới chỉ mất 10 giây, quản lý thứ tự bằng mảng trong `LevelManager`. |
+
+---
+
+## PHẦN 2: QUY ƯỚC THÔNG SỐ 4 DẠNG NHÂN VẬT & CƠ CHẾ PHỐI HỢP
+
+1. **Dạng Thường (Cube Mode):**
+* Chạy trái/phải với gia tốc cực cao (dừng gần như tức thì khi thả phím để nhảy chính xác).
+* **Nhảy chuẩn GD:** Giữ nguyên phím `W` / `Up` để tự động bật nhảy ngay khung hình chạm đất. Tự xoay thân 90 độ trên không trung và tự làm tròn góc (`snappedf`) về bội số của 90 độ khi tiếp đất.
+* **Tương tác Co-op:** Có thể nhảy lên đầu đồng đội để làm bàn đạp bật cao gấp đôi.
+
+
+2. **Dạng Tàu (Ship Mode):**
+* Giữ `W` / `Up` để kích hoạt phản lực bay lên với gia tốc mượt; thả ra sẽ rơi theo trọng lực giảm nhẹ (50% so với Cube). Góc mũi tàu nghiêng theo vận tốc dọc (`velocity.y`).
+* **Tương tác Co-op đặc trưng:**
+* *Cõng đồng đội (Carrier Platform):* Lưng tàu có mặt phẳng ngang ổn định để người chơi kia (dạng Cube) đứng lên cùng bay qua biển gai.
+* *Phản lực đẩy/kéo (Phím `S` / `Down`):* Bật luồng từ trường dưới bụng tàu để nâng các khối năng lượng hoặc kéo đồng đội qua vùng gai màu.
+
+
+
+
+3. **Dạng UFO (UFO Mode):**
+* Nhấn `W` / `Up` (`is_action_just_pressed`) để thực hiện cú nảy ngắn giữa không trung bất kỳ lúc nào (giống Flappy Bird nhưng tự điều khiển trái/phải).
+* **Tương tác Co-op:** Chuyên luồn lách qua các khe gai trần/sàn hẹp để mở công tắc cho Tàu hoặc Cube đi đường dưới.
+
+
+4. **Dạng Dash (Dash Mode):**
+* Khi nhấn phím Nhảy/Dash trên không hoặc mặt đất, nhân vật lao vọt theo hướng di chuyển (khóa trọng lực bằng 0 trong `0.22s`, tốc độ tăng gấp `2.5x`, để lại vệt sáng `Line2D`). Hồi lại lượt Dash khi chạm đất hoặc chạm **Dash Orb**.
+* **Tương tác Co-op:** Duy nhất dạng Dash khi đang lướt mới có thể **tông vỡ Tường Nứt (Breakable Dash Blocks)** hoặc **đẩy Khối Nặng (Heavy Block)** để mở đường cho đồng đội.
+
+
+
+---
+
+## PHẦN 3: DANH SÁCH CÔNG VIỆC CHI TIẾT TỪ SETUP ĐẾN HOÀN THÀNH (WBS)
+
+Danh sách dưới đây được chia thành **9 Giai đoạn (Phases) với hơn 100 đầu việc nhỏ (Atomic Tasks)**. Bạn có thể thực hiện tuần tự từ trên xuống dưới, mỗi đầu việc chỉ tốn từ 10–30 phút code/setup.
+
+### Giai đoạn 1: Khởi tạo Dự án, Cấu trúc Thư mục & Hệ thống Cốt lõi (Setup)
+
+1. **[T1.01]** Tạo project mới trên **Godot 4.x** (chọn bộ render `Forward+` hoặc `Compatibility` nếu nhắm tới máy yếu/Web).
+2. **[T1.02]** Cấu hình độ phân giải cửa sổ trong `Project Settings → Display → Window`: đặt `Viewport Width = 1920`, `Viewport Height = 1080`, `Stretch Mode = canvas_items`, `Aspect = expand`.
+3. **[T1.03]** Thiết lập tần số quét vật lý `Physics Ticks per Second = 120` (hoặc `60` cố định kèm Physics Interpolation) để cảm giác điều khiển kiểu Geometry Dash mượt và nhạy tuyệt đối.
+4. **[T1.04]** Tạo cây thư mục chuẩn trong `res://`:
+* `res://autoloads/` (Chứa các Singleton toàn cục)
+* `res://characters/` (Scene, Script và State của Player)
+* `res://components/` (Cổng Portal, Nút bấm, Cửa, Gai, Checkpoint, Orb/Pad)
+* `res://levels/` (Chứa `base_level.tscn` và các màn `level_01.tscn`, `level_02.tscn`...)
+* `res://ui/` (Menu, HUD, Màn hình Pause, Chuyển màn)
+* `res://resources/` (TileSet, Palette màu, Theme UI, Cấu hình vật lý)
+* `res://vfx/` (Hạt nổ khi chết, Trail vệt sáng, Shader)
+
+
+5. **[T1.05]** Đặt tên các **2D Physics Layers** trong `Project Settings → Layer Names → 2D Physics`:
+* `Layer 1`: `World_Terrain` (Tường, sàn chung)
+* `Layer 2`: `Player_1` (Nhân vật 1 - Màu Xanh Cyan)
+* `Layer 3`: `Player_2` (Nhân vật 2 - Màu Cam Orange)
+* `Layer 4`: `Hazard_Neutral` (Gai trắng/đỏ giết cả 2 người)
+* `Layer 5`: `Hazard_P1_Safe` (Vùng/gai Xanh Cyan — P1 đi qua được, P2 chạm là chết)
+* `Layer 6`: `Hazard_P2_Safe` (Vùng/gai Cam Orange — P2 đi qua được, P1 chạm là chết)
+* `Layer 7`: `Interactables` (Cổng, Nút bấm, Checkpoint, Orb)
+* `Layer 8`: `Pushable_Blocks` (Khối hộp tương tác vật lý)
+
+
+6. **[T1.06]** Cấu hình **Input Map** cho **Player 1 (WASD)**:
+* `p1_left`: Phím `A`
+* `p1_right`: Phím `D`
+* `p1_jump`: Phím `W` (và tuỳ chọn thêm `Space` nếu test 1 mình)
+* `p1_action`: Phím `S` (Dùng cho cơ chế tương tác phụ/kéo của Tàu hoặc hạ nhanh)
+
+
+7. **[T1.07]** Cấu hình **Input Map** cho **Player 2 (Phím Mũi tên)**:
+* `p2_left`: Phím `Left Arrow`
+* `p2_right`: Phím `Right Arrow`
+* `p2_jump`: Phím `Up Arrow`
+* `p2_action`: Phím `Down Arrow`
+
+
+8. **[T1.08]** Cấu hình **Input Map hệ thống**:
+* `game_restart_checkpoint`: Phím `R` (Tự sát/Reset nhanh về Restore Point như GD)
+* `game_pause`: Phím `Escape`
+
+
+9. **[T1.09]** Tạo Resource bảng màu chuẩn `res://resources/color_palette.gd` (chứa hằng số `COLOR_P1_CYAN`, `COLOR_P2_ORANGE`, `COLOR_NEUTRAL_WHITE`, `COLOR_BG_DARK`, `COLOR_PORTAL_CUBE`, `COLOR_PORTAL_SHIP`, `COLOR_PORTAL_UFO`, `COLOR_PORTAL_DASH`) để đổi theme đồ hoạ toàn game chỉ ở 1 file.
+10. **[T1.10]** Tạo Autoload `Events.gd` (Signal Bus toàn cục) chứa các signal:
+* `player_died(player_id: int, death_pos: Vector2)`
+* `checkpoint_activated(checkpoint_id: int, spawn_p1: Vector2, spawn_p2: Vector2)`
+* `player_form_changed(player_id: int, new_form: StringName)`
+* `player_entered_goal(player_id: int)`
+* `player_exited_goal(player_id: int)`
+* `level_completed(level_index: int, deaths: int, time_taken: float)`
+
+
+
+---
+
+### Giai đoạn 2: Xây dựng Hệ thống Đồ hoạ Tối thiểu (Procedural Vector & Neon VFX)
+
+11. **[T2.01]** Tạo node `DefaultWorldEnvironment.tscn` với `Environment` bật `Background Mode = Canvas`, `Glow (Enabled = true, Intensity = 0.8, Bloom = 0.2, Blend Mode = Additive)` để mọi hình đa giác đơn giản đều phát sáng rực rỡ kiểu Geometry Dash.
+12. **[T2.02]** Tạo script tiện ích `ProceduralShapes.gd` hỗ trợ sinh mảng toạ độ `PackedVector2Array` cho hình vuông vát góc, hình mũi tàu, đĩa bay UFO, mũi tên Dash và hình tam giác (gai).
+13. **[T2.03]** Thiết kế cấu trúc node hiển thị chuẩn cho mọi đối tượng trong game:
+* `VisualRoot (Node2D)`
+* `FillPolygon (Polygon2D)` — Màu nền tối hoặc màu người chơi độ trong suốt 70%.
+* `OutlineLine (Line2D)` — Viền sáng màu Neon (Width = 3.0, `closed = true`) tạo cảm giác sắc nét, dễ thay bằng `Sprite2D` sau này.
+
+
+
+
+14. **[T2.04]** Tạo hiệu ứng hạt nổ khi chết `res://vfx/death_explosion.tscn` bằng `GPUParticles2D`: bắn ra 25–35 mảnh vuông nhỏ xoay tròn và mờ dần trong `0.4s` kèm sóng xung kích (vòng tròn `Line2D` phóng to nhanh bằng `Tween`).
+15. **[T2.05]** Tạo hiệu ứng vệt đuôi di chuyển `res://vfx/motion_trail.tscn` bằng `Line2D` lưu 15 vị trí gần nhất của nhân vật mỗi khung hình (tự động đổi độ dày khi sang dạng Ship hoặc Dash).
+16. **[T2.06]** Tạo hiệu ứng trượt đất `GroundSparks (GPUParticles2D)` gắn dưới chân nhân vật: phát tia sáng nhỏ khi nhân vật đang di chuyển trên mặt đất ở dạng Cube.
+
+---
+
+### Giai đoạn 3: Khung Nhân vật Cốt lõi & Điều khiển Cơ bản (Player Base & Input)
+
+17. **[T3.01]** Tạo Scene `res://characters/player.tscn` với node gốc là `CharacterBody2D` (kích thước hitbox chuẩn `48x48 px` để khớp lưới Tile `48x48` hoặc `64x64`).
+18. **[T3.02]** Thêm các node con vào `player.tscn`:
+* `BodyCollision (CollisionShape2D)` — Dùng `RectangleShape2D` (nhỏ hơn hình vẽ khoảng `2px` mỗi cạnh để người chơi không bị chết oan khi quệt nhẹ mép gai - *Forgiving Hitbox*).
+* `HazardDetector (Area2D)` — Dùng để phát hiện va chạm với Gai/Vùng nguy hiểm chính xác.
+* `HeadPlatform (AnimatableBody2D / Area2D)` — Đặt ở cạnh trên để đồng đội đứng lên đầu ổn định.
+* `VisualRoot (Node2D)` — Chứa các nhánh hình dáng `CubeVisual`, `ShipVisual`, `UfoVisual`, `DashVisual`.
+* `StateMachine (Node)` — Quản lý các trạng thái biến hình.
+
+
+19. **[T3.03]** Viết bộ đọc Input trừu tượng trong `player.gd`:
+* Hàm `get_move_axis() -> float`: đọc `Input.get_axis("p%d_left" % player_id, "p%d_right" % player_id)`.
+* Hàm `is_jump_pressed() -> bool` (giữ phím) và `is_jump_just_pressed() -> bool` (nhấn 1 lần).
+* Hàm `is_action_pressed() -> bool` (phím `S` hoặc `Down`).
+
+
+20. **[T3.04]** Cài đặt hệ thống tự cấu hình Collision Layer/Mask trong `_ready()` của `player.gd`:
+* Nếu `player_id == 1`: bật `Layer 2`, bật `HazardDetector` bắt `Layer 4 (Neutral)` và `Layer 6 (Gai Cam của P2)`, bỏ qua `Layer 5 (Gai Xanh của P1)`.
+* Nếu `player_id == 2`: bật `Layer 3`, bật `HazardDetector` bắt `Layer 4 (Neutral)` và `Layer 5 (Gai Xanh của P1)`, bỏ qua `Layer 6 (Gai Cam của P2)`.
+
+
+21. **[T3.05]** Cài đặt bộ đếm **Coyote Time (`0.08s`)** và **Jump Buffer (`0.1s`)** trong `player.gd` để khi nhảy ở mép vực không bị cảm giác "bấm mà không ăn phím".
+22. **[T3.06]** Cài đặt hệ thống **Đảo Trọng Lực (`gravity_direction: int = 1` hoặc `-1`)** ngay trong lớp nền của `player.gd` (tự động đảo `up_direction = Vector2(0, -gravity_direction)` của `CharacterBody2D` để hàm `is_on_floor()` luôn hoạt động đúng cả khi đi ngược trên trần).
+
+---
+
+### Giai đoạn 4: Triển khai 4 Dạng Biến hình & Cơ chế Phối hợp (State Machine)
+
+23. **[T4.01]** Tạo lớp cơ sở `PlayerFormState.gd` với các hàm ảo: `enter(prev_state)`, `exit()`, `physics_update(delta: float)`, `update_visuals(delta: float)`.
+24. **[T4.02]** **Triển khai `CubeState.gd` (Dạng Thường):**
+* Di chuyển ngang với tốc độ tối đa `420 px/s`, gia tốc cao (`4000 px/s²`).
+* Khi `is_on_floor()` (hoặc còn Coyote Time) và `is_jump_pressed()` đang giữ: gán `velocity.y = -JUMP_VELOCITY * gravity_direction` (hỗ trợ giữ phím nhảy liên tục đúng chất GD).
+* Xoay `VisualRoot.rotation` với tốc độ `420 deg/s` khi ở trên không; khi chạm đất, dùng `Tween` hoặc `lerpf` đưa góc xoay về góc vuông gần nhất (`0, 90, 180, 270` độ).
+
+
+25. **[T4.03]** **Triển khai cơ chế Đứng lên đầu nhau (Cube-on-Cube):**
+* Bật va chạm một chiều giữa P1 và P2 theo phương thẳng đứng.
+* Nếu P1 đứng trên đầu P2 khi P2 đang di chuyển ngang, cộng vận tốc nền của P2 vào P1 (hoặc dùng `platform_on_leave` của `CharacterBody2D`) để P1 không bị tụt lại phía sau.
+
+
+26. **[T4.04]** **Triển khai `ShipState.gd` (Dạng Tàu):**
+* Khi giữ phím Nhảy: cộng gia tốc hướng lên `THRUST_ACCEL` (kẹp tốc độ bay lên tối đa `MAX_RISE_SPEED`).
+* Khi thả phím Nhảy: áp dụng trọng lực nhẹ (`SHIP_GRAVITY = 0.55 * BASE_GRAVITY`), kẹp tốc độ rơi tối đa.
+* Tự động xoay mũi tàu theo công thức `VisualRoot.rotation = clamp(velocity.y * 0.0012, -PI/4, PI/4) * sign(last_facing_dir)`.
+* Khoá góc xoay của sàn đỡ trên lưng tàu luôn nằm ngang (`0` độ toàn cục) để đồng đội đứng trên lưng không bị trượt ngã khi tàu chúc mũi!
+
+
+27. **[T4.05]** **Triển khai Cơ chế Tương tác Đặc biệt của Dạng Tàu (Ship Co-op Mechanics):**
+* Tạo `TetherBeam (Area2D + Line2D)` dưới bụng tàu.
+* Khi người chơi dạng Tàu giữ phím `S` / `Down`: bật tia kéo từ tính bên dưới bụng tàu (dài `140px`).
+* Nếu đồng đội hoặc khối hộp (`PushableBlock`) nằm trong vùng tia kéo: áp dụng lực nâng đồng bộ theo tàu, giúp Tàu nhấc đồng đội bay qua các đoạn gai không có chỗ đứng.
+
+
+28. **[T4.06]** **Triển khai `UfoState.gd` (Dạng UFO):**
+* Bắt sự kiện `is_jump_just_pressed()` (không tự nhảy khi đè phím, phải bấm từng nhịp).
+* Mỗi lần bấm tạo cú nảy tức thời `velocity.y = -UFO_HOP_SPEED * gravity_direction` bất kể đang ở mặt đất hay trên không.
+* Tạo hiệu ứng co giãn (`Squash & Stretch` trên `VisualRoot.scale`) mỗi khi UFO búng lên không trung và phát 1 vòng sóng tròn dưới đáy đĩa bay.
+
+
+29. **[T4.07]** **Triển khai `DashState.gd` (Dạng Dash):**
+* Bình thường di chuyển trên mặt đất giống Cube nhẹ, có chỉ báo đèn năng lượng ở tâm nhân vật (Sáng = Còn lượt Dash, Tối = Đã dùng).
+* Khi nhấn Nhảy trên không (hoặc nhấn phím `Action`): kích hoạt trạng thái `is_dashing = true` trong `0.22s`.
+* Trong khi `is_dashing`: tắt hoàn toàn trọng lực (`velocity.y = 0` hoặc bay theo hướng 8 hướng tổ hợp phím), đặt vận tốc `DASH_SPEED = 950 px/s`, bật cờ `can_break_dash_blocks = true`.
+* Hồi lại lượt Dash ngay lập tức khi chạm đất, chạm lưng đồng đội, hoặc chạm `DashOrb`.
+
+
+30. **[T4.08]** Viết hàm `switch_form(new_form_name: StringName)` trong `player.gd`:
+* Chuyển đổi State trong `StateMachine`.
+* Ẩn/hiện nhánh hình ảnh tương ứng trong `VisualRoot`.
+* Tạo hiệu ứng chớp sáng ngắn (`scale` từ `1.3` về `1.0` trong `0.15s`) để người chơi nhận biết rõ vừa đổi dạng.
+
+
+
+---
+
+### Giai đoạn 5: Hệ thống Chết, Restore Point (Checkpoint) & Camera 2 Người Chơi
+
+31. **[T5.01]** Tạo Scene `res://components/restore_point.tscn` (Checkpoint) có hình viên kim cương xoay đặc trưng của Geometry Dash Platformer Mode:
+* Chứa `Area2D` bắt va chạm với Player 1 và Player 2.
+* Biến `@export var checkpoint_order: int = 0` (để tránh kích hoạt lại các Checkpoint cũ nếu đi lùi).
+* Biến `@export var require_both_players: bool = false` (Tuỳ chọn: chỉ cần 1 người chạm là lưu, hoặc bắt buộc cả 2 cùng tới mới lưu).
+
+
+32. **[T5.02]** Xây dựng cấu trúc dữ liệu `CheckpointSnapshot` lưu toàn bộ trạng thái tại thời điểm kích hoạt Restore Point:
+* Vị trí hồi sinh an toàn của P1 và P2 (`spawn_pos_p1`, `spawn_pos_p2`).
+* Dạng hiện tại của P1 và P2 (`form_p1`, `form_p2`) — *Rất quan trọng: nếu P1 đang là Tàu khi chạm Checkpoint, lúc chết hồi sinh lại vẫn phải là Tàu!*
+* Chiều trọng lực hiện tại của P1 và P2 (`gravity_p1`, `gravity_p2`).
+
+
+33. **[T5.03]** Thiết kế hiệu ứng kích hoạt `restore_point.tscn`: khi được kích hoạt, đổi màu viên kim cương từ Xám sang Xanh Lá phát sáng, xoay nhanh 1 vòng và phát hạt sáng.
+34. **[T5.04]** Viết quy trình **Xử lý Chết & Hồi sinh Đồng bộ (`RespawnCoordinator.gd`)** gắn trong `base_level.tscn`:
+* Khi P1 hoặc P2 chạm gai/rơi vực (hoặc nhấn phím `R`):
+1. Gọi `set_physics_process(false)` và ẩn `VisualRoot` của người chết, sinh hiệu ứng `death_explosion.tscn` ngay tại vị trí chết.
+2. Khoá tạm thời điều khiển của người còn sống, rung nhẹ Camera (`Screen Shake` biên độ `8px` trong `0.2s`).
+3. Tăng biến đếm `attempt_count += 1` trên HUD.
+4. Sau `0.35s`, dịch chuyển cả P1 và P2 về toạ độ trong `CheckpointSnapshot` gần nhất, khôi phục đúng `Form` và `Gravity`, đặt `velocity = Vector2.ZERO`.
+5. Gửi signal `level_reset_to_checkpoint` để các cửa/khối hộp chưa chốt cố định quay về vị trí chuẩn, tránh 100% lỗi kẹt màn (Softlock).
+
+
+
+
+35. **[T5.05]** Tạo `res://components/coop_camera.tscn` (`Camera2D` thông minh cho 2 người chơi):
+* Mỗi khung hình tính trung điểm: `target_pos = (p1.global_position + p2.global_position) * 0.5`.
+* Nội suy vị trí mượt bằng `global_position = global_position.lerp(target_pos, 10.0 * delta)`.
+* Tính khoảng cách `dist = p1.global_position.distance_to(p2.global_position)` và tự động điều chỉnh `zoom` từ `Vector2(1.1, 1.1)` (khi đi sát nhau) xuống `Vector2(0.65, 0.65)` (khi tách xa nhau giải đố 2 nhánh).
+* Giới hạn khung nhìn Camera bằng `limit_left`, `limit_top`, `limit_right`, `limit_bottom` đọc tự động từ kích thước bao của `TileMapLayer` màn chơi.
+
+
+36. **[T5.06]** Tạo rào cản mềm / cảnh báo khoảng cách tối đa: Nếu khoảng cách giữa 2 người vượt quá kích thước khung hình ở mức zoom xa nhất, hiển thị biểu tượng mũi tên chỉ vị trí đồng đội ở mép màn hình (hoặc chặn kéo giãn thêm).
+
+---
+
+### Giai đoạn 6: Bộ Công cụ Tương tác Màn chơi (GD Portals, Orbs, Pads & Cơ quan Lửa-Nước)
+
+37. **[T6.01]** Tạo Prefab **Cổng Chuyển Dạng (`res://components/form_portal.tscn`)**:
+* Dùng biến `@export_enum("CUBE", "SHIP", "UFO", "DASH") var target_form: String = "CUBE"`.
+* Thêm `@export_enum("BOTH", "P1_ONLY", "P2_ONLY") var allowed_player: String = "BOTH"` (Cực hay cho giải đố: Cổng chỉ đổi P1 thành Tàu, còn P2 đi qua vẫn giữ nguyên Cube!).
+* Tự động đổi màu khung cổng trong Editor bằng từ khoá `@tool` ở đầu script.
+
+
+38. **[T6.02]** Tạo Prefab **Cổng Đảo Trọng Lực (`res://components/gravity_portal.tscn`)**:
+* Chế độ: `NORMAL` (Trọng lực hướng xuống), `INVERTED` (Trọng lực hướng lên), hoặc `TOGGLE` (Đảo ngược chiều hiện tại).
+
+
+39. **[T6.03]** Tạo Prefab **Jump Pad (`res://components/jump_pad.tscn`)** đặt trên mặt đất:
+* Loại Vàng (bật cao trung bình), Loại Hồng (bật thấp), Loại Đỏ (bật cực cao).
+* Chạm vào là tự động phóng người chơi lên không cần bấm phím.
+
+
+40. **[T6.04]** Tạo Prefab **Jump Orb (`res://components/jump_orb.tscn`)** lơ lửng trên không:
+* Chỉ kích hoạt khi người chơi đang ở trong vùng `Area2D` của Orb **VÀ** thực hiện thao tác nhấn mới phím Nhảy (`buffer_orb_jump`).
+* Hỗ trợ: `Yellow Orb` (nhảy trên không), `Blue Orb` (đảo trọng lực trên không), `Dash Orb` (hồi lập tức 1 lượt Dash cho dạng Dash).
+
+
+41. **[T6.05]** Tạo hệ thống **Gai & Bẫy Phân Cực Màu (`res://components/spike_hazard.tscn` & `laser_hazard.tscn`)**:
+* Biến `@export_enum("NEUTRAL", "CYAN_SAFE_P1", "ORANGE_SAFE_P2") var hazard_type: String`.
+* Tự động gán đúng `CollisionLayer` (`Layer 4`, `5`, hoặc `6`) và tự động đổi màu đa giác sang Trắng/Đỏ (Neutral), Xanh Cyan (P1 đi qua sống, P2 chết), hoặc Cam (P2 đi qua sống, P1 chết).
+
+
+42. **[T6.06]** Tạo **Nút Bấm Trọng Lượng (`res://components/pressure_button.tscn`)** kiểu Lửa & Nước:
+* Chế độ 1 (`Hold`): Phải có người chơi hoặc khối hộp đè lên thì mới kích hoạt; bước ra là tắt.
+* Chế độ 2 (`Toggle`): Chạm 1 lần là giữ trạng thái bật.
+* Chế độ 3 (`Simultaneous Co-op`): Cần 2 nút được đè cùng lúc trong khoảng thời gian chênh lệch dưới `0.5s` để mở khoá vĩnh viễn.
+* Hỗ trợ lọc người kích hoạt: `ANY`, `P1_ONLY`, `P2_ONLY`, `HEAVY_BLOCK_ONLY`.
+
+
+43. **[T6.07]** Tạo **Cửa Trượt & Bệ Đỡ Di Động (`res://components/mechanized_platform.tscn`)**:
+* Sử dụng `AnimatableBody2D` để khi di chuyển sẽ kéo theo nhân vật đứng trên nó một cách mượt mà.
+* Liên kết với `pressure_button.tscn` trực tiếp trong Inspector qua mảng `@export var linked_triggers: Array[NodePath]` (kéo thả nối dây ngay trên màn hình thiết kế Level mà không cần viết code riêng cho từng màn!).
+
+
+44. **[T6.08]** Tạo **Khối Tường Nứt (`res://components/breakable_dash_block.tscn`)**:
+* Bình thường là tường cứng chặn cả 2 người chơi.
+* Nếu người chơi ở **Dạng Dash** đang trong trạng thái lướt (`is_dashing == true`) tông vào: phá vỡ khối tường, phát hạt vỡ vụn và mở đường.
+
+
+45. **[T6.09]** Tạo **Khối Năng Lượng Đẩy/Kéo (`res://components/coop_box.tscn`)**:
+* Có thể được đẩy bởi Cube hoặc được nhấc bổng lên bởi tia kéo của Ship để đặt lên nút bấm trên cao.
+
+
+46. **[T6.10]** Tạo **Cổng Đích Đôi (`res://components/dual_exit_gate.tscn`)**:
+* Gồm Cổng P1 (Màu Cyan) và Cổng P2 (Màu Cam) hoặc 1 Cổng Lớn chung.
+* Chỉ khi **CẢ HAI người chơi** cùng đứng trong vùng cổng đích (hoặc lần lượt chui vào cổng của mình), bộ đếm `0.5s` mới hoàn tất và kích hoạt chiến thắng màn chơi (`Events.level_completed`).
+
+
+
+---
+
+### Giai đoạn 7: Kiến trúc `/levels` Mở Rộng Nhanh & Thiết kế Chuỗi Màn Chơi
+
+47. **[T7.01]** Tạo `TileSet` chuẩn `res://resources/gd_neon_tileset.tres`:
+* Tạo các ô gạch cơ bản bằng hình vẽ/texture procedural (Khối đặc, Khối viền sáng, Sàn một chiều, Gai gắn tường 4 hướng).
+* Gán sẵn `Physics Layer 0` (ứng với `Layer 1: World_Terrain`) cho các ô tường/sàn để khi vẽ map không phải vẽ lại `CollisionShape2D` bằng tay.
+
+
+48. **[T7.02]** Tạo Scene mẫu gốc `res://levels/base_level.tscn` gồm cấu trúc cây chuẩn:
+* `LevelRoot (Node2D - gắn script level_controller.gd)`
+* `DefaultWorldEnvironment`
+* `BackgroundGrid (Parallax2D / TextureRect vẽ lưới tối kiểu GD Editor)`
+* `TerrainLayer (TileMapLayer)`
+* `Hazards (Node2D)`
+* `Portals (Node2D)`
+* `Mechanisms (Node2D)`
+* `Checkpoints (Node2D)`
+* `SpawnP1 (Marker2D)` & `SpawnP2 (Marker2D)`
+* `Players (Node2D)` → chứa sẵn `Player1` (`player_id = 1`) và `Player2` (`player_id = 2`)
+* `CoopCamera (Camera2D)`
+* `LevelHUD (CanvasLayer)`
+
+
+
+
+49. **[T7.03]** Viết script `level_controller.gd` cho `base_level.tscn`:
+* Khi vào màn (`_ready`), tự động đặt P1 vào `SpawnP1`, P2 vào `SpawnP2`, lưu vị trí xuất phát làm Checkpoint số 0.
+* Cấu hình dạng khởi đầu của P1 và P2 qua biến `@export var start_form_p1 = "CUBE"`, `@export var start_form_p2 = "CUBE"`.
+* Theo dõi thời gian hoàn thành màn (`level_timer`) và số lần chết (`deaths_count`).
+
+
+50. **[T7.04]** Viết Autoload `LevelManager.gd` quản lý danh sách màn chơi trong `/levels`:
+* Khai báo danh sách thứ tự màn chơi (hoặc tự động quét các file `res://levels/level_*.tscn` và sắp xếp theo thứ tự bảng chữ cái).
+* Cung cấp các hàm: `load_level(index: int)`, `load_next_level()`, `reload_current_level()`.
+* Tự động lưu tiến độ màn đã mở khoá, số sao/thời gian kỷ lục và ít lần chết nhất vào `user://save_data.cfg` bằng `ConfigFile`.
+
+
+51. **[T7.05]** **Thiết kế Màn 1 (`res://levels/level_01.tscn` - *Cơ bản Cube & Phối hợp Lửa-Nước*):**
+* Hướng dẫn trực quan trên nền tường: `P1: WASD` | `P2: Arrow Keys`.
+* Thử thách 1: Hồ gai Cyan (P1 đi qua bấm nút tắt cầu cho P2) và Hồ gai Cam (P2 đi qua bấm nút cho P1).
+* Thử thách 2: Đứng lên đầu nhau (Cube-on-Cube) để nhảy lên bậc cao lấy chìa khoá/mở cửa.
+* Có 2 Restore Points và 1 Cổng Đích Đôi.
+
+
+52. **[T7.06]** **Thiết kế Màn 2 (`res://levels/level_02.tscn` - *Đôi cánh Không trung: Ship + Cube*):**
+* Giới thiệu Cổng Tàu (`Ship Portal`).
+* Phân nhánh: P1 biến thành Tàu (Ship), P2 vẫn là Cube.
+* Thử thách: P2 phải nhảy lên lưng tàu của P1 để P1 chở bay qua đường hầm gai hẹp, sau đó P1 dùng tia kéo thả khối năng lượng xuống công tắc cho P2.
+
+
+53. **[T7.07]** **Thiết kế Màn 3 (`res://levels/level_03.tscn` - *Nhịp điệu Đĩa bay & Đảo Trọng lực: UFO + Gravity*):**
+* Giới thiệu Cổng UFO và Cổng Đảo Trọng Lực (`Gravity Portal`).
+* Thử thách: 1 người đi dưới sàn, 1 người đi ngược trên trần nhà, phối hợp bấm nút đôi cùng lúc để mở vách ngăn giữa màn.
+
+
+54. **[T7.08]** **Thiết kế Màn 4 (`res://levels/level_04.tscn` - *Đột phá Tốc độ: Dash Mode & Tổ hợp 4 Dạng*):**
+* Giới thiệu Cổng Dash, `Dash Orb` và `Breakable Dash Blocks`.
+* Thử thách tổng hợp: Liên tục đổi giữa 4 dạng (Cube → Dash phá tường cho Tàu bay qua → UFO bấm nút trên trần → Cùng về đích).
+
+
+
+---
+
+### Giai đoạn 8: Giao diện Người dùng (UI/HUD), Âm thanh & Cảm giác Chơi (Game Juice)
+
+55. **[T8.01]** Tạo **Màn hình Chính (`res://ui/main_menu.tscn`)**:
+* Tiêu đề game phong cách Neon, nút `Chơi Ngay (Play)`, `Chọn Màn (Level Select)`, `Cài Đặt (Settings)`, `Thoát (Quit)`.
+* Hiệu ứng nền có 2 nhân vật tự động chạy nhảy/bay qua lại phía sau.
+
+
+56. **[T8.02]** Tạo **Màn hình Chọn Màn (`res://ui/level_select.tscn`)**:
+* Tự động sinh các thẻ màn chơi dựa trên danh sách của `LevelManager`.
+* Hiển thị trạng thái: Đã mở khoá / Đang khoá, Thời gian nhanh nhất, Số lần chết ít nhất (`Best Attempts`).
+
+
+57. **[T8.03]** Tạo **HUD trong màn chơi (`res://ui/level_hud.tscn`)**:
+* Góc trên trái: Tên màn chơi + `Attempt #1` (Nhảy số kiểu Geometry Dash mỗi khi hồi sinh).
+* Góc trên phải: Đồng hồ bấm giờ (`00:00.00`) + Trạng thái Dạng hiện tại của P1 và P2.
+
+
+58. **[T8.04]** Tạo **Menu Tạm Dừng (`res://ui/pause_menu.tscn`)** (`process_mode = PROCESS_MODE_WHEN_PAUSED`):
+* Nút: `Tiếp tục`, `Tải lại Checkpoint gần nhất (R)`, `Chơi lại từ đầu màn`, `Về chọn màn`.
+
+
+59. **[T8.05]** Tạo **Bảng Tổng Kết Hoàn Thành Màn (`res://ui/level_complete_popup.tscn`)**:
+* Hiển thị: Thời gian hoàn thành, Tổng số Attempts, Đánh giá Sao (3 sao nếu chết dưới 3 lần) và nút `Màn Tiếp Theo (Next Level)` nổi bật.
+
+
+60. **[T8.06]** Tạo hệ thống Âm thanh giả lập (`AudioManager.gd`) không cần file ngoài ban đầu (hoặc dùng `AudioStreamGenerator` / SFX 8-bit nhẹ):
+* Tiếng nhảy, tiếng đổi cổng (Portal), tiếng chạm Checkpoint, tiếng nổ khi chết, tiếng mở cửa và nhạc nền nhịp độ nhanh (Electronic/Chiptune).
+
+
+
+---
+
+### Giai đoạn 9: Kiểm thử Kỹ thuật (QA Checklist) & Đóng gói
+
+61. **[T9.01]** **Test va chạm góc (Corner Snagging):** Đảm bảo khi Cube trượt dọc tường hoặc nhảy sát mép gạch không bị kẹt cạnh (nếu cần, vát nhẹ 2 góc dưới của `CollisionShape2D` hoặc bật `Safe Margin = 0.08`).
+62. **[T9.02]** **Test Ghosting bàn phím:** Kiểm tra nhấn đồng thời `W + D` (P1) và `Up + Right` (P2) trên cùng 1 bàn phím xem có thao tác nào bị nuốt phím không.
+63. **[T9.03]** **Test Softlock tại mọi Restore Point:** Thử cố tình làm chết 1 người ở mọi ngóc ngách (trước cửa đóng, sau cửa đóng, giữa lúc đang đổi dạng) để chắc chắn hồi sinh về Checkpoint luôn giải tiếp được màn chơi.
+64. **[T9.04]** Thiết lập **Export Preset** (Windows / Web HTML5) và xuất bản thử nghiệm (Build Prototype v0.1).
+
