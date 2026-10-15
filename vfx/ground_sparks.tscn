@@ -21,7 +21,7 @@ scale_min = 0.4
 scale_max = 0.8
 color_ramp = SubResource("GradientTexture1D_fade")
 
-[node name="GroundSparks" type="GPUParticles2D" parent="."]
+[node name="GroundSparks" type="GPUParticles2D"]
 emitting = false
 amount = 16
 lifetime = 0.35
