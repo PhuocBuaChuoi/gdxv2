@@ -47,6 +47,7 @@ renderer/rendering_method.mobile="gl_compatibility"
 [autoload]
 
 Events="*res://autoloads/events.gd"
+LevelManager="*res://autoloads/level_manager.gd"
 
 [input]
 
