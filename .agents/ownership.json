@@ -27,7 +27,7 @@
                        "paths":  [
                                      "tests/gdx_test.gd",
                                      "tests/test_runner.gd",
-                                     "tools/",
+                                     "tools/claim.ps1",
                                      "README.md",
                                      ".agents/ownership.json",
                                      ".agents/COLLAB.md"
@@ -65,6 +65,26 @@
                        "branch":  "feature/support-t3",
                        "paths":  [
                                      "tests/test_phase3_player.gd"
+                                 ],
+                       "status":  "active",
+                       "updated":  "2026-10-15"
+                   },
+                   {
+                       "id":  "phase7-levels",
+                       "owner":  "opencode",
+                       "branch":  "feature/phase7-levels",
+                       "paths":  [
+                                     "levels/base_level.tscn",
+                                     "levels/level_controller.gd",
+                                     "levels/AUTHORING.md",
+                                     "autoloads/level_manager.gd",
+                                     "project.godot",
+                                     "resources/gd_neon_tileset.tres",
+                                     "resources/neon_tiles_atlas.png",
+                                     "tools/gen_neon_tileset.gd",
+                                     "tools/build_tileset.ps1",
+                                     "tools/run_tests.ps1",
+                                     "tests/test_phase7_levels.gd"
                                  ],
                        "status":  "active",
                        "updated":  "2026-10-15"
