@@ -1,0 +1,45 @@
+﻿# Godot 4 - Generated files
+.godot/
+*.translation
+*.import
+
+# Exported projects (ignore platform binaries)
+android/
+ios/
+html5/
+osx/
+windows/
+linux/
+*.apk
+*.ipa
+*.exe
+*.dmg
+*.app
+
+# Mono/C# build artifacts
+.mono/
+data_*/
+mono_crash.*.json
+
+# Lock files created by AI agents (do not commit)
+*.lock
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Editor backups
+*~
+*.swp
+*.swo
+*.bak
+*.orig
+
+# Godot downloaded ZIP (not part of repo)
+godot_*.zip
