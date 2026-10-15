@@ -103,7 +103,19 @@
                                      "tools/gen_neon_tileset.gd",
                                      "tools/build_tileset.ps1",
                                      "tools/run_tests.ps1",
-                                     "tests/test_phase7_levels.gd"
+                                     "tests/test_phase7_levels.gd",
+                                     "ui/main_menu.tscn",
+                                     "ui/main_menu.gd",
+                                     "ui/level_select.tscn",
+                                     "ui/level_select.gd",
+                                     "ui/level_hud.tscn",
+                                     "ui/level_hud.gd",
+                                     "ui/pause_menu.tscn",
+                                     "ui/pause_menu.gd",
+                                     "ui/level_complete_popup.tscn",
+                                     "ui/level_complete_popup.gd",
+                                     "autoloads/audio_manager.gd",
+                                     "tests/test_phase8_ui.gd"
                                  ],
                        "status":  "active",
                        "updated":  "2026-10-16"
