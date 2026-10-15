@@ -65,3 +65,7 @@ position_smoothing_enabled = true
 
 [node name="LevelHUD" type="CanvasLayer" parent="."]
 layer = 10
+
+[node name="AttemptLabel" type="Label" parent="LevelHUD"]
+text = "Attempt #1"
+position = Vector2(120, 40)
