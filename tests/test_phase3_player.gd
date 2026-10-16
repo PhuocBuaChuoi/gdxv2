@@ -113,3 +113,17 @@ func test_coyote_jump_physics() -> void:
 	assert_true(player.velocity.y < 0.0, "coyote jump applies upward velocity")
 	host_root.remove_child(player)
 	player.free()
+
+
+func test_neon_visual_faces_move_direction() -> void:
+	var p: CharacterBody2D = (load(PLAYER_SCENE) as PackedScene).instantiate() as CharacterBody2D
+	p.set("player_id", 1)
+	host_root.add_child(p)
+	p.set("last_facing_dir", -1)
+	p.call("_update_skin_animation")
+	assert_true((p.get_node("VisualRoot") as Node2D).scale.x < 0.0, "neon lat trai khi di trai")
+	p.set("last_facing_dir", 1)
+	p.call("_update_skin_animation")
+	assert_true((p.get_node("VisualRoot") as Node2D).scale.x > 0.0, "neon ve phai khi di phai")
+	host_root.remove_child(p)
+	p.free()

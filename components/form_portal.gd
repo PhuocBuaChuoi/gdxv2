@@ -15,6 +15,8 @@ extends Area2D
 		allowed_player = value
 		_update_color()
 
+var _pulse: float = 0.0
+
 const FORM_COLORS := {
 	"CUBE": Color(1, 1, 1, 0.9),
 	"SHIP": Color(0.3, 0.8, 1, 0.9),
@@ -32,15 +34,19 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	if Engine.is_editor_hint():
+		return
+	_pulse += delta
 	_pulse_time += delta
+	# Hoi tho Inner (T8) + scale Glow (neu co node Glow).
+	var inner := get_node_or_null("Inner") as Polygon2D
+	if inner != null:
+		inner.modulate.a = 0.6 + 0.4 * (0.5 + 0.5 * sin(_pulse * 3.0))
 	var pulse := 0.5 + 0.5 * sin(_pulse_time * 2.5)
 	var glow := get_node_or_null("Glow") as Polygon2D
-	var inner := get_node_or_null("Inner") as Polygon2D
 	if glow != null:
 		glow.scale = Vector2.ONE * (1.0 + pulse * 0.08)
 		glow.modulate.a = 0.18 + pulse * 0.16
-	if inner != null:
-		inner.modulate.a = 0.55 + pulse * 0.35
 
 
 func _on_body_entered(body: Node2D) -> void:

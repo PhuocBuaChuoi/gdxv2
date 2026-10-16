@@ -336,6 +336,9 @@ func _set_skin_animation(state: String) -> void:
 
 
 func _update_skin_animation() -> void:
+	# Neon polygon lat theo huong di chuyen truoc (mui Dash/mui tau chi dung
+	# huong) — doc lap skin. Giu tri tuyet doi cua tween bien hinh, chi ep dau.
+	visual_root.scale.x = float(last_facing_dir) * absf(visual_root.scale.x)
 	if _skin_body == null:
 		return
 	_set_skin_animation(_skin_state_for_animation())

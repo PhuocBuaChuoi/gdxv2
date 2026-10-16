@@ -197,3 +197,17 @@ func test_stage_background() -> void:
 	assert_near(spr.modulate.r, 0.5, 0.001, "dim ha sang nen dem")
 	host_root.remove_child(bg)
 	bg.free()
+
+
+func test_stage_background_drift_smooth() -> void:
+	var bg := (load("res://levels/stage_background.tscn") as PackedScene).instantiate()
+	host_root.add_child(bg)
+	var x0: float = (bg as Parallax2D).scroll_offset.x
+	bg.call("_process", 1.0)
+	assert_true((bg as Parallax2D).scroll_offset.x > x0, "T2 drift background troi muot")
+	bg.set("drift_speed", 0.0)
+	var x1: float = (bg as Parallax2D).scroll_offset.x
+	bg.call("_process", 1.0)
+	assert_near((bg as Parallax2D).scroll_offset.x, x1, 0.001, "drift=0 dung yen")
+	host_root.remove_child(bg)
+	bg.free()

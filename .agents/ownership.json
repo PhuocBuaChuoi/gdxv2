@@ -145,8 +145,10 @@
                                      "components/coop_box.tscn",
                                      "levels/e2e_gallery.tscn",
                                      "levels/e2e_runner.tscn",
-                                     "levels/e2e_driver.gd"
-                                 ],
+                                     "levels/e2e_driver.gd",
+                                      "scripts/ufo_state.gd",
+                                      "components/dash_orb.tscn"
+                                  ],
                        "status":  "active",
                        "updated":  "2026-10-16"
                    },

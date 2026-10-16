@@ -1,0 +1,23 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://components/dash_orb.gd" id="1_orb"]
+
+[sub_resource type="CircleShape2D" id="Circle_dash_orb"]
+radius = 18.0
+
+[node name="DashOrb" type="Area2D"]
+collision_layer = 64
+collision_mask = 6
+script = ExtResource("1_orb")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Circle_dash_orb")
+
+[node name="Glow" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, -14, 10, 0, 0, 14, -10, 0)
+color = Color(1, 0.2, 0.9, 1)
+
+[node name="GlowRing" type="Line2D" parent="."]
+points = PackedVector2Array(0, -22, 15, 0, 0, 22, -15, 0, 0, -22)
+width = 2.0
+default_color = Color(1, 0.5, 1, 0.4)

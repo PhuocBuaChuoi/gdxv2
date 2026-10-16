@@ -13,6 +13,10 @@ script = ExtResource("1_portal")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("Rectangle_form_portal")
 
+[node name="Glow" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-36, -52, 36, -52, 36, 52, -36, 52)
+color = Color(1, 1, 1, 0.12)
+
 [node name="Frame" type="Polygon2D" parent="."]
 polygon = PackedVector2Array(-28, -48, 28, -48, 28, 48, 16, 56, -16, 56, -28, 48)
 color = Color(1, 1, 1, 0.9)

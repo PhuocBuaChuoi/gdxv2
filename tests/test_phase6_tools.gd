@@ -326,7 +326,7 @@ func test_player_mask_and_push() -> void:
 
 
 func test_neon_interaction_visuals() -> void:
-	for scene_path in ["res://components/jump_pad.tscn", "res://components/jump_orb.tscn", "res://components/gravity_portal.tscn", "res://components/form_portal.tscn"]:
+	for scene_path in ["res://components/jump_pad.tscn", "res://components/jump_orb.tscn", "res://components/dash_orb.tscn", "res://components/gravity_portal.tscn", "res://components/form_portal.tscn"]:
 		var node := _spawn(scene_path)
 		assert_true(node.get_node_or_null("Glow") != null or node.get_node_or_null("GlowRing") != null, "%s co glow neon" % scene_path.get_file())
 		var before := node.get_node_or_null("Glow") as Node2D
@@ -335,7 +335,7 @@ func test_neon_interaction_visuals() -> void:
 		var scale_before := before.scale.x if before != null else 1.0
 		if node.has_method("_process"):
 			node.call("_process", 0.12)
-		else:
+		elif node.has_method("_physics_process"):
 			node.call("_physics_process", 0.12)
 		assert_true(before == null or not is_equal_approx(before.scale.x, scale_before), "%s pulse glow" % scene_path.get_file())
 		_despawn(node)
