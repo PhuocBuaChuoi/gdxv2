@@ -5,7 +5,6 @@
 [ext_resource type="Script" path="res://vfx/motion_trail.gd" id="3_trail"]
 [ext_resource type="Script" path="res://components/carrier_platform.gd" id="4_carrier"]
 [ext_resource type="Script" path="res://scripts/visual_root.gd" id="5_controller"]
-[ext_resource type="Script" path="res://scripts/visual_root.gd" id="5_controller"]
 
 [sub_resource type="RectangleShape2D" id="Rectangle_player"]
 size = Vector2(44, 44)
