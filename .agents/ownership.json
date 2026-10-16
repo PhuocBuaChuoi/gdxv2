@@ -143,7 +143,9 @@
                                      "components/respawn_coordinator.gd",
                                      "components/restore_point.gd",
                                      "components/coop_box.tscn",
-                                     "components/floating_box.gd"
+                                     "levels/e2e_gallery.tscn",
+                                     "levels/e2e_runner.tscn",
+                                     "levels/e2e_driver.gd"
                                  ],
                        "status":  "active",
                        "updated":  "2026-10-16"
