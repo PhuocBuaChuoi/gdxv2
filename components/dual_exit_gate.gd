@@ -17,6 +17,27 @@ func _ready() -> void:
 	body_exited.connect(_on_body_exited)
 
 
+func _process(delta: float) -> void:
+	var arch := get_node_or_null("Arch") as Line2D
+	var post_l := get_node_or_null("PostLeft") as Polygon2D
+	var post_r := get_node_or_null("PostRight") as Polygon2D
+	var now := Time.get_ticks_msec() / 1000.0
+	if arch != null:
+		if both_inside():
+			var fast_pulse := 0.7 + 0.3 * sin(now * 16.0)
+			arch.default_color = Color(1.0, 1.0, 0.4, fast_pulse)
+		else:
+			var slow_pulse := 0.5 + 0.4 * sin(now * 3.5)
+			arch.default_color = Color(1.0, 1.0, 1.0, slow_pulse)
+	if post_l != null:
+		var has_p1: bool = _inside.has(1)
+		post_l.color.a = 0.98 if has_p1 else (0.65 + 0.20 * sin(now * 3.0))
+	if post_r != null:
+		var has_p2: bool = _inside.has(2)
+		post_r.color.a = 0.98 if has_p2 else (0.65 + 0.20 * sin(now * 3.0 + 1.0))
+
+
+
 func reset() -> void:
 	_inside.clear()
 	_timer = 0.0

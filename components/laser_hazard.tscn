@@ -17,6 +17,11 @@ shape = SubResource("Rectangle_laser_beam")
 polygon = PackedVector2Array(-12, -60, 12, -60, 12, 60, -12, 60)
 color = Color(1, 0.3, 0.3, 0.95)
 
+[node name="CoreLine" type="Line2D" parent="."]
+points = PackedVector2Array(0, -60, 0, 60)
+width = 4.0
+default_color = Color(1, 1, 1, 0.95)
+
 [node name="PostTop" type="Polygon2D" parent="."]
 position = Vector2(0, -64)
 polygon = PackedVector2Array(-16, -6, 16, -6, 16, 6, -16, 6)

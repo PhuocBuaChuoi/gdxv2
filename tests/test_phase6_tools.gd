@@ -339,3 +339,31 @@ func test_neon_interaction_visuals() -> void:
 			node.call("_physics_process", 0.12)
 		assert_true(before == null or not is_equal_approx(before.scale.x, scale_before), "%s pulse glow" % scene_path.get_file())
 		_despawn(node)
+
+
+func test_neon_hazard_and_gate_visuals() -> void:
+	var spike := _spawn("res://components/spike_hazard.tscn")
+	var outline := spike.get_node_or_null("SpikeOutline") as Line2D
+	assert_true(outline != null, "SpikeHazard co SpikeOutline neon Line2D")
+	spike.set("hazard_type", 1)
+	assert_near(outline.default_color.g, 0.9, 0.05, "SpikeOutline doi mau theo CYAN_SAFE_P1")
+	_despawn(spike)
+
+	var laser := _spawn("res://components/laser_hazard.tscn")
+	var core := laser.get_node_or_null("CoreLine") as Line2D
+	assert_true(core != null, "LaserHazard co CoreLine neon Line2D")
+	laser.set("is_on", false)
+	laser.call("_update_visual")
+	assert_true(not core.visible, "CoreLine an khi laser tat")
+	laser.set("is_on", true)
+	laser.call("_update_visual")
+	assert_true(core.visible, "CoreLine hien khi laser bat")
+	_despawn(laser)
+
+	var gate := _spawn("res://components/dual_exit_gate.tscn")
+	var arch := gate.get_node_or_null("Arch") as Line2D
+	assert_true(arch != null, "DualExitGate co Arch neon Line2D")
+	gate.call("_process", 0.1)
+	assert_true(arch.default_color.a > 0.0, "Arch default_color co alpha pulse")
+	_despawn(gate)
+

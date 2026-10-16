@@ -44,3 +44,7 @@ func _update_visual() -> void:
 	var beam := get_node_or_null("Beam") as Polygon2D
 	if beam != null:
 		beam.visible = is_on
+	var core := get_node_or_null("CoreLine") as Line2D
+	if core != null:
+		core.visible = is_on
+

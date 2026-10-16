@@ -24,6 +24,11 @@ func _ready() -> void:
 
 func _apply_layer_and_color() -> void:
 	collision_layer = 1 << (int(HAZARD_LAYERS.get(hazard_type, 4)) - 1)
+	var col: Color = HAZARD_COLORS.get(hazard_type, Color.WHITE)
 	var spikes := get_node_or_null("Spikes") as Polygon2D
 	if spikes != null:
-		spikes.color = HAZARD_COLORS.get(hazard_type, Color.WHITE)
+		spikes.color = col
+	var outline := get_node_or_null("SpikeOutline") as Line2D
+	if outline != null:
+		outline.default_color = Color(col.r, col.g, col.b, 1.0)
+
