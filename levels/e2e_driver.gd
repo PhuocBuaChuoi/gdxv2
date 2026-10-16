@@ -54,11 +54,9 @@ func _run() -> void:
 	_check(str(p1.get("form")) == "SHIP", "form_portal doi P1 -> SHIP")
 	p1.call("switch_form", &"CUBE")
 
-	# 2. Jump pad (gd=1 bung LEN)
-	p1.global_position = Vector2(1000, 468)
-	p1.velocity = Vector2.ZERO
-	await _frames(5)
-	_check(p1.velocity.y < -100.0, "jump_pad bung len (gd=1)")
+	# 2. Jump pad (gd=1 bung LEN; pad chi kich khi ha canh vao)
+	await _go(p1, 1000, 452)
+	_check(p1.velocity.y < -100.0, "jump_pad ha canh bung len (gd=1)")
 
 	# 3. Gravity portal TOGGLE: 1 -> -1 -> (cho debounce) -> 1
 	await _go(p1, 700, 432)
@@ -104,6 +102,18 @@ func _run() -> void:
 	st.call("activate_dash", 1)
 	await _go(p1, 2020, 422)
 	_check(bool(st.get("dash_ready")), "dash_orb hoi 1 luot Dash qua tiep xuc")
+
+	# 8b. Ship tether nang CoopBox (T6.09: tau o tren, giu phim action)
+	p1.call("switch_form", &"SHIP")
+	var box := g.get_node("Mechanisms/CoopBox") as RigidBody2D
+	var box_y0: float = box.global_position.y
+	p1.global_position = Vector2(2130, 415)
+	p1.velocity = Vector2.ZERO
+	await _frames(5)
+	Input.action_press("p1_action")
+	await _frames(90)
+	Input.action_release("p1_action")
+	_check(box.global_position.y < box_y0 - 20.0, "ship tether nang khoi len (y=%s)" % str(box.global_position.y))
 
 	# 9. Checkpoint kich hoat
 	var cp := g.get_node("Checkpoints/CheckpointMid")

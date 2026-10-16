@@ -42,10 +42,7 @@ func physics_update(delta: float) -> void:
 	else:
 		# Rơi theo trọng lực nhẹ (55% gravity cơ bản)
 		var ship_gravity: float = player.BASE_GRAVITY * GRAVITY_FACTOR
-		if player.gravity_direction == -1:
-			player.velocity.y += ship_gravity * delta
-		else:
-			player.velocity.y -= ship_gravity * delta
+		player.velocity.y += ship_gravity * player.gravity_direction * delta
 	
 	# Clamp max fall speed
 	player.velocity.y = clampf(player.velocity.y, -MAX_FALL_SPEED, MAX_FALL_SPEED)
@@ -135,4 +132,4 @@ func apply_tether_force(body: Node2D, delta: float) -> void:
 		character.velocity.y = move_toward(character.velocity.y, player.velocity.y - lift, 1200.0 * delta)
 	elif body is RigidBody2D:
 		var rigid := body as RigidBody2D
-		rigid.apply_central_force(Vector2(0.0, -1200.0 * rigid.mass))
+		rigid.apply_central_force(Vector2(0.0, -2400.0 * rigid.mass)) # T6.09: du suc nang khoi (thang trong luc 1800)
