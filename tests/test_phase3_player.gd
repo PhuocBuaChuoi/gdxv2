@@ -127,3 +127,25 @@ func test_neon_visual_faces_move_direction() -> void:
 	assert_true((p.get_node("VisualRoot") as Node2D).scale.x > 0.0, "neon ve phai khi di phai")
 	host_root.remove_child(p)
 	p.free()
+
+
+func test_cube_jump_needs_floor_or_coyote() -> void:
+	# Hoi quy double-jump: buffer set trong cung frame KHONG duoc kich nhay
+	# khi dang bay (truoc day moi phat nhan tren khong deu nhay).
+	var p: CharacterBody2D = (load(PLAYER_SCENE) as PackedScene).instantiate() as CharacterBody2D
+	p.set("player_id", 1)
+	host_root.add_child(p)
+	p.set("_coyote_timer", 0.0)
+	p.velocity = Vector2.ZERO
+	Input.action_press("p1_jump")
+	p._physics_process(1.0 / 120.0)
+	Input.action_release("p1_jump")
+	assert_true(p.velocity.y > -100.0, "tren khong + het coyote: KHONG nhay (y=%s)" % str(p.velocity.y))
+	p.set("_coyote_timer", 0.05)
+	p.velocity = Vector2.ZERO
+	Input.action_press("p1_jump")
+	p._physics_process(1.0 / 120.0)
+	Input.action_release("p1_jump")
+	assert_true(p.velocity.y < -500.0, "coyote: nhay binh thuong (y=%s)" % str(p.velocity.y))
+	host_root.remove_child(p)
+	p.free()

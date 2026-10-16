@@ -232,8 +232,10 @@ func _handle_input_logic() -> void:
 	
 	match form:
 		"CUBE":
-			# T4.02: Nhảy giữ phím (GD-style)
-			if jump_pressed and (_jump_buffer_timer > 0.0 or _coyote_timer > 0.0):
+			# T4.02: Nhay giu phim (GD-style) — CHI duoc nhay khi cham dat hoac
+			# coyote. Buffer (nhan truoc 0.1s khi dap dat) van co tac dung vi
+			# no ton tai den frame cham dat tiep theo.
+			if jump_pressed and (is_on_floor() or _coyote_timer > 0.0):
 				velocity.y = -JUMP_VELOCITY * gravity_direction
 				_jump_buffer_timer = 0.0
 				_coyote_timer = 0.0
@@ -254,9 +256,11 @@ func _handle_input_logic() -> void:
 					dash_state.activate_dash(last_facing_dir)
 		
 		_:
-			# Default fallback
-			if jump_pressed and (_jump_buffer_timer > 0.0 or _coyote_timer > 0.0):
+			# Default fallback (giong CUBE: phai cham dat/coyote)
+			if jump_pressed and (is_on_floor() or _coyote_timer > 0.0):
 				velocity.y = -JUMP_VELOCITY * gravity_direction
+				_jump_buffer_timer = 0.0
+				_coyote_timer = 0.0
 
 
 func _can_activate_dash() -> bool:
