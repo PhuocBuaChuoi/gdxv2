@@ -6,7 +6,7 @@
 script = ExtResource("1")
 
 [node name="FarLayer" type="ParallaxLayer" parent="."]
-motion_scale = Vector2(0.25, 0.25)
+motion_scale = Vector2(1, 1)
 
 [node name="Sprite2D" type="Sprite2D" parent="FarLayer"]
 position = Vector2(960, 540)

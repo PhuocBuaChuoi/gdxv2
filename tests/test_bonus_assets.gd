@@ -185,7 +185,7 @@ func test_stage_background() -> void:
 	host_root.add_child(bg)
 	var layer: ParallaxLayer = bg.get_node_or_null("FarLayer") as ParallaxLayer
 	assert_true(layer != null, "co FarLayer")
-	assert_true(layer.motion_scale.x < 1.0, "nen xa troi cham hon camera")
+	assert_true(layer.motion_scale.x <= 1.0, "nen khong troi nhanh hon camera (1.0 = khoa skybox, drift tu tao chuyen dong)")
 	var spr: Sprite2D = layer.get_node_or_null("Sprite2D") as Sprite2D
 	assert_true(spr.texture != null, "_ready gan texture mac dinh")
 	assert_eq(spr.texture.get_width(), 1199, "mac dinh la nen rung")

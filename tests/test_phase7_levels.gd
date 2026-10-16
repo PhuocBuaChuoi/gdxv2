@@ -122,16 +122,22 @@ func test_level_01_loads_and_paints() -> void:
 	var ps: PackedScene = load("res://levels/level_01.tscn") as PackedScene
 	assert_true(ps != null, "level_01 load duoc")
 	var lvl: Node = ps.instantiate()
-	assert_eq(int(lvl.get("level_index")), 1, "level_01 index 1")
+	assert_eq(int(lvl.get("level_index")), 0, "level_01 index zero-based")
 	host_root.add_child(lvl)
 	var terrain: TileMapLayer = lvl.get_node("TerrainLayer") as TileMapLayer
-	assert_eq(terrain.get_cell_atlas_coords(Vector2i(0, 9)), Vector2i(0, 0), "san solid")
-	assert_eq(terrain.get_cell_atlas_coords(Vector2i(6, 6)), Vector2i(0, 0), "khoi solid")
+	assert_eq(terrain.get_cell_atlas_coords(Vector2i(0, 9)), Vector2i(1, 0), "san vien neon (van solid)")
+	assert_eq(terrain.get_cell_atlas_coords(Vector2i(6, 6)), Vector2i(1, 0), "khoi vien neon")
 	assert_eq(terrain.get_cell_atlas_coords(Vector2i(14, 6)), Vector2i(1, 0), "khoi vien neon")
 	assert_eq(terrain.get_cell_atlas_coords(Vector2i(12, 3)), Vector2i(2, 0), "cau mot chieu")
 	assert_eq(terrain.get_cell_atlas_coords(Vector2i(0, 0)), Vector2i(-1, -1), "troi trong")
 	var p1: Node2D = lvl.get_node("Players/PlayerP1") as Node2D
+	var p2: Node2D = lvl.get_node("Players/PlayerP2") as Node2D
 	assert_eq(p1.global_position, (lvl.get_node("SpawnP1") as Marker2D).global_position, "P1 dung vi tri spawn")
+	assert_eq(p2.global_position, (lvl.get_node("SpawnP2") as Marker2D).global_position, "P2 dung vi tri spawn")
+	for spawn_name in ["SpawnP1", "SpawnP2"]:
+		var spawn := lvl.get_node(spawn_name) as Marker2D
+		var tile := Vector2i(floori(spawn.position.x / 48.0), floori(spawn.position.y / 48.0))
+		assert_eq(terrain.get_cell_source_id(tile), -1, "%s khong nam trong tile solid" % spawn_name)
 	var cps: Array = lvl.get_node("Checkpoints").get_children()
 	assert_eq(cps.size(), 2, "level_01 co 2 restore points")
 	var orders: Array = []
@@ -141,6 +147,45 @@ func test_level_01_loads_and_paints() -> void:
 	assert_eq(orders, [1, 2], "checkpoint order 1,2")
 	host_root.remove_child(lvl)
 	lvl.free()
+
+
+func test_level_01_uses_animated_character_skins() -> void:
+	var lvl: Node = (load("res://levels/level_01.tscn") as PackedScene).instantiate()
+	host_root.add_child(lvl)
+	var p1: Node = lvl.get_node("Players/PlayerP1")
+	var p2: Node = lvl.get_node("Players/PlayerP2")
+	assert_eq(str(p1.get("skin")), "BIRD", "Level 1 P1 dung skin bird")
+	assert_eq(str(p2.get("skin")), "FROG", "Level 1 P2 dung skin frog")
+	var jump_pad := lvl.get_node_or_null("Mechanisms/JumpPadStart")
+	var gravity_orb := lvl.get_node_or_null("Mechanisms/GravityJumpOrb")
+	assert_true(jump_pad != null and jump_pad.get_node_or_null("Glow") != null, "Level 1 co jump pad neon")
+	assert_true(gravity_orb != null and gravity_orb.get_node_or_null("Glow") != null, "Level 1 co gravity orb neon")
+	for player_name in ["Players/PlayerP1", "Players/PlayerP2"]:
+		var player := lvl.get_node(player_name)
+		var body := player.get_node_or_null("VisualRoot/SkinVisual/Body") as AnimatedSprite2D
+		assert_true(body != null and body.is_playing(), "%s co AnimatedSprite2D dang chay" % player_name)
+	var p1_body := p1.get_node("VisualRoot/SkinVisual/Body") as AnimatedSprite2D
+	p1.call("_set_skin_animation", "jump")
+	assert_eq(p1_body.sprite_frames.get_frame_count("default"), 1, "bird jump dung frame nhay")
+	p1.set("gravity_direction", -1)
+	p1.call("_update_skin_animation")
+	assert_eq(str(p1.get("_skin_animation")), "flip", "bird dao gravity dung animation flip")
+	assert_true(p1.get_node("VisualRoot/OutlineLine") is Line2D, "skin van giu vien neon procedural")
+	host_root.remove_child(lvl)
+	lvl.free()
+
+
+func test_main_scene_launches_level_01() -> void:
+	var main: Node = (load("res://scenes/main/Main.tscn") as PackedScene).instantiate()
+	var level := main.get_node_or_null("Level01")
+	assert_true(level != null and level.get_script() == load("res://levels/level_controller.gd"), "Main instance Level 1")
+	assert_true(main.get_node_or_null("BaseLevel") == null, "Main khong instance base template")
+	var manager := host_root.get_node_or_null("/root/LevelManager")
+	if manager != null:
+		host_root.add_child(main)
+		assert_eq(int(manager.get("current_index")), 0, "Main dong bo current_index Level 1")
+		host_root.remove_child(main)
+	main.free()
 
 
 func test_manager_finds_level_01() -> void:

@@ -24,6 +24,9 @@
      nối `linked_triggers`, `BreakableDashBlock` (chỉ Dash lướt phá được)
    - `Hazards/`: `SpikeHazard` (NEUTRAL/CYAN_SAFE_P1/ORANGE_SAFE_P2 —
      Detector của player tự bắt theo mask), `LaserHazard` (chớp tắt theo chu kỳ)
+   > Muốn neon nổi kiểu GD: `background = "FOREST"` + `dim` 0.4–0.6 trên
+   > `StageBackground`, mặt đi được vẽ bằng tile `=` (viền neon), tile `#`
+   > chỉ dùng lót bên dưới.
 6. Chạy test: `powershell -ExecutionPolicy Bypass -File tools/run_tests.ps1`
    (xanh mới push).
 

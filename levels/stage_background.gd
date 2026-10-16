@@ -39,6 +39,8 @@ func apply_background() -> void:
 	_sprite.texture = tex
 	var vw: float = float(ProjectSettings.get_setting("display/window/size/viewport_width", 1920))
 	var vh: float = float(ProjectSettings.get_setting("display/window/size/viewport_height", 1080))
+	# Phu full man hinh (scale vua khit viewport de art net; parallax doc
+	# khoa theo camera nen khong bao gio ho top/bottom).
 	var s: float = maxf(vw / tex.get_width(), vh / tex.get_height())
 	_sprite.scale = Vector2(s, s)
 	_sprite.modulate = Color(dim, dim, dim)
