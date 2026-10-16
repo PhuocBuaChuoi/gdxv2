@@ -212,3 +212,46 @@ func test_level_background_select() -> void:
 		assert_near(float(spr_after.texture.get_width()), 1199.0, 1.0, "doi nen sang theo cau hinh man")
 	host_root.remove_child(lvl)
 	lvl.free()
+
+
+func test_level_02_loads_and_paints() -> void:
+	var ps: PackedScene = load("res://levels/level_02.tscn") as PackedScene
+	assert_true(ps != null, "level_02 load duoc")
+	var lvl: Node = ps.instantiate()
+	assert_eq(int(lvl.get("level_index")), 1, "level_02 index 1")
+	assert_eq(str(lvl.get("background")), "BRIGHT", "level_02 background BRIGHT")
+	host_root.add_child(lvl)
+
+	var portal := lvl.get_node_or_null("Portals/ShipPortal")
+	assert_true(portal != null, "level_02 co ShipPortal (T7.06)")
+	assert_eq(str(portal.get("target_form")), "SHIP", "portal chuyen thanh SHIP")
+	assert_eq(str(portal.get("allowed_player")), "P1_ONLY", "portal danh rieng cho P1_ONLY")
+
+	var hazards := lvl.get_node_or_null("Hazards")
+	assert_true(hazards != null and hazards.get_child_count() >= 3, "level_02 co ho gai can tau co-op cho qua")
+
+	var button := lvl.get_node_or_null("Mechanisms/PressureButton")
+	var box := lvl.get_node_or_null("Mechanisms/CoopBox")
+	var door := lvl.get_node_or_null("Mechanisms/DoorPlatform") as MechanizedPlatform
+	var gate := lvl.get_node_or_null("Mechanisms/DualExitGate")
+	assert_true(button != null, "level_02 co PressureButton")
+	assert_true(box != null, "level_02 co CoopBox de Ship dung tether keo")
+	assert_true(door != null, "level_02 co DoorPlatform chan loi di")
+	assert_true(gate != null, "level_02 co DualExitGate")
+	assert_true(door.linked_triggers.has(NodePath("../PressureButton")), "DoorPlatform duoc noi day voi PressureButton")
+
+	var p1: Node2D = lvl.get_node("Players/PlayerP1") as Node2D
+	var p2: Node2D = lvl.get_node("Players/PlayerP2") as Node2D
+	assert_eq(p1.global_position, (lvl.get_node("SpawnP1") as Marker2D).global_position, "P1 dung vi tri spawn")
+	assert_eq(p2.global_position, (lvl.get_node("SpawnP2") as Marker2D).global_position, "P2 dung vi tri spawn")
+
+	var mgr: Node = (load("res://autoloads/level_manager.gd") as Script).new()
+	host_root.add_child(mgr)
+	mgr.call("rescan")
+	assert_true((mgr.get("levels") as Array).has("res://levels/level_02.tscn"), "manager tu dong thay level_02")
+	host_root.remove_child(mgr)
+	mgr.free()
+
+	host_root.remove_child(lvl)
+	lvl.free()
+
