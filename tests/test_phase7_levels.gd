@@ -255,3 +255,39 @@ func test_level_02_loads_and_paints() -> void:
 	host_root.remove_child(lvl)
 	lvl.free()
 
+
+func test_level_03_loads_and_paints() -> void:
+	var ps: PackedScene = load("res://levels/level_03.tscn") as PackedScene
+	assert_true(ps != null, "level_03 load duoc")
+	var lvl: Node = ps.instantiate()
+	assert_eq(int(lvl.get("level_index")), 2, "level_03 index 2")
+	host_root.add_child(lvl)
+
+	var ufo := lvl.get_node_or_null("Portals/UfoPortal")
+	var grav_in := lvl.get_node_or_null("Portals/P1GravityPortal")
+	var grav_out := lvl.get_node_or_null("Portals/ExitGravityPortal")
+	assert_true(ufo != null and str(ufo.get("target_form")) == "UFO", "level_03 co Cổng UFO (T7.07)")
+	assert_true(grav_in != null and int(grav_in.get("target_direction")) == -1, "level_03 co Cổng đảo trọng lực lên trần")
+	assert_true(grav_out != null and int(grav_out.get("target_direction")) == 1, "level_03 co Cổng hoàn trọng lực về thường")
+
+	var btn_top := lvl.get_node_or_null("Mechanisms/ButtonTop") as PressureButton
+	var btn_bot := lvl.get_node_or_null("Mechanisms/ButtonBottom") as PressureButton
+	var wall := lvl.get_node_or_null("Mechanisms/MiddleWall") as MechanizedPlatform
+	assert_true(btn_top != null and btn_bot != null, "level_03 co cap nut bam doi")
+	assert_eq(btn_top.mode, 2, "ButtonTop la mode SIMULTANEOUS")
+	assert_eq(btn_bot.mode, 2, "ButtonBottom la mode SIMULTANEOUS")
+	assert_eq(btn_top.paired_button, NodePath("../ButtonBottom"), "ButtonTop lien ket voi ButtonBottom")
+	assert_eq(btn_bot.paired_button, NodePath("../ButtonTop"), "ButtonBottom lien ket voi ButtonTop")
+	assert_true(wall != null and wall.require_all, "MiddleWall yeu cau ca 2 nut duoc kich hoat")
+
+	var mgr: Node = (load("res://autoloads/level_manager.gd") as Script).new()
+	host_root.add_child(mgr)
+	mgr.call("rescan")
+	assert_true((mgr.get("levels") as Array).has("res://levels/level_03.tscn"), "manager tu dong thay level_03")
+	host_root.remove_child(mgr)
+	mgr.free()
+
+	host_root.remove_child(lvl)
+	lvl.free()
+
+
