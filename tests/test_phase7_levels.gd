@@ -291,3 +291,49 @@ func test_level_03_loads_and_paints() -> void:
 	lvl.free()
 
 
+func test_level_04_loads_and_paints() -> void:
+	var ps: PackedScene = load("res://levels/level_04.tscn") as PackedScene
+	assert_true(ps != null, "level_04 load duoc")
+	var lvl: Node = ps.instantiate()
+	assert_eq(int(lvl.get("level_index")), 3, "level_04 index 3")
+	host_root.add_child(lvl)
+
+	var dash_p := lvl.get_node_or_null("Portals/DashPortal")
+	var ship_p := lvl.get_node_or_null("Portals/ShipPortal")
+	var ufo_p := lvl.get_node_or_null("Portals/UfoPortal")
+	var cube_p := lvl.get_node_or_null("Portals/CubeFinalPortal")
+	assert_true(dash_p != null and str(dash_p.get("target_form")) == "DASH", "level_04 co DashPortal")
+	assert_true(ship_p != null and str(ship_p.get("target_form")) == "SHIP", "level_04 co ShipPortal")
+	assert_true(ufo_p != null and str(ufo_p.get("target_form")) == "UFO", "level_04 co UfoPortal")
+	assert_true(cube_p != null and str(cube_p.get("target_form")) == "CUBE", "level_04 co CubeFinalPortal")
+
+	var wall := lvl.get_node_or_null("Mechanisms/BreakableDashWall")
+	var orb := lvl.get_node_or_null("Mechanisms/DashOrb")
+	var btn := lvl.get_node_or_null("Mechanisms/CeilingButton")
+	var door := lvl.get_node_or_null("Mechanisms/ExitPlatformDoor") as MechanizedPlatform
+	var gate := lvl.get_node_or_null("Mechanisms/DualExitGate")
+	assert_true(wall != null, "level_04 co BreakableDashWall cho Dash tong vo")
+	assert_true(orb != null, "level_04 co DashOrb de hoi luot")
+	assert_true(btn != null and door != null, "level_04 co CeilingButton va ExitPlatformDoor")
+	assert_true(gate != null, "level_04 co DualExitGate hoan thanh chuoi man")
+	assert_true(door.linked_triggers.has(NodePath("../CeilingButton")), "Door duoc noi day voi CeilingButton")
+
+	host_root.remove_child(lvl)
+	lvl.free()
+
+
+func test_full_level_progression_chain() -> void:
+	var mgr: Node = (load("res://autoloads/level_manager.gd") as Script).new()
+	host_root.add_child(mgr)
+	mgr.call("rescan")
+	var levels_list: Array = mgr.get("levels") as Array
+	assert_true(levels_list.size() >= 4, "LevelManager tim thay du it nhat 4 man choi")
+	assert_eq(levels_list[0], "res://levels/level_01.tscn", "Man 1 la level_01")
+	assert_eq(levels_list[1], "res://levels/level_02.tscn", "Man 2 la level_02")
+	assert_eq(levels_list[2], "res://levels/level_03.tscn", "Man 3 la level_03")
+	assert_eq(levels_list[3], "res://levels/level_04.tscn", "Man 4 la level_04")
+	host_root.remove_child(mgr)
+	mgr.free()
+
+
+
