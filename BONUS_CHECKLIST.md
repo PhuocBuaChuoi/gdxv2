@@ -36,14 +36,14 @@ Các mục dưới đây mở rộng WBS chính, không thay thế trạng thái
 
 - [x] `GravityPortal` đảo gravity cho Player và RigidBody2D.
 - [x] Portal có `one_shot` và reset body state.
-- [ ] VFX/âm thanh portal và khóa đổi hướng lặp khi đứng trong vùng.
+- [x] VFX/âm thanh portal và khóa đổi hướng lặp khi đứng trong vùng.
 
 ## Bonus — Cân bằng vật lý
 
 - [x] `CoopBox` thuộc physics layer `Pushable_Blocks`.
 - [x] `BalancedFloatPair` giữ hai hộp ở độ cao và khoảng cách ổn định bằng spring-damper.
 - [x] Test hai hộp được chuyển sang `gravity_scale = 0` khi pair configure.
-- [ ] Test gameplay qua hố gai với lực kéo của Ship và checkpoint restore.
+- [x] Test gameplay qua hố gai với lực kéo của Ship và checkpoint restore.
 
 ## Asset provenance / import gate
 
