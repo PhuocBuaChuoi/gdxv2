@@ -97,7 +97,10 @@ func _set_on(value: bool) -> void:
 func _update_visual() -> void:
 	var visual := get_node_or_null("Visual") as Node2D
 	if visual != null:
-		visual.scale = Vector2(1.0, 0.55 if is_on else 1.0)
+		visual.scale = Vector2(1.0, 0.72 if is_on else 1.0)
 	var plate := get_node_or_null("Visual/Plate") as Polygon2D
 	if plate != null:
 		plate.color = Color(0.3, 1.0, 0.55, 0.95) if is_on else Color(0.45, 0.5, 0.6, 0.95)
+	var glow := get_node_or_null("Glow") as Polygon2D
+	if glow != null:
+		glow.color.a = 0.35 if is_on else 0.0

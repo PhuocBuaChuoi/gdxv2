@@ -15,18 +15,18 @@ shape = SubResource("Circle_portal")
 
 [node name="PortalLine" type="Line2D" parent="."]
 points = PackedVector2Array(-24, 0, -12, -20, 12, -20, 24, 0, 12, 20, -12, 20, -24, 0)
-width = 3.0
+width = 4.5
 closed = true
-default_color = Color(0.5, 0.4, 1, 1)
+default_color = Color(0.65, 0.5, 1, 1)
 
 [node name="GlowRing" type="Line2D" parent="."]
-points = PackedVector2Array(-31, 0, -16, -27, 16, -27, 31, 0, 16, 27, -16, 27, -31, 0)
-width = 5.0
+points = PackedVector2Array(-46, 0, -24, -40, 24, -40, 46, 0, 24, 40, -24, 40, -46, 0)
+width = 7.0
 closed = true
-default_color = Color(0.35, 0.8, 1, 0.22)
+default_color = Color(0.35, 0.8, 1, 0.4)
 z_index = -1
 
 [node name="Core" type="Polygon2D" parent="."]
-polygon = PackedVector2Array(-9, -9, 9, -9, 9, 9, -9, 9)
-color = Color(0.8, 0.55, 1, 0.24)
+polygon = PackedVector2Array(-15, -15, 15, -15, 15, 15, -15, 15)
+color = Color(0.8, 0.55, 1, 0.35)
 z_index = -1

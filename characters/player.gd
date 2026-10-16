@@ -122,11 +122,11 @@ func switch_form(new_form_name: StringName) -> void:
 			current_state = _state_machine.get_dash_state(self, current_state)
 	
 	# Update visuals with effect
-	_update_visual()
 	_update_form_visibility()
 	if visual_controller.has_method("switch_form"):
 		visual_controller.call("switch_form", form)
 	_sync_skin_rotation()
+	_update_visual()
 	show_transformation_effect()
 	
 	# Signal form change
@@ -163,7 +163,10 @@ func _physics_process(delta: float) -> void:
 	
 	# Horizontal movement (base)
 	var axis := get_move_axis()
-	last_facing_dir = 1 if axis >= 0 else -1 if axis < 0 else last_facing_dir
+	if axis > 0.01:
+		last_facing_dir = 1
+	elif axis < -0.01:
+		last_facing_dir = -1
 	
 	# Update state physics (Ship/UFO/Dash handle their own vertical movement)
 	if current_state != null:
@@ -171,7 +174,7 @@ func _physics_process(delta: float) -> void:
 		current_state.update_visuals(delta)
 		if form == &"DASH" and is_on_floor():
 			var dash_state := current_state as DashState
-			if dash_state != null:
+			if dash_state != null and not dash_state.is_dashing:
 				dash_state.recharge_dash()
 	
 	_apply_base_gravity(delta)
@@ -281,10 +284,22 @@ func _handle_input_logic() -> void:
 			
 		"DASH":
 			# T4.07: Kích hoạt bằng jump hoặc action.
-			if (jump_just_pressed or is_action_pressed()) and _can_activate_dash():
-				var dash_state = _get_dash_state()
-				if dash_state != null:
-					dash_state.activate_dash(last_facing_dir)
+			# Khi ở trên sàn: Jump để nhảy bình thường, Action để Dash.
+			# Khi ở trên không: Jump hoặc Action đều kích hoạt Dash (air dash).
+			if is_on_floor() or _coyote_timer > 0.0:
+				if jump_pressed:
+					velocity.y = -JUMP_VELOCITY * gravity_direction
+					_jump_buffer_timer = 0.0
+					_coyote_timer = 0.0
+				elif is_action_pressed() and _can_activate_dash():
+					var dash_state = _get_dash_state()
+					if dash_state != null:
+						dash_state.activate_dash(last_facing_dir)
+			else:
+				if (jump_just_pressed or is_action_pressed()) and _can_activate_dash():
+					var dash_state = _get_dash_state()
+					if dash_state != null:
+						dash_state.activate_dash(last_facing_dir)
 		
 		_:
 			# Default fallback (giong CUBE: phai cham dat/coyote)
@@ -314,11 +329,12 @@ func _update_visual() -> void:
 	
 	var color: Color = _get_color_for_form()
 	
+	var has_skin_active: bool = _skin_visual != null and _skin_visual.visible
 	if fill_poly != null:
-		fill_poly.color = Color(color, 0.16 if _skin_visual != null else 0.70)
+		fill_poly.color = Color(color, 0.16 if has_skin_active else 0.70)
 	if outline_line != null:
 		outline_line.default_color = color
-		outline_line.width = 4.0 if _skin_visual != null else 3.0
+		outline_line.width = 4.0 if has_skin_active else 3.0
 
 
 func _setup_skin_visual() -> void:
@@ -389,6 +405,7 @@ func _update_skin_animation() -> void:
 func _sync_skin_rotation() -> void:
 	if _skin_visual == null:
 		return
+	_skin_visual.visible = (form == &"CUBE")
 	if form == &"CUBE":
 		_skin_visual.rotation = -visual_root.rotation
 	else:
@@ -396,10 +413,12 @@ func _sync_skin_rotation() -> void:
 
 func _update_form_visibility() -> void:
 	var forms := visual_root.get_node_or_null("FormVisuals")
-	if forms == null:
-		return
-	for child in forms.get_children():
-		child.visible = str(child.name).to_upper().begins_with(str(form))
+	if forms != null:
+		for child in forms.get_children():
+			child.visible = str(child.name).to_upper().begins_with(str(form))
+	var dash_indicator: CanvasItem = visual_root.get_node_or_null("DashIndicator") as CanvasItem
+	if dash_indicator != null:
+		dash_indicator.visible = (form == &"DASH")
 
 
 func _get_color_for_form() -> Color:

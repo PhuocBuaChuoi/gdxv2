@@ -19,7 +19,7 @@ func _process(delta: float) -> void:
 	if ring != null:
 		ring.scale = Vector2(s, s)
 		ring.rotation += delta * 0.9
-		ring.modulate.a = 0.30 + 0.25 * (0.5 + 0.5 * sin(_pulse * 4.2))
+		ring.modulate.a = 0.55 + 0.3 * (0.5 + 0.5 * sin(_pulse * 4.2))
 
 func _on_body_entered(body: Node2D) -> void:
 	if body is GdxPlayer:

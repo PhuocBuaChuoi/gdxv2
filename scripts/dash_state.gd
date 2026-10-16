@@ -25,7 +25,10 @@ func enter(player_ref: GdxPlayer, prev: PlayerFormState) -> void:
 	is_dashing = false
 	dash_timer = 0.0
 	dash_ready = true
-	last_facing_dir = 1 if player.velocity.x >= 0 else -1
+	last_facing_dir = player.last_facing_dir if player.last_facing_dir != 0 else 1
+	if player.visual_root != null:
+		player.visual_root.rotation = 0.0
+	_update_dash_indicator()
 
 
 func exit() -> void:
@@ -37,32 +40,34 @@ func exit() -> void:
 func physics_update(delta: float) -> void:
 	var axis: float = player.get_move_axis()
 	
-	if not is_dashing and dash_ready:
-		# Bình thường di chuyển như Cube nhưng nhẹ hơn
-		player.velocity.x = move_toward(player.velocity.x, axis * (BASE_SPEED * 0.8), ACCEL * delta)
+	if is_dashing:
+		dash_timer -= delta
+		if dash_timer <= 0.0:
+			_reset_dash()
+			return
+		
+		# Khóa hướng trong suốt thời gian lướt.
+		if last_facing_dir != 0:
+			player.velocity.y = 0.0
+			player.velocity.x = DASH_SPEED * float(last_facing_dir)
 	else:
-		# Đang Dash: khóa trọng lực, lao với tốc độ cực cao
-		if is_dashing:
-			dash_timer -= delta
-			if dash_timer <= 0.0:
-				_reset_dash()
-				return
-			
-			# Khóa hướng trong suốt thời gian lướt.
-			if last_facing_dir != 0:
-				player.velocity.y = 0.0
-				player.velocity.x = DASH_SPEED * last_facing_dir
+		# Bình thường di chuyển mượt mà (bất kể dash_ready là true hay false)
+		player.velocity.x = move_toward(player.velocity.x, axis * BASE_SPEED, ACCEL * delta)
 
 
-# Hàm xử lý khi kích hoạt Dash (gọi từ player.gd khi nhấn phím jump)
+# Hàm xử lý khi kích hoạt Dash (gọi từ player.gd khi nhấn phím jump hoặc action)
 func activate_dash(facing_direction: int) -> void:
 	if not is_dashing and dash_ready:
 		is_dashing = true
 		dash_ready = false
 		dash_timer = DASH_DURATION
-		last_facing_dir = facing_direction
-		player.velocity.x = DASH_SPEED * sign(facing_direction)
+		last_facing_dir = facing_direction if facing_direction != 0 else player.last_facing_dir
+		if last_facing_dir == 0:
+			last_facing_dir = 1
+		player.velocity.x = DASH_SPEED * float(last_facing_dir)
 		player.velocity.y = 0.0 # Khóa trọng lực
+		_update_dash_indicator()
+		AudioManager.play_sfx("jump")
 
 
 func _reset_dash() -> void:
@@ -70,8 +75,8 @@ func _reset_dash() -> void:
 	is_dashing = false
 	dash_timer = 0.0
 	dash_ready = false
-	# Tạo hiệu ứng visual khi reset
 	_update_dash_indicator()
+
 
 
 func update_visuals(delta: float) -> void:

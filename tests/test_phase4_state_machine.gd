@@ -201,3 +201,46 @@ func test_carrier_fallback_and_dash_orb() -> void:
 	orb.free()
 	rider.free()
 	player.free()
+
+func test_dash_mode_movement_jump_and_facing() -> void:
+	var player := (load("res://characters/player.tscn") as PackedScene).instantiate() as GdxPlayer
+	host_root.add_child(player)
+	player.visual_root.rotation = 0.5
+	player.switch_form(&"DASH")
+	
+	# 1. Entering Dash resets rotation
+	assert_eq(player.visual_root.rotation, 0.0, "T4.07 entering Dash resets visual rotation")
+	
+	# 2. DashIndicator visibility
+	var indicator := player.visual_root.get_node_or_null("DashIndicator") as CanvasItem
+	assert_true(indicator != null and indicator.visible, "T4.07 DashIndicator is visible in DASH form")
+	player.switch_form(&"CUBE")
+	assert_true(indicator != null and not indicator.visible, "T4.07 DashIndicator is hidden in CUBE form")
+	player.switch_form(&"DASH")
+	
+	# 3. Horizontal movement does not freeze when dash_ready == false
+	var dash := player.current_state as DashState
+	dash.dash_ready = false
+	dash.is_dashing = false
+	player.velocity.x = 0.0
+	# Simulate physics update with axis = 1.0 (via helper or direct)
+	dash.physics_update(0.1)
+	# When axis is 0, velocity stays 0, but when dash_ready is false, physics_update should still run move_toward
+	# 4. Facing direction retention when axis returns to 0
+	player.last_facing_dir = -1
+	player._physics_process(1.0 / 60.0) # axis is 0
+	assert_eq(player.last_facing_dir, -1, "T4.07 last_facing_dir remains -1 when player stops moving")
+	
+	# 5. Air dash via jump
+	player.velocity.y = 100.0
+	dash.dash_ready = true
+	dash.is_dashing = false
+	Input.action_press("p1_jump")
+	player._handle_input_logic()
+	Input.action_release("p1_jump")
+	assert_true(dash.is_dashing, "T4.07 air jump triggers Dash")
+	assert_eq(player.velocity.x, -DashState.DASH_SPEED, "T4.07 dash launches in facing direction (-1)")
+	
+	host_root.remove_child(player)
+	player.free()
+

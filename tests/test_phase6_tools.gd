@@ -367,3 +367,20 @@ func test_neon_hazard_and_gate_visuals() -> void:
 	assert_true(arch.default_color.a > 0.0, "Arch default_color co alpha pulse")
 	_despawn(gate)
 
+
+func test_button_glow_and_pad_glow() -> void:
+	var btn := _spawn("res://components/pressure_button.tscn")
+	btn.call("_set_on", true)
+	assert_near((btn.get_node("Glow") as Polygon2D).color.a, 0.35, 0.001, "nut BAT co halo xanh")
+	assert_near((btn.get_node("Visual") as Node2D).scale.y, 0.72, 0.001, "nut BAT lun 0.72 (van thay duoc)")
+	btn.call("_set_on", false)
+	assert_near((btn.get_node("Glow") as Polygon2D).color.a, 0.0, 0.001, "nut TAT het halo")
+	var pad := _spawn("res://components/jump_pad.tscn")
+	assert_near((pad.get_node("Glow") as Polygon2D).color.a, 0.28, 0.001, "pad co halo nen")
+	var orb := _spawn("res://components/dash_orb.tscn")
+	var orb_ring := orb.get_node("GlowRing") as Line2D
+	assert_true(orb_ring.width >= 3.0, "dash orb ring du day de thay (w=%s)" % str(orb_ring.width))
+	_despawn(btn)
+	_despawn(pad)
+	_despawn(orb)
+

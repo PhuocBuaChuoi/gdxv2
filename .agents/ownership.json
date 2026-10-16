@@ -1,4 +1,4 @@
-﻿{
+{
     "version":  1,
     "protocol":  "Xem .agents/COLLAB.md. Quy tac: claim truoc khi sua, release (done) sau khi PR merge. Chi duoc sua claim cua minh.",
     "claims":  [
@@ -147,7 +147,8 @@
                                      "levels/e2e_runner.tscn",
                                      "levels/e2e_driver.gd",
                                       "scripts/ufo_state.gd",
-                                      "components/dash_orb.tscn"
+                                      "components/dash_orb.tscn",
+                                      "components/gravity_portal.tscn"
                                   ],
                        "status":  "active",
                        "updated":  "2026-10-16"
