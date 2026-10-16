@@ -149,3 +149,53 @@ func test_cube_jump_needs_floor_or_coyote() -> void:
 	assert_true(p.velocity.y < -500.0, "coyote: nhay binh thuong (y=%s)" % str(p.velocity.y))
 	host_root.remove_child(p)
 	p.free()
+
+
+func test_player_vertical_ceiling_limit() -> void:
+	var p: GdxPlayer = (load(PLAYER_SCENE) as PackedScene).instantiate() as GdxPlayer
+	host_root.add_child(p)
+	p.set_bounds(-48.0, 720.0)
+	p.global_position = Vector2(100, -80)
+	p.velocity = Vector2(0, -400)
+	p._physics_process(1.0 / 120.0)
+	assert_near(p.global_position.y, -48.0, 0.01, "gioi han tran chan khong cho vuot -48")
+	assert_true(p.velocity.y >= 0.0, "van toc bay len bi triet tieu ve 0 khi cham tran")
+	host_root.remove_child(p)
+	p.free()
+
+
+func test_player_vertical_floor_kill_limit() -> void:
+	var p: GdxPlayer = (load(PLAYER_SCENE) as PackedScene).instantiate() as GdxPlayer
+	host_root.add_child(p)
+	p.set_bounds(-48.0, 720.0)
+	var died := [false]
+	p.death_requested.connect(func(_id, _pos): died[0] = true)
+	p.global_position = Vector2(100, 750)
+	p._physics_process(1.0 / 120.0)
+	assert_true(died[0], "roi xuong duoi san > 720 gay chet roi vuc")
+	host_root.remove_child(p)
+	p.free()
+
+
+func test_player_inverted_gravity_vertical_bounds() -> void:
+	var p: GdxPlayer = (load(PLAYER_SCENE) as PackedScene).instantiate() as GdxPlayer
+	host_root.add_child(p)
+	p.set_bounds(-48.0, 720.0)
+	p.set_gravity_direction(-1)
+	# Khi dao trong luc: rot len troi < -48 la chet roi vuc nguoc
+	var died := [false]
+	p.death_requested.connect(func(_id, _pos): died[0] = true)
+	p.global_position = Vector2(100, -60)
+	p._physics_process(1.0 / 120.0)
+	assert_true(died[0], "dao trong luc rot len troi < -48 gay chet roi vuc")
+
+	# Roi xuong duoi > 720 bi chan lai (la tran nguoc)
+	p.reset_death_state()
+	p.global_position = Vector2(100, 750)
+	p.velocity = Vector2(0, 300)
+	p._physics_process(1.0 / 120.0)
+	assert_near(p.global_position.y, 720.0, 0.01, "dao trong luc chan o day san 720")
+	assert_true(p.velocity.y <= 0.0, "van toc xuong day bi triet tieu")
+	host_root.remove_child(p)
+	p.free()
+

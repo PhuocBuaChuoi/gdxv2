@@ -20,6 +20,10 @@ var level_time: float = 0.0
 var deaths: int = 0
 var running: bool = false
 
+@export var ceiling_y: float = -48.0
+@export var floor_kill_y: float = 720.0
+@export var enforce_vertical_bounds: bool = true
+
 @onready var spawn_p1: Marker2D = $SpawnP1
 @onready var spawn_p2: Marker2D = $SpawnP2
 @onready var player_one: GdxPlayer = $Players/PlayerP1
@@ -33,6 +37,7 @@ var running: bool = false
 func _ready() -> void:
 	running = true
 	paint_terrain()
+	_setup_bounds()
 	_position_players()
 	player_one.switch_form(start_form_p1)
 	player_two.switch_form(start_form_p2)
@@ -41,8 +46,25 @@ func _ready() -> void:
 	respawn_coordinator.attempt_changed.connect(_on_attempt_changed)
 	coop_camera.set_players(player_one, player_two)
 	coop_camera.set_terrain_limits(terrain_layer)
+	if enforce_vertical_bounds and coop_camera.has_method("set_vertical_limits"):
+		coop_camera.set_vertical_limits(ceiling_y, floor_kill_y)
 	_on_attempt_changed(respawn_coordinator.attempt_count)
 	_apply_background()
+
+
+func _setup_bounds() -> void:
+	if terrain_layer != null and terrain_layer.get_used_rect().size != Vector2i.ZERO:
+		var used := terrain_layer.get_used_rect()
+		var top_left := terrain_layer.to_global(terrain_layer.map_to_local(used.position))
+		var bottom_right := terrain_layer.to_global(terrain_layer.map_to_local(used.position + used.size))
+		ceiling_y = minf(ceiling_y, top_left.y - 48.0)
+		floor_kill_y = maxf(floor_kill_y, bottom_right.y + 120.0)
+	if enforce_vertical_bounds:
+		if player_one != null and player_one.has_method("set_bounds"):
+			player_one.set_bounds(ceiling_y, floor_kill_y)
+		if player_two != null and player_two.has_method("set_bounds"):
+			player_two.set_bounds(ceiling_y, floor_kill_y)
+
 
 
 func _position_players() -> void:

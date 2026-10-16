@@ -31,6 +31,11 @@ func set_terrain_limits(terrain: TileMapLayer) -> void:
 	limit_right = ceili(bottom_right.x)
 	limit_bottom = ceili(bottom_right.y)
 
+func set_vertical_limits(top_y: float, bottom_y: float) -> void:
+	limit_top = floori(top_y)
+	limit_bottom = ceili(bottom_y)
+
+
 func shake(amplitude: float = 8.0, duration: float = 0.2) -> void:
 	_shake_amplitude = maxf(_shake_amplitude, amplitude)
 	_shake_time = maxf(_shake_time, duration)

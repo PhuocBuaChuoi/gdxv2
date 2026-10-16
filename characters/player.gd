@@ -22,10 +22,14 @@ const JUMP_BUFFER_TIME: float = 0.10
 @export_range(1, 2) var player_id: int = 1
 @export var gravity_direction: int = 1
 @export_enum("NONE", "BIRD", "BUNNY", "FROG") var skin: String = "NONE"
+@export var ceiling_y: float = -48.0
+@export var floor_kill_y: float = 720.0
+@export var enforce_vertical_bounds: bool = true
 var form: StringName = &"CUBE"
 var control_locked: bool = false
 var _last_push_targets: Array = [] # T6.09 - khoi dang day (de ngat luc khi roi)
 var _death_reported: bool = false
+
 
 # State Machine
 var current_state: PlayerFormState = null
@@ -174,7 +178,34 @@ func _physics_process(delta: float) -> void:
 	
 	move_and_slide()
 	_push_blocks()
+	_enforce_vertical_bounds()
 	_update_skin_animation()
+
+
+func set_bounds(top_y: float, bottom_y: float) -> void:
+	ceiling_y = top_y
+	floor_kill_y = bottom_y
+	enforce_vertical_bounds = true
+
+
+func _enforce_vertical_bounds() -> void:
+	if not enforce_vertical_bounds or control_locked:
+		return
+	if gravity_direction == 1:
+		if global_position.y < ceiling_y:
+			global_position.y = ceiling_y
+			if velocity.y < 0.0:
+				velocity.y = 0.0
+		elif global_position.y > floor_kill_y:
+			_report_hazard_death(self)
+	else:
+		if global_position.y > floor_kill_y:
+			global_position.y = floor_kill_y
+			if velocity.y > 0.0:
+				velocity.y = 0.0
+		elif global_position.y < ceiling_y:
+			_report_hazard_death(self)
+
 
 
 func _push_blocks() -> void:

@@ -336,4 +336,26 @@ func test_full_level_progression_chain() -> void:
 	mgr.free()
 
 
+func test_level_controller_configures_ceiling_and_floor_bounds() -> void:
+	var lvl: Node = (load("res://levels/level_01.tscn") as PackedScene).instantiate()
+	host_root.add_child(lvl)
+	var p1 := lvl.get_node("Players/PlayerP1") as GdxPlayer
+	var p2 := lvl.get_node("Players/PlayerP2") as GdxPlayer
+	var cam := lvl.get_node("CoopCamera") as CoopCamera
+	var ceil_y: float = float(lvl.get("ceiling_y"))
+	var floor_y: float = float(lvl.get("floor_kill_y"))
+	assert_true(ceil_y <= 0.0, "ceiling_y dat tran <= 0")
+	assert_true(floor_y >= 576.0, "floor_kill_y dat vuc duoi map >= 576")
+	assert_eq(p1.ceiling_y, ceil_y, "P1 dong bo ceiling_y")
+	assert_eq(p1.floor_kill_y, floor_y, "P1 dong bo floor_kill_y")
+	assert_eq(p2.ceiling_y, ceil_y, "P2 dong bo ceiling_y")
+	assert_eq(p2.floor_kill_y, floor_y, "P2 dong bo floor_kill_y")
+	assert_true(p1.enforce_vertical_bounds and p2.enforce_vertical_bounds, "ca 2 player bat enforce bounds")
+	assert_eq(cam.limit_top, floori(ceil_y), "camera limit_top dong bo tran")
+	assert_eq(cam.limit_bottom, ceili(floor_y), "camera limit_bottom dong bo san")
+	host_root.remove_child(lvl)
+	lvl.free()
+
+
+
 

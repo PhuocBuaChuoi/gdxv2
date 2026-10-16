@@ -4,6 +4,7 @@
 *.import
 *.uid
 *.crdownload
+*_tmp.*
 .freebuff/
 
 # Exported projects (ignore platform binaries)
