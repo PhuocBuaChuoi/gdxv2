@@ -46,6 +46,7 @@ func physics_update(delta: float) -> void:
 			dash_timer -= delta
 			if dash_timer <= 0.0:
 				_reset_dash()
+				return
 			
 			# Khóa hướng trong suốt thời gian lướt.
 			if last_facing_dir != 0:
@@ -99,3 +100,8 @@ func _update_dash_indicator() -> void:
 func recharge_dash() -> void:
 	dash_ready = true
 	_update_dash_indicator()
+
+
+func notify_rider_contact() -> void:
+	"""Carrier platform callback: touching a teammate restores one Dash charge."""
+	recharge_dash()

@@ -1,0 +1,45 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://components/restore_point.gd" id="1_restore"]
+
+[sub_resource type="RectangleShape2D" id="Rectangle_restore"]
+size = Vector2(52, 72)
+
+[sub_resource type="ParticleProcessMaterial" id="PPM_restore"]
+emission_shape = 1
+emission_sphere_radius = 6.0
+direction = Vector3(0, -1, 0)
+spread = 180.0
+initial_velocity_min = 45.0
+initial_velocity_max = 90.0
+gravity = Vector3(0, 80, 0)
+color = Color(0.25, 1, 0.4, 1)
+
+[node name="RestorePoint" type="Area2D"]
+collision_layer = 64
+collision_mask = 6
+script = ExtResource("1_restore")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Rectangle_restore")
+
+[node name="Diamond" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, -24, 16, 0, 0, 24, -16, 0)
+color = Color(0.45, 0.45, 0.5, 1)
+
+[node name="Outline" type="Line2D" parent="."]
+points = PackedVector2Array(0, -24, 16, 0, 0, 24, -16, 0, 0, -24)
+width = 3.0
+default_color = Color(0.8, 0.9, 1, 1)
+
+[node name="ActivationParticles" type="GPUParticles2D" parent="."]
+emitting = false
+amount = 14
+lifetime = 0.4
+local_coords = true
+
+[node name="SpawnP1" type="Marker2D" parent="."]
+position = Vector2(-64, 0)
+
+[node name="SpawnP2" type="Marker2D" parent="."]
+position = Vector2(64, 0)

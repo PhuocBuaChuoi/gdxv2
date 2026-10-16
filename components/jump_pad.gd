@@ -15,6 +15,9 @@ const PAD_COLORS := {
 	1: Color(1, 0.3, 0.85, 0.95),
 	2: Color(1, 0.23, 0.23, 0.95),
 }
+const PAD_HALF_HEIGHT: float = 12.0
+const PLAYER_HALF_HEIGHT: float = 22.0
+const CONTACT_MARGIN: float = 4.0
 var _pulse_time: float = 0.0
 
 
@@ -40,14 +43,28 @@ func boost_value() -> float:
 
 
 func _on_body_entered(body: Node2D) -> void:
-	if not body is CharacterBody2D:
+	if not body is GdxPlayer:
 		return
-	var gd := 1
-	var gd_v: Variant = body.get("gravity_direction")
-	if gd_v is int:
-		gd = int(gd_v)
-	(body as CharacterBody2D).velocity.y = -boost_value() * gd
+	var player := body as GdxPlayer
+	if not _is_landing_contact(player):
+		return
+	var gd := player.gravity_direction
+	player.velocity.y = -boost_value() * gd
 	AudioManager.play_sfx("jump")
+
+
+func _is_landing_contact(player: GdxPlayer) -> bool:
+	if player == null:
+		return false
+	# Signed offset is negative when the player is on the gravity-facing side
+	# of the pad (above it normally, below it after gravity inversion).
+	var signed_offset := (player.global_position.y - global_position.y) * player.gravity_direction
+	var closest_contact := -(PAD_HALF_HEIGHT + PLAYER_HALF_HEIGHT - CONTACT_MARGIN)
+	var farthest_contact := -CONTACT_MARGIN
+	if signed_offset < closest_contact or signed_offset > farthest_contact:
+		return false
+	# A pad only fires while landing/standing into it, never while moving away.
+	return player.velocity.y * player.gravity_direction >= -10.0
 
 
 func _update_color() -> void:

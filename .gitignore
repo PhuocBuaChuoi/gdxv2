@@ -1,7 +1,10 @@
-﻿# Godot 4 - Generated files
+# Godot 4 - Generated files
 .godot/
 *.translation
 *.import
+*.uid
+*.crdownload
+.freebuff/
 
 # Exported projects (ignore platform binaries)
 android/

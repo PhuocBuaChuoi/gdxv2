@@ -90,7 +90,7 @@ func test_ship_horizontal_thrust_and_gravity_orientation() -> void:
 	player.set_gravity_direction(-1)
 	player.velocity.y = 0.0
 	player.current_state.physics_update(0.1)
-	assert_true(player.velocity.y > 0.0, "T4.04 inverted ship fall direction")
+	assert_true(player.velocity.y < 0.0, "T4.04 inverted ship fall direction")
 	var platform := player.get_node("HeadPlatform") as AnimatableBody2D
 	player.visual_root.rotation = 0.4
 	player.current_state.physics_update(0.01)
@@ -152,6 +152,18 @@ func test_ufo_hop_wave_and_form_visibility() -> void:
 	gravity_player.free()
 	player.free()
 
+func test_ufo_gravity_is_applied_once_by_player_pipeline() -> void:
+	var player := (load("res://characters/player.tscn") as PackedScene).instantiate() as GdxPlayer
+	host_root.add_child(player)
+	player.switch_form(&"UFO")
+	player.velocity = Vector2.ZERO
+	player._apply_base_gravity(0.1)
+	assert_near(player.velocity.y, 0.0, 0.01, "T4.06 base pipeline skips UFO gravity")
+	(player.current_state as UfoState)._apply_gravity(0.1)
+	assert_near(player.velocity.y, 180.0, 0.01, "T4.06 UFO gravity is applied once per frame")
+	host_root.remove_child(player)
+	player.free()
+
 func test_carrier_fallback_and_dash_orb() -> void:
 	var player := (load("res://characters/player.tscn") as PackedScene).instantiate() as GdxPlayer
 	host_root.add_child(player)
@@ -176,6 +188,11 @@ func test_carrier_fallback_and_dash_orb() -> void:
 	var dash := player.current_state as DashState
 	dash.activate_dash(1)
 	assert_true(not dash.dash_ready, "T4.07 orb setup consumes dash")
+	dash.notify_rider_contact()
+	assert_true(dash.dash_ready, "T4.07 carrier contact restores Dash readiness")
+	dash.is_dashing = false
+	dash.activate_dash(1)
+	assert_true(not dash.dash_ready, "T4.07 orb setup consumes dash again")
 	assert_true(orb.recharge(player), "T4.07 DashOrb recharges Dash")
 	assert_true(dash.dash_ready, "T4.07 DashOrb restores readiness")
 	host_root.remove_child(orb)
