@@ -359,3 +359,28 @@ func test_level_controller_configures_ceiling_and_floor_bounds() -> void:
 
 
 
+
+func test_all_level_spawns_have_ground() -> void:
+	for n in ["level_01", "level_02", "level_03", "level_04"]:
+		var lvl: Node = (load("res://levels/%s.tscn" % n) as PackedScene).instantiate()
+		host_root.add_child(lvl)
+		var layer: TileMapLayer = lvl.get_node("TerrainLayer") as TileMapLayer
+		var markers: Array = [lvl.get_node("SpawnP1"), lvl.get_node("SpawnP2")]
+		var cps: Node = lvl.get_node("Checkpoints")
+		for cp in cps.get_children():
+			for mn in ["SpawnP1", "SpawnP2"]:
+				var mk: Node = (cp as Node).get_node_or_null(mn)
+				if mk != null:
+					markers.append(mk)
+		for mk in markers:
+			assert_true(_ground_below(layer, (mk as Node2D).global_position), "%s: %s dung tren dat (khong roi ho)" % [n, (mk as Node).name])
+		host_root.remove_child(lvl)
+		lvl.free()
+
+
+func _ground_below(layer: TileMapLayer, world_pos: Vector2) -> bool:
+	var cell: Vector2i = layer.local_to_map(layer.to_local(world_pos))
+	for dy in range(0, 3):
+		if layer.get_cell_source_id(Vector2i(cell.x, cell.y + dy)) != -1:
+			return true
+	return false

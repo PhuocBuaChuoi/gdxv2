@@ -17,7 +17,7 @@ func enter(player_ref: GdxPlayer, prev: PlayerFormState) -> void:
 	super.enter(player_ref, prev)
 	# Reset rotation và scale
 	player.visual_root.rotation = 0.0
-	player.visual_root.scale = Vector2.ONE
+	player.visual_root.scale = Vector2(float(player.last_facing_dir if player.last_facing_dir != 0 else 1), 1.0)
 
 
 func exit() -> void:
@@ -32,9 +32,10 @@ func physics_update(delta: float) -> void:
 	# Nhảy bấm từng nhịp (không tự nhảy khi giữ phím)
 	if player.is_jump_just_pressed():
 		player.velocity.y = -HOP_SPEED * player.gravity_direction
+		var dir: float = float(player.last_facing_dir if player.last_facing_dir != 0 else 1)
 		var tween: Tween = player.create_tween()
-		tween.tween_property(player.visual_root, "scale", Vector2(SQUASH_STRETCH_SCALE, 1.0 / SQUASH_STRETCH_SCALE), 0.06)
-		tween.tween_property(player.visual_root, "scale", Vector2.ONE, 0.12)
+		tween.tween_property(player.visual_root, "scale", Vector2(SQUASH_STRETCH_SCALE * dir, 1.0 / SQUASH_STRETCH_SCALE), 0.06)
+		tween.tween_property(player.visual_root, "scale", Vector2(dir, 1.0), 0.12)
 		var wave := Line2D.new()
 		wave.name = "UfoHopWave"
 		wave.points = PackedVector2Array([Vector2(-10, 20), Vector2(0, 26), Vector2(10, 20)])

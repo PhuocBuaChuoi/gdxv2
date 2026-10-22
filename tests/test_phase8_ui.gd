@@ -37,6 +37,23 @@ func test_main_menu_structure() -> void:
 	_despawn(mgr)
 
 
+func test_play_index_clamps_stale_save() -> void:
+	var menu: Control = (load("res://ui/main_menu.tscn") as PackedScene).instantiate() as Control
+	var mgr := _new_manager()
+	menu.set("manager", mgr)
+	host_root.add_child(menu)
+	var count: int = int(mgr.call("level_count"))
+	assert_true(count > 0, "T8.01 manager co man de test clamp")
+	mgr.set("unlocked", 999)
+	assert_eq(int(menu.call("_play_index", mgr)), count - 1, "T8.01 save cu mo khoa vuot -> kep man cuoi")
+	mgr.set("unlocked", 0)
+	assert_eq(int(menu.call("_play_index", mgr)), 0, "T8.01 unlocked 0 -> khong am")
+	(mgr.get("levels") as Array).clear()
+	assert_eq(int(menu.call("_play_index", mgr)), -1, "T8.01 manager rong -> -1")
+	_despawn(menu)
+	_despawn(mgr)
+
+
 func test_level_select_cards() -> void:
 	var sel: Control = (load("res://ui/level_select.tscn") as PackedScene).instantiate() as Control
 	var mgr := _new_manager()

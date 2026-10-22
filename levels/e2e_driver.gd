@@ -87,6 +87,13 @@ func _run() -> void:
 	await _frames(120)
 	_check(absf(plat.global_position.y - home_y) < 8.0, "platform ve home khi nha nut")
 
+	# 6b. Cube-on-cube: P2 dung tren dau P1 (layer 9 HeadPlatforms)
+	await _go(p1, 300, 448)
+	await _go(p2, 300, 356)
+	await _frames(90)
+	var stack_dy: float = p1.global_position.y - p2.global_position.y
+	_check(stack_dy > 20.0 and stack_dy < 70.0, "P2 dung tren dau P1 (dy=%s)" % str(stack_dy))
+
 	# 7. Dash block: Dash dang luot tong vao -> vo
 	p1.call("switch_form", &"DASH")
 	var st: Variant = p1.get("current_state")

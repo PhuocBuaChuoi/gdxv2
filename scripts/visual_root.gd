@@ -60,6 +60,7 @@ func _set_color(base_color: Color) -> void:
 
 func show_transformation_effect() -> void:
 	"""Hiệu ứng chớp sáng khi đổi dạng (T4.08): scale từ 1.3 về 1.0 trong 0.15s."""
+	var dir: float = -1.0 if scale.x < 0.0 else 1.0
 	var tween = create_tween().set_trans(Tween.TRANS_ELASTIC)
-	tween.tween_property(self, "scale", Vector2(1.3, 1.3), 0.15)
-	tween.tween_callback(func(): scale = Vector2.ONE)
+	tween.tween_property(self, "scale", Vector2(1.3 * dir, 1.3), 0.15)
+	tween.tween_callback(func(): scale = Vector2(dir, 1.0))

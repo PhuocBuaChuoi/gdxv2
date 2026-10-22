@@ -49,8 +49,9 @@ func test_head_platform_is_physical_one_way() -> void:
 	var shape := player.get_node_or_null("HeadPlatform/CollisionShape2D") as CollisionShape2D
 	assert_true(platform != null, "T4.03 head platform is physical AnimatableBody2D")
 	assert_true(shape != null and shape.one_way_collision, "T4.03 head platform is one-way")
-	assert_eq(platform.collision_layer, 2, "T4.03 P1 head platform exposes P1 layer")
+	assert_eq(platform.collision_layer, 256, "T4.03 head platform o layer HeadPlatforms (9)")
 	assert_eq(platform.collision_mask, 4, "T4.03 P1 head platform receives P2")
+	assert_true((player.collision_mask & 256) != 0, "T4.03 player mask thay HeadPlatforms de dung len dau")
 	host_root.remove_child(player)
 	player.free()
 

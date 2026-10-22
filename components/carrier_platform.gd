@@ -17,7 +17,14 @@ func _physics_process(delta: float) -> void:
 	if detector == null:
 		return
 	for body in detector.get_overlapping_bodies():
-		if body is CharacterBody2D and body != get_parent() and body.global_position.y < global_position.y:
+		if body is CharacterBody2D and body != get_parent():
+			var gd := 1
+			var gd_v: Variant = body.get("gravity_direction")
+			if gd_v is int and int(gd_v) != 0:
+				gd = int(gd_v)
+			# Rider phai o phia "dau" cua platform theo trong luc cua ho.
+			if (body.global_position.y - global_position.y) * float(gd) >= 0.0:
+				continue
 			(body as CharacterBody2D).velocity.x += carrier_velocity.x
 			var dash := (body as CharacterBody2D).get("current_state") as DashState
 			if dash != null and dash.has_method("notify_rider_contact"):

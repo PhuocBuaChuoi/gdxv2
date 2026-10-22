@@ -115,9 +115,12 @@ func _create_tether_beam() -> Area2D:
 func _update_tether(delta: float) -> void:
 	var tether := get_tether_beam()
 	var active := player.is_action_pressed()
+	var gd: float = float(player.gravity_direction)
+	tether.position = Vector2(0.0, 28.0 * gd)
 	var line := tether.get_node_or_null("TetherLine") as Line2D
 	if line != null:
 		line.visible = active
+		line.points = PackedVector2Array([Vector2.ZERO, Vector2(0.0, 140.0 * gd)])
 	if not active:
 		return
 	for body in tether.get_overlapping_bodies():

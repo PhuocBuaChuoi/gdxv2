@@ -61,10 +61,13 @@ func physics_update(delta: float) -> void:
 func update_visuals(delta: float) -> void:
 	# Hiệu ứng squash & stretch khi nhảy
 	if player.is_jump_just_pressed() and (player.is_on_floor() or player._coyote_timer > 0.0):
-		var target_scale: Vector2 = Vector2(1.3, 0.7)
+		# Giữ dấu lật mặt: tween tới +1 sẽ làm cube quay mặt phải giữa chừng
+		# nếu đang nhìn trái (nhấp nháy gương mỗi frame).
+		var dir: float = float(player.last_facing_dir if player.last_facing_dir != 0 else 1)
+		var target_scale: Vector2 = Vector2(1.3 * dir, 0.7)
 		var tween: Tween = player.create_tween().set_trans(Tween.TRANS_ELASTIC)
 		player.visual_root.scale = target_scale
-		tween.tween_property(player.visual_root, "scale", Vector2.ONE, 0.15)
+		tween.tween_property(player.visual_root, "scale", Vector2(dir, 1.0), 0.15)
 		tween.tween_callback(func(): pass) # Cleanup
 	
 	# Ground sparks đã handle trong player.gd
@@ -90,8 +93,9 @@ func _create_head_platform() -> AnimatableBody2D:
 	"""Tạo Head Platform nếu chưa tồn tại (cho Cube-on-Cube T4.03)."""
 	var platform := AnimatableBody2D.new()
 	platform.name = "HeadPlatform"
+	platform.sync_to_physics = false
 	platform.set_script(CarrierScript)
-	platform.collision_layer = 1 << player.player_id
+	platform.collision_layer = 1 << 8
 	platform.collision_mask = 1 << (2 if player.player_id == 1 else 1)
 	
 	var shape := CollisionShape2D.new()
@@ -99,8 +103,9 @@ func _create_head_platform() -> AnimatableBody2D:
 	shape.shape = RectangleShape2D.new()
 	shape.shape.size = Vector2(44, 4)
 	shape.one_way_collision = true
+	shape.rotation = 0.0 if player.gravity_direction == 1 else PI
 	platform.add_child(shape)
 	
-	platform.position = Vector2(0, -25)
+	platform.position = Vector2(0, -25.0 * float(player.gravity_direction))
 	player.add_child(platform)
 	return platform

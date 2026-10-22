@@ -20,11 +20,21 @@ func _ready() -> void:
 		_volume.value = float(audio.get("volume_db"))
 
 
+func _play_index(mgr: Node) -> int:
+	var count: int = int(mgr.call("level_count"))
+	if count <= 0:
+		return -1
+	# Save cu co the mo khoa vuot so man hien co -> kep lai de khong bam chet.
+	return clampi(int(mgr.get("unlocked")) - 1, 0, count - 1)
+
+
 func _on_play_pressed() -> bool:
 	var mgr: Node = manager if manager != null else get_node_or_null("/root/LevelManager")
 	if mgr == null:
 		return false
-	var idx: int = maxi(int(mgr.get("unlocked")) - 1, 0)
+	var idx: int = _play_index(mgr)
+	if idx < 0:
+		return false
 	return bool(mgr.call("load_level", idx))
 
 

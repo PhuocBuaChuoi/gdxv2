@@ -23,7 +23,6 @@ const FORM_COLORS := {
 	"UFO": Color(1, 0.4, 0.9, 0.9),
 	"DASH": Color(1, 0.35, 0.2, 0.9),
 }
-var _pulse_time: float = 0.0
 
 
 func _ready() -> void:
@@ -37,12 +36,11 @@ func _process(delta: float) -> void:
 	if Engine.is_editor_hint():
 		return
 	_pulse += delta
-	_pulse_time += delta
 	# Hoi tho Inner (T8) + scale Glow (neu co node Glow).
 	var inner := get_node_or_null("Inner") as Polygon2D
 	if inner != null:
 		inner.modulate.a = 0.6 + 0.4 * (0.5 + 0.5 * sin(_pulse * 3.0))
-	var pulse := 0.5 + 0.5 * sin(_pulse_time * 2.5)
+	var pulse := 0.5 + 0.5 * sin(_pulse * 2.5)
 	var glow := get_node_or_null("Glow") as Polygon2D
 	if glow != null:
 		glow.scale = Vector2.ONE * (1.0 + pulse * 0.08)

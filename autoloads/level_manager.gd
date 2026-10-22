@@ -42,7 +42,8 @@ func rescan() -> void:
 			levels.append(LEVEL_DIR + "/" + f)
 		f = dir.get_next()
 	dir.list_dir_end()
-	levels.sort()
+	# Sort "tu nhien" de level_9 < level_10 (sort chuoi thuong dat level_10 truoc).
+	levels.sort_custom(func(a: String, b: String) -> bool: return a.naturalnocasecmp_to(b) < 0)
 
 
 func level_count() -> int:
@@ -90,4 +91,6 @@ func load_progress() -> void:
 	if cfg.load(save_path) != OK:
 		return
 	unlocked = int(cfg.get_value("progress", "unlocked", 1))
+	# Save co the den tu ban build co nhieu man hon -> tranh mo khoa "ma".
+	unlocked = clampi(unlocked, 1, maxi(level_count(), 1))
 	best = cfg.get_value("progress", "best", {}) as Dictionary

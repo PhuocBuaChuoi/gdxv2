@@ -7,6 +7,7 @@ extends StaticBody2D
 signal shattered()
 
 @onready var _detector: Area2D = $DashDetector
+var _shattered: bool = false
 
 
 func _ready() -> void:
@@ -24,12 +25,15 @@ func is_dashing_body(body: Node2D) -> bool:
 
 
 func _on_body_entered(body: Node2D) -> void:
-	if not is_dashing_body(body):
+	if _shattered or not is_dashing_body(body):
 		return
 	_shatter()
 
 
 func _shatter() -> void:
+	if _shattered:
+		return
+	_shattered = true
 	shattered.emit()
 	_spawn_sparks()
 	AudioManager.play_sfx("death")

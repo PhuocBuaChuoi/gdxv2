@@ -60,6 +60,7 @@ func _ready() -> void:
 	_setup_state_machine()
 	
 	up_direction = Vector2.UP if gravity_direction == 1 else Vector2.DOWN
+	_update_head_platform()
 	
 	switch_form(&"CUBE")
 	_setup_skin_visual()
@@ -75,8 +76,11 @@ func _setup_collision_layers() -> void:
 	hazard_detector.collision_layer = 0
 	hazard_detector.collision_mask = hazard_mask
 	
-	collision_mask = (1 << 0) | (1 << 7) # World_Terrain + Pushable_Blocks (T6.09)
-	head_platform.collision_layer = 1 << player_id
+	# World_Terrain + Pushable_Blocks (T6.09) + HeadPlatforms (T4.03).
+	# HeadPlatform ở layer riêng (9) để người kia ĐỨNG lên được mà 2 thân
+	# player vẫn đi xuyên qua nhau (không đẩy/khoá nhau khi co-op).
+	collision_mask = (1 << 0) | (1 << 7) | (1 << 8)
+	head_platform.collision_layer = 1 << 8
 	head_platform.collision_mask = 1 << (2 if player_id == 1 else 1)
 
 
@@ -136,7 +140,23 @@ func switch_form(new_form_name: StringName) -> void:
 func set_gravity_direction(direction: int) -> void:
 	gravity_direction = 1 if direction >= 0 else -1
 	up_direction = Vector2.UP if gravity_direction == 1 else Vector2.DOWN
+	_update_head_platform()
 	_update_skin_animation()
+
+
+## T4.03 - HeadPlatform luôn nằm phía "đầu" theo trọng lực hiện tại và một chiều
+## đúng hướng để người kia đứng lên (lật 180° shape khi đảo trọng lực).
+func _update_head_platform() -> void:
+	if head_platform == null:
+		return
+	head_platform.position = Vector2(0.0, -25.0 * float(gravity_direction))
+	var shape := head_platform.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if shape != null:
+		shape.rotation = 0.0 if gravity_direction == 1 else PI
+	var rider := head_platform.get_node_or_null("RiderDetector/CollisionShape2D") as CollisionShape2D
+	if rider != null:
+		rider.position = Vector2(0.0, -5.0 * float(gravity_direction))
+		rider.rotation = 0.0 if gravity_direction == 1 else PI
 
 func set_control_locked(locked: bool) -> void:
 	control_locked = locked
@@ -439,6 +459,7 @@ func _get_color_for_form() -> Color:
 
 func show_transformation_effect() -> void:
 	"""T4.08 - Hiệu ứng chớp sáng khi đổi dạng."""
+	var dir: float = float(last_facing_dir if last_facing_dir != 0 else 1)
 	var tween = create_tween().set_trans(Tween.TRANS_ELASTIC)
-	tween.tween_property(visual_root, "scale", Vector2(1.3, 1.3), 0.10)
-	tween.tween_callback(func(): visual_root.scale = Vector2.ONE)
+	tween.tween_property(visual_root, "scale", Vector2(1.3 * dir, 1.3), 0.10)
+	tween.tween_callback(func(): visual_root.scale = Vector2(dir, 1.0))

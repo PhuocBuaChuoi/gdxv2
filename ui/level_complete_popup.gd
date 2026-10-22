@@ -67,7 +67,14 @@ func _on_next_pressed() -> bool:
 	var mgr: Node = manager if manager != null else get_node_or_null("/root/LevelManager")
 	if mgr == null:
 		return false
-	return bool(mgr.call("load_next_level"))
+	if bool(mgr.call("load_next_level")):
+		return true
+	# Màn cuối: không có màn kế -> về chọn màn thay vì bấm chết.
+	# Chỉ fallback với manager thật đang chạy trong game (không đổi scene khi test).
+	var real: Node = get_node_or_null("/root/LevelManager")
+	if mgr == real and get_tree().current_scene != null:
+		return get_tree().change_scene_to_file(SELECT_SCENE) == OK
+	return false
 
 
 func _on_retry_pressed() -> bool:

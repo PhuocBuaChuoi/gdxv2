@@ -24,6 +24,10 @@ func has_sfx(sfx_name: String) -> bool:
 func play_sfx(sfx_name: String) -> bool:
 	if not _sfx.has(sfx_name):
 		return false
+	# Headless (test/E2E) khong co audio driver that: playback chi bi AudioServer
+	# giai phong sau 1 buffer mix, nen tao playback roi thoat ngay se leak.
+	if DisplayServer.get_name() == "headless":
+		return true
 	var p := AudioStreamPlayer.new()
 	p.stream = _sfx[sfx_name]
 	p.volume_db = volume_db
@@ -35,6 +39,18 @@ func play_sfx(sfx_name: String) -> bool:
 
 func set_volume(db: float) -> void:
 	volume_db = clampf(db, -24.0, 0.0)
+
+
+func _exit_tree() -> void:
+	# Dừng + giải phóng player đang phát trước khi thoát để AudioServer không
+	# giữ playback/WAV lại (tránh "ObjectDB instances were leaked at exit").
+	for child in get_children():
+		if child is AudioStreamPlayer:
+			var p := child as AudioStreamPlayer
+			p.stop()
+			p.stream = null
+			p.free()
+	_sfx.clear()
 
 
 func play_music() -> void:

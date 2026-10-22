@@ -22,7 +22,7 @@
 script = ExtResource("1")
 level_index = 1
 background = "BRIGHT"
-ascii_map = PackedStringArray("                                          ", "    .       .       .       .       .     ", "                                          ", "                    ====                  ", "                                          ", "                    ====                  ", "                    ====                  ", "                                          ", "=========             ======       =======", "#########             ######       #######", "##########################################", "##########################################")
+ascii_map = PackedStringArray("                                          ", "    .       .       .       .       .     ", "                                          ", "                                          ", "                                          ", "                                          ", "                                          ", "                                          ", "==========    =============   ============", "##########    #############   ############", "##########################################", "##########################################")
 
 [node name="DefaultWorldEnvironment" parent="." instance=ExtResource("2")]
 
@@ -41,15 +41,15 @@ tile_set = ExtResource("3")
 [node name="Hazards" type="Node2D" parent="."]
 
 [node name="SpikePit1" parent="Hazards" instance=ExtResource("15_spike")]
-position = Vector2(520, 440)
+position = Vector2(528, 468)
 hazard_type = 0
 
 [node name="SpikePit2" parent="Hazards" instance=ExtResource("15_spike")]
-position = Vector2(620, 440)
+position = Vector2(624, 468)
 hazard_type = 0
 
 [node name="SpikePit3" parent="Hazards" instance=ExtResource("15_spike")]
-position = Vector2(720, 440)
+position = Vector2(1700, 372)
 hazard_type = 0
 
 [node name="Portals" type="Node2D" parent="."]
@@ -62,15 +62,15 @@ allowed_player = "P1_ONLY"
 [node name="Mechanisms" type="Node2D" parent="."]
 
 [node name="PressureButton" parent="Mechanisms" instance=ExtResource("16_button")]
-position = Vector2(1000, 116)
+position = Vector2(1000, 366)
 mode = 0
 activator = 0
 
 [node name="CoopBox" parent="Mechanisms" instance=ExtResource("13_box")]
-position = Vector2(1080, 340)
+position = Vector2(1120, 340)
 
 [node name="DoorPlatform" parent="Mechanisms" instance=ExtResource("17_platform")]
-position = Vector2(1380, 360)
+position = Vector2(1368, 486)
 linked_triggers = [NodePath("../PressureButton")]
 move_offset = Vector2(0, -96)
 speed = 180.0
@@ -85,7 +85,7 @@ position = Vector2(1020, 336)
 checkpoint_order = 1
 
 [node name="Checkpoint2" parent="Checkpoints" instance=ExtResource("8_checkpoint")]
-position = Vector2(1480, 336)
+position = Vector2(1540, 336)
 checkpoint_order = 2
 
 [node name="SpawnP1" type="Marker2D" parent="."]

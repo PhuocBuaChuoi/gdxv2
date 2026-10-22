@@ -94,6 +94,7 @@ game_pause={
 2d_physics/layer_6="Hazard_P2_Safe"
 2d_physics/layer_7="Interactables"
 2d_physics/layer_8="Pushable_Blocks"
+2d_physics/layer_9="HeadPlatforms"
 
 [physics]
 
