@@ -14,7 +14,9 @@ extends Node2D
 ## Review diff dễ, không cần mở editor. Xem levels/AUTHORING.md.
 @export var ascii_map: PackedStringArray = []
 
-const ASCII_TILES := {"#": Vector2i(0, 0), "=": Vector2i(1, 0), "-": Vector2i(2, 0), ".": Vector2i(3, 0)}
+const ASCII_SOLID := "#="
+const ASCII_ONEWAY := "-"
+const ASCII_DECO := "."
 
 var level_time: float = 0.0
 var deaths: int = 0
@@ -111,12 +113,43 @@ func paint_terrain() -> void:
 	var layer := get_node_or_null("TerrainLayer") as TileMapLayer
 	if layer == null:
 		return
+	layer.clear()
 	for y in range(ascii_map.size()):
 		var row: String = ascii_map[y]
 		for x in range(row.length()):
-			var atlas: Vector2i = ASCII_TILES.get(row.substr(x, 1), Vector2i(-1, -1))
-			if atlas.x >= 0:
-				layer.set_cell(Vector2i(x, y), 0, atlas)
+			var ch: String = row.substr(x, 1)
+			if ASCII_SOLID.contains(ch):
+				layer.set_cell(Vector2i(x, y), 0, solid_variant_at(x, y))
+			elif ch == ASCII_ONEWAY:
+				layer.set_cell(Vector2i(x, y), 0, Vector2i(2, 0))
+			elif ch == ASCII_DECO:
+				layer.set_cell(Vector2i(x, y), 0, Vector2i(3, 0))
+
+
+## Chon bien the solid theo hang xom: bit N=1, E=2, S=4, W=8 la huong lo ra
+## ngoai (khong co hang xom solid). Nho do vien neon chay lien mach, khong luoi.
+func solid_variant_at(x: int, y: int) -> Vector2i:
+	var mask := 0
+	if not _is_solid_at(x, y - 1):
+		mask |= 1
+	if not _is_solid_at(x + 1, y):
+		mask |= 2
+	if not _is_solid_at(x, y + 1):
+		mask |= 4
+	if not _is_solid_at(x - 1, y):
+		mask |= 8
+	if mask == 0:
+		return Vector2i(0, 0)
+	return Vector2i(mask % 4, 1 + (mask >> 2))
+
+
+func _is_solid_at(x: int, y: int) -> bool:
+	if y < 0 or y >= ascii_map.size():
+		return false
+	var row: String = ascii_map[y]
+	if x < 0 or x >= row.length():
+		return false
+	return ASCII_SOLID.contains(row.substr(x, 1))
 
 
 func get_player_positions() -> Dictionary:

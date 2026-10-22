@@ -12,8 +12,8 @@ const CarrierScript = preload("res://components/carrier_platform.gd")
 const BASE_SPEED: float = 420.0
 const ACCEL: float = 4000.0
 const JUMP_VELOCITY: float = 650.0
-const ROTATION_SPEED: float = 420.0
-const SNAP_DEADZONE: float = 5.0
+const ROTATION_SPEED: float = 500.0
+const SNAP_SPEED: float = 720.0
 
 
 func enter(player_ref: GdxPlayer, prev: PlayerFormState) -> void:
@@ -30,32 +30,31 @@ func physics_update(delta: float) -> void:
 	# Xử lý horizontal movement với gia tốc cao
 	var axis: float = player.get_move_axis()
 	player.velocity.x = move_toward(player.velocity.x, axis * BASE_SPEED, ACCEL * delta)
-	
-	# Nhảy giữ phím (GD-style continuous jump)
-	if player.is_jump_pressed():
-		if player.is_on_floor() or player._coyote_timer > 0.0:
-			player.velocity.y = -JUMP_VELOCITY * player.gravity_direction
-			player._jump_buffer_timer = 0.0
-			player._coyote_timer = 0.0
-	
-	# Xoay nhân vật trên không
+
+	# Nhảy giữ phím (GD-style continuous jump) + buffer T3.05.
+	if (player.is_jump_pressed() or player._jump_buffer_timer > 0.0) \
+			and (player.is_on_floor() or player._coyote_timer > 0.0):
+		player.velocity.y = -JUMP_VELOCITY * player.gravity_direction
+		player._jump_buffer_timer = 0.0
+		player._coyote_timer = 0.0
+
+	# Xoay theo hướng ĐANG di chuyển (kể cả quán tính), không theo phím:
+	# cube 360°/jump, GD-style. ROTATION_SPEED là độ/giây nên phải đổi radian.
 	if not player.is_on_floor():
-		var sign_dir: int = 1 if axis >= 0 else -1 if axis < 0 else 0
-		player.visual_root.rotation += ROTATION_SPEED * sign_dir * delta
+		var spin_dir: float = 1.0 if player.velocity.x >= 0.0 else -1.0
+		player.visual_root.rotation += deg_to_rad(ROTATION_SPEED) * spin_dir * delta
 	else:
-		# Làm tròn góc về bội số 90 độ khi chạm đất
-		var current_degrees: float = rad_to_deg(player.visual_root.rotation)
-		var snapped: float = snappedf(current_degrees, 90.0)
-		var diff: float = absf(current_degrees - snapped)
-		
-		if diff < SNAP_DEADZONE:
-			player.visual_root.rotation = deg_to_rad(snapped)
-		else:
-			player.visual_root.rotation = lerp(
-				player.visual_root.rotation, 
-			deg_to_rad(snapped),
-				10.0 * delta
-			)
+		snap_landing_rotation(delta)
+
+
+## Tiếp đất: bắt visual về bội số 90° gần nhất (SNAP_SPEED °/s, ~0.07s cho 60°).
+## Tách riêng để test được mà không cần fake is_on_floor().
+func snap_landing_rotation(delta: float) -> void:
+	var target: float = deg_to_rad(snappedf(rad_to_deg(player.visual_root.rotation), 90.0))
+	var current: float = player.visual_root.rotation
+	player.visual_root.rotation = move_toward(current, target, deg_to_rad(SNAP_SPEED) * delta)
+	if is_equal_approx(player.visual_root.rotation, target):
+		player.visual_root.rotation = wrapf(player.visual_root.rotation, -PI, PI)
 
 
 func update_visuals(delta: float) -> void:

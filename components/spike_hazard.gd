@@ -27,7 +27,7 @@ func _apply_layer_and_color() -> void:
 	var col: Color = HAZARD_COLORS.get(hazard_type, Color.WHITE)
 	var spikes := get_node_or_null("Spikes") as Polygon2D
 	if spikes != null:
-		spikes.color = col
+		spikes.color = Color(col.r, col.g, col.b, 0.35)
 	var outline := get_node_or_null("SpikeOutline") as Line2D
 	if outline != null:
 		outline.default_color = Color(col.r, col.g, col.b, 1.0)

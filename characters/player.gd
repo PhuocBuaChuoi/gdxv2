@@ -286,13 +286,8 @@ func _handle_input_logic() -> void:
 	
 	match form:
 		"CUBE":
-			# T4.02: Nhay giu phim (GD-style) — CHI duoc nhay khi cham dat hoac
-			# coyote. Buffer (nhan truoc 0.1s khi dap dat) van co tac dung vi
-			# no ton tai den frame cham dat tiep theo.
-			if jump_pressed and (is_on_floor() or _coyote_timer > 0.0):
-				velocity.y = -JUMP_VELOCITY * gravity_direction
-				_jump_buffer_timer = 0.0
-				_coyote_timer = 0.0
+			# T4.02: CubeState.physics_update xử lý nhảy (một nguồn duy nhất).
+			pass
 		
 		"SHIP":
 			# T4.04: Bay lên khi giữ phím (handled in ship_state.physics_update)
@@ -417,6 +412,8 @@ func _update_skin_animation() -> void:
 		_skin_body.flip_h = velocity.x < -35.0
 	else:
 		_skin_body.flip_h = false
+	# Skin khong co frame "flip" (bunny) van phai lat ngua khi dao trong luc.
+	_skin_body.flip_v = gravity_direction < 0 and not Skins.has_state(skin.to_lower(), "flip")
 	# Cube rotation communicates gameplay in the neon outline; keep the
 	# authored character upright so it stays readable during jumps.
 	_sync_skin_rotation()

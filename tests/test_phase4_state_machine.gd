@@ -110,6 +110,46 @@ func test_cube_jump_squash_is_applied() -> void:
 	host_root.remove_child(player)
 	player.free()
 
+func test_cube_rotation_rate_is_degrees_per_second() -> void:
+	var player := (load("res://characters/player.tscn") as PackedScene).instantiate() as GdxPlayer
+	host_root.add_child(player)
+	player.global_position = Vector2(0, -500)
+	player.velocity = Vector2(120, 0)
+	var cube := player.current_state as CubeState
+	var before: float = player.visual_root.rotation
+	cube.physics_update(1.0 / 120.0)
+	var delta_deg: float = rad_to_deg(player.visual_root.rotation - before)
+	assert_near(delta_deg, CubeState.ROTATION_SPEED / 120.0, 0.05, "T4.02 cube xoay dung do/giay, khong phai radian")
+	host_root.remove_child(player)
+	player.free()
+
+func test_cube_landing_snap_to_right_angle() -> void:
+	var player := (load("res://characters/player.tscn") as PackedScene).instantiate() as GdxPlayer
+	host_root.add_child(player)
+	var cube := player.current_state as CubeState
+	player.visual_root.rotation = deg_to_rad(172.0)
+	cube.snap_landing_rotation(1.0 / 120.0)
+	cube.snap_landing_rotation(1.0 / 120.0)
+	var deg: float = rad_to_deg(player.visual_root.rotation)
+	assert_near(absf(deg), 180.0, 0.01, "T4.02 snap ve 180 do trong ~2 frame")
+	assert_true(is_zero_approx(fposmod(deg, 90.0)) or is_equal_approx(fposmod(deg, 90.0), 90.0), "T4.02 goc sau snap la boi so 90")
+	host_root.remove_child(player)
+	player.free()
+
+func test_cube_jump_buffer_is_consumed() -> void:
+	var player := (load("res://characters/player.tscn") as PackedScene).instantiate() as GdxPlayer
+	host_root.add_child(player)
+	player.global_position = Vector2(0, -500)
+	player.velocity = Vector2.ZERO
+	player._jump_buffer_timer = 0.08
+	player._coyote_timer = 0.05
+	var cube := player.current_state as CubeState
+	cube.physics_update(1.0 / 120.0)
+	assert_true(player.velocity.y <= -600.0, "T3.05 buffer nhay khi con coyote du khong giu phim")
+	assert_eq(player._jump_buffer_timer, 0.0, "T3.05 buffer duoc tieu thu sau khi nhay")
+	host_root.remove_child(player)
+	player.free()
+
 func test_dash_consumes_and_recharges() -> void:
 	var player := (load("res://characters/player.tscn") as PackedScene).instantiate() as GdxPlayer
 	host_root.add_child(player)

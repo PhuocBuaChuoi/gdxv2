@@ -125,9 +125,9 @@ func test_level_01_loads_and_paints() -> void:
 	assert_eq(int(lvl.get("level_index")), 0, "level_01 index zero-based")
 	host_root.add_child(lvl)
 	var terrain: TileMapLayer = lvl.get_node("TerrainLayer") as TileMapLayer
-	assert_eq(terrain.get_cell_atlas_coords(Vector2i(0, 9)), Vector2i(1, 0), "san vien neon (van solid)")
-	assert_eq(terrain.get_cell_atlas_coords(Vector2i(6, 6)), Vector2i(1, 0), "khoi vien neon")
-	assert_eq(terrain.get_cell_atlas_coords(Vector2i(14, 6)), Vector2i(1, 0), "khoi vien neon")
+	assert_eq(terrain.get_cell_atlas_coords(Vector2i(0, 9)), Vector2i(1, 3), "san trai: vien N+W (mask 9)")
+	assert_eq(terrain.get_cell_atlas_coords(Vector2i(6, 6)), Vector2i(1, 3), "khoi 1 o le: vien N+W (mask 9)")
+	assert_eq(terrain.get_cell_atlas_coords(Vector2i(14, 6)), Vector2i(1, 4), "khoi lo lung: vien N+S+W (mask 13)")
 	assert_eq(terrain.get_cell_atlas_coords(Vector2i(12, 3)), Vector2i(2, 0), "cau mot chieu")
 	assert_eq(terrain.get_cell_atlas_coords(Vector2i(0, 0)), Vector2i(-1, -1), "troi trong")
 	var p1: Node2D = lvl.get_node("Players/PlayerP1") as Node2D
