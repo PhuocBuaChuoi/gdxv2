@@ -36,7 +36,12 @@ var running: bool = false
 @onready var terrain_layer: TileMapLayer = $TerrainLayer
 
 
+var _screenshot_frames: int = 0
+var _screenshot_path: String = ""
+
+
 func _ready() -> void:
+	_check_cli_screenshot()
 	running = true
 	paint_terrain()
 	_setup_bounds()
@@ -52,6 +57,14 @@ func _ready() -> void:
 		coop_camera.set_vertical_limits(ceiling_y, floor_kill_y)
 	_on_attempt_changed(respawn_coordinator.attempt_count)
 	_apply_background()
+
+
+func _check_cli_screenshot() -> void:
+	var args := OS.get_cmdline_user_args()
+	for i in range(args.size()):
+		if args[i] == "--screenshot" and i + 1 < args.size():
+			_screenshot_path = args[i + 1]
+			break
 
 
 func _setup_bounds() -> void:
@@ -79,6 +92,20 @@ func _process(delta: float) -> void:
 		level_time += delta
 	if Input.is_action_just_pressed("game_restart_checkpoint"):
 		respawn_coordinator.request_respawn(1)
+	if _screenshot_path != "":
+		_screenshot_frames += 1
+		if _screenshot_frames >= 6:
+			var vp := get_viewport()
+			if vp != null:
+				var img := vp.get_texture().get_image()
+				if img != null:
+					var abs_path := ProjectSettings.globalize_path(_screenshot_path)
+					var dir := abs_path.get_base_dir()
+					if not DirAccess.dir_exists_absolute(dir):
+						DirAccess.make_dir_recursive_absolute(dir)
+					var err := img.save_png(abs_path)
+					print("[Screenshot] Captured to: %s (err=%d)" % [abs_path, err])
+			get_tree().quit(0)
 
 func _on_attempt_changed(value: int) -> void:
 	if attempt_label != null:

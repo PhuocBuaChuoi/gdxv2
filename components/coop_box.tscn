@@ -16,5 +16,23 @@ script = ExtResource("1_box")
 shape = SubResource("Rectangle_box")
 
 [node name="Body" type="Polygon2D" parent="."]
-polygon = PackedVector2Array(-20, -20, 20, -20, 20, 20, -20, 20)
-color = Color(0.3, 0.7, 1, 0.7)
+polygon = PackedVector2Array(-16, -20, 16, -20, 20, -16, 20, 16, 16, 20, -16, 20, -20, 16, -20, -16)
+color = Color(0.08, 0.22, 0.35, 0.95)
+
+[node name="InnerPlate" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-13, -13, 13, -13, 13, 13, -13, 13)
+color = Color(0.12, 0.38, 0.55, 0.7)
+
+[node name="CoreGlow" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, -7, 7, 0, 0, 7, -7, 0)
+color = Color(0.3, 0.9, 1, 0.9)
+
+[node name="CrossLines" type="Line2D" parent="."]
+points = PackedVector2Array(-12, -12, 12, 12, 0, 0, -12, 12, 12, -12)
+width = 1.5
+default_color = Color(0.35, 0.85, 1, 0.55)
+
+[node name="NeonOutline" type="Line2D" parent="."]
+points = PackedVector2Array(-16, -20, 16, -20, 20, -16, 20, 16, 16, 20, -16, 20, -20, 16, -20, -16, -16, -20)
+width = 2.0
+default_color = Color(0.25, 0.9, 1, 0.95)

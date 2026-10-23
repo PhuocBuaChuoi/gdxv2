@@ -61,7 +61,7 @@ period = 1.8
 duty = 0.5
 
 [node name="SpikeTop" parent="Hazards" instance=ExtResource("15_spike")]
-position = Vector2(860, 110)
+position = Vector2(864, 108)
 rotation = 3.14159
 hazard_type = 0
 
