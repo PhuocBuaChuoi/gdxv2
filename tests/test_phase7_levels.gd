@@ -464,16 +464,118 @@ func test_level_04_coop_design_guarantees() -> void:
 	lvl.free()
 
 
+func test_level_05_loads_and_paints() -> void:
+	var ps: PackedScene = load("res://levels/level_05.tscn") as PackedScene
+	assert_true(ps != null, "level_05 load duoc")
+	var lvl: Node = ps.instantiate()
+	assert_eq(int(lvl.get("level_index")), 4, "level_05 index 4")
+	assert_eq(str(lvl.get("background")), "FOREST", "level_05 background FOREST")
+	host_root.add_child(lvl)
+
+	var pair := lvl.get_node_or_null("Mechanisms/FloatPair") as BalancedFloatPair
+	var btn_a := lvl.get_node_or_null("Mechanisms/ButtonA") as PressureButton
+	var bridge_a := lvl.get_node_or_null("Mechanisms/BridgeA") as MechanizedPlatform
+	var btn_cyan := lvl.get_node_or_null("Mechanisms/ButtonCyan") as PressureButton
+	var btn_orange := lvl.get_node_or_null("Mechanisms/ButtonOrange") as PressureButton
+	var mid_gate := lvl.get_node_or_null("Mechanisms/MidGate") as MechanizedPlatform
+	var btn_high := lvl.get_node_or_null("Mechanisms/ButtonHigh") as PressureButton
+	var lift := lvl.get_node_or_null("Mechanisms/Lift") as MechanizedPlatform
+	var gate := lvl.get_node_or_null("Mechanisms/DualExitGate")
+
+	assert_true(pair != null, "level_05 co BalancedFloatPair bap benh")
+	assert_true(btn_a != null and bridge_a != null, "level_05 co ButtonA va BridgeA")
+	assert_true(btn_cyan != null and btn_orange != null and mid_gate != null, "level_05 co cap nut phan cuc va MidGate")
+	assert_true(btn_high != null and lift != null, "level_05 co ButtonHigh va Lift thang may")
+	assert_true(gate != null, "level_05 co DualExitGate")
+
+	host_root.remove_child(lvl)
+	lvl.free()
+
+
+func test_level_05_coop_design_guarantees() -> void:
+	var lvl: Node = (load("res://levels/level_05.tscn") as PackedScene).instantiate()
+	host_root.add_child(lvl)
+	var sign_node := lvl.get_node_or_null("ControlSign") as Label
+	assert_true(sign_node != null and sign_node.text.contains("BAP BENH"), "level_05 co huong dan Bap benh")
+	var pair := lvl.get_node("Mechanisms/FloatPair") as BalancedFloatPair
+	assert_true(pair.horizontal_separation >= 96.0, "FloatPair co do tach hai hop")
+	var btn_cyan := lvl.get_node("Mechanisms/ButtonCyan") as PressureButton
+	var btn_orange := lvl.get_node("Mechanisms/ButtonOrange") as PressureButton
+	assert_eq(btn_cyan.activator, 1, "ButtonCyan chi P1 bam")
+	assert_eq(btn_orange.activator, 2, "ButtonOrange chi P2 bam")
+	var mid_gate := lvl.get_node("Mechanisms/MidGate") as MechanizedPlatform
+	assert_true(mid_gate.require_all, "MidGate yeu cau ca 2 nut Cyan va Orange")
+	var lift := lvl.get_node("Mechanisms/Lift") as MechanizedPlatform
+	assert_true(lift.move_offset.y < 0.0, "Lift di chuyen thang dung huong len")
+	host_root.remove_child(lvl)
+	lvl.free()
+
+
+func test_level_06_loads_and_paints() -> void:
+	var ps: PackedScene = load("res://levels/level_06.tscn") as PackedScene
+	assert_true(ps != null, "level_06 load duoc")
+	var lvl: Node = ps.instantiate()
+	assert_eq(int(lvl.get("level_index")), 5, "level_06 index 5")
+	assert_eq(str(lvl.get("background")), "BRIGHT", "level_06 background BRIGHT")
+	host_root.add_child(lvl)
+
+	var grav_in := lvl.get_node_or_null("Portals/P1GravityPortal") as GravityPortal
+	var ufo_p := lvl.get_node_or_null("Portals/P1UfoPortal") as FormPortal
+	var grav_out := lvl.get_node_or_null("Portals/ExitGravityPortal") as GravityPortal
+	var dash_p := lvl.get_node_or_null("Portals/P2DashPortal") as FormPortal
+	var laser := lvl.get_node_or_null("Hazards/LaserTop") as LaserHazard
+	var btn_top := lvl.get_node_or_null("Mechanisms/ButtonTopSync") as PressureButton
+	var btn_bot := lvl.get_node_or_null("Mechanisms/ButtonBottomSync") as PressureButton
+	var wall := lvl.get_node_or_null("Mechanisms/MiddleWall") as MechanizedPlatform
+	var dash_block := lvl.get_node_or_null("Mechanisms/BreakableDashWall") as BreakableDashBlock
+	var gate := lvl.get_node_or_null("Mechanisms/DualExitGate")
+
+	assert_true(grav_in != null and ufo_p != null, "level_06 co dao trong luc va UFO cho P1")
+	assert_true(grav_out != null and dash_p != null, "level_06 co hoan trong luc va Dash cho P2")
+	assert_true(laser != null, "level_06 co LaserTop chop tat")
+	assert_true(btn_top != null and btn_bot != null and wall != null, "level_06 co cap nut dong thoi va MiddleWall")
+	assert_true(dash_block != null, "level_06 co BreakableDashWall")
+	assert_true(gate != null, "level_06 co DualExitGate")
+
+	host_root.remove_child(lvl)
+	lvl.free()
+
+
+func test_level_06_coop_design_guarantees() -> void:
+	var lvl: Node = (load("res://levels/level_06.tscn") as PackedScene).instantiate()
+	host_root.add_child(lvl)
+	var sign_node := lvl.get_node_or_null("ControlSign") as Label
+	assert_true(sign_node != null and sign_node.text.contains("LASER"), "level_06 co huong dan Laser & Trong luc")
+	var grav_in := lvl.get_node("Portals/P1GravityPortal") as GravityPortal
+	assert_eq(grav_in.target_direction, -1, "grav_in dao trong luc P1")
+	var ufo_p := lvl.get_node("Portals/P1UfoPortal") as FormPortal
+	assert_eq(ufo_p.allowed_player, "P1_ONLY", "ufo portal chi ap dung P1")
+	var btn_top := lvl.get_node("Mechanisms/ButtonTopSync") as PressureButton
+	var btn_bot := lvl.get_node("Mechanisms/ButtonBottomSync") as PressureButton
+	assert_eq(btn_top.mode, 2, "btn_top la simultaneous")
+	assert_eq(btn_bot.mode, 2, "btn_bot la simultaneous")
+	assert_eq(btn_top.paired_button, NodePath("../ButtonBottomSync"), "btn_top cap voi btn_bot")
+	var wall := lvl.get_node("Mechanisms/MiddleWall") as MechanizedPlatform
+	assert_true(wall.require_all, "MiddleWall yeu cau ca hai nut duoc kich hoat")
+	var dash_p := lvl.get_node("Portals/P2DashPortal") as FormPortal
+	assert_eq(dash_p.target_form, "DASH", "P2 duoc bien thanh DASH")
+	assert_eq(dash_p.allowed_player, "P2_ONLY", "dash portal cho P2")
+	host_root.remove_child(lvl)
+	lvl.free()
+
+
 func test_full_level_progression_chain() -> void:
 	var mgr: Node = (load("res://autoloads/level_manager.gd") as Script).new()
 	host_root.add_child(mgr)
 	mgr.call("rescan")
 	var levels_list: Array = mgr.get("levels") as Array
-	assert_true(levels_list.size() >= 4, "LevelManager tim thay du it nhat 4 man choi")
+	assert_true(levels_list.size() >= 6, "LevelManager tim thay du it nhat 6 man choi (%d)" % levels_list.size())
 	assert_eq(levels_list[0], "res://levels/level_01.tscn", "Man 1 la level_01")
 	assert_eq(levels_list[1], "res://levels/level_02.tscn", "Man 2 la level_02")
 	assert_eq(levels_list[2], "res://levels/level_03.tscn", "Man 3 la level_03")
 	assert_eq(levels_list[3], "res://levels/level_04.tscn", "Man 4 la level_04")
+	assert_eq(levels_list[4], "res://levels/level_05.tscn", "Man 5 la level_05")
+	assert_eq(levels_list[5], "res://levels/level_06.tscn", "Man 6 la level_06")
 	host_root.remove_child(mgr)
 	mgr.free()
 
@@ -499,11 +601,8 @@ func test_level_controller_configures_ceiling_and_floor_bounds() -> void:
 	lvl.free()
 
 
-
-
-
 func test_all_level_spawns_have_ground() -> void:
-	for n in ["level_01", "level_02", "level_03", "level_04"]:
+	for n in ["level_01", "level_02", "level_03", "level_04", "level_05", "level_06"]:
 		var lvl: Node = (load("res://levels/%s.tscn" % n) as PackedScene).instantiate()
 		host_root.add_child(lvl)
 		var layer: TileMapLayer = lvl.get_node("TerrainLayer") as TileMapLayer

@@ -113,6 +113,28 @@ Tổ hợp liên hoàn cả 4 dạng nhân vật (Cube → Dash → Ship → UFO
 4. **Chặng 4 (Khúc khải hoàn)**: Cả hai qua `CubeFinalPortal` biến về Cube,
    cùng bước vào `DualExitGate` ở (2150, 340) hoàn tất chiến dịch!
 
+### `level_05` — Bập bênh Năng lượng & Phối hợp Phân cực (48×12, sàn hàng 9)
+Tập trung vào cơ chế bập bênh lò xo cân bằng (`BalancedFloatPair`) và nút phân cực:
+
+1. **Bập bênh lò xo (x=600)**: Hố gai sâu 336px có `BalancedFloatPair`. P1 đè BoxA
+   lún xuống làm BoxB đẩy cao lên, P2 nhảy BoxB bật sang đảo giữa bấm `ButtonA` (TOGGLE, P2_ONLY)
+   hạ `BridgeA` cho P1 sang.
+2. **Đường chéo phân cực (cột 23–26)**: P1 đi qua gai Cyan bấm `ButtonCyan` (P1_ONLY),
+   P2 đi qua gai Orange bấm `ButtonOrange` (P2_ONLY). Cả hai nút cùng mở `MidGate`.
+3. **Thang máy cao nguyên (cột 32–36)**: P2 nhảy đầu P1 lên bệ cao bấm `ButtonHigh` (HOLD),
+   kích hoạt `Lift` nâng P1 vượt hố gai thứ hai cùng tới `DualExitGate` ở (2200, 328).
+
+### `level_06` — Không gian Đảo chiều & Laser Chớp tắt (48×12, sàn hàng 9, trần hàng 0-1)
+Phối hợp nhịp điệu giữa UFO trên trần tránh Laser và Cube dưới sàn đẩy khối hộp:
+
+1. **Trọng lực ngược & Laser trần (x=280–720)**: P1 bị đảo trọng lực lên trần biến thành UFO,
+   căn nhịp nảy luồn qua `LaserTop` (chu kỳ 1.8s). P2 ở sàn đẩy `CoopBox` đè `ButtonFloor`
+   hạ `CeilingBridge` hỗ trợ P1.
+2. **Giẫm nút đồng thời (x=1250)**: P1 (trần) và P2 (sàn) đồng thời giẫm `ButtonTopSync`
+   và `ButtonBottomSync` (SIMULTANEOUS trong 0.5s) để mở vách ngăn `MiddleWall`.
+3. **Dash phá tường khải hoàn (x=1700–1850)**: P1 hoàn trọng lực về sàn. P2 qua `DashPortal`
+   thành DASH lướt 950 px/s phá tan `BreakableDashWall`, mở toang cổng `DualExitGate` ở (2180, 360).
+
 ## Quy ước bắt buộc
 
 - Tile physics đã gán sẵn layer 1 `World_Terrain` — không sửa collision trong
