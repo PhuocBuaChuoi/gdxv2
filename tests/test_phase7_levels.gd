@@ -331,6 +331,27 @@ func test_level_02_loads_and_paints() -> void:
 	lvl.free()
 
 
+func test_level_02_coop_design_guarantees() -> void:
+	var lvl: Node = (load("res://levels/level_02.tscn") as PackedScene).instantiate()
+	host_root.add_child(lvl)
+	var terrain: TileMapLayer = lvl.get_node("TerrainLayer") as TileMapLayer
+	var max_jump := (2.0 * GdxPlayer.JUMP_VELOCITY / GdxPlayer.BASE_GRAVITY) * GdxPlayer.MOVE_SPEED
+	var gap_tiles := _longest_gap(terrain, 9)
+	assert_true(float(gap_tiles) * 48.0 > max_jump + 16.0, "level_02: ho gai vuot tam nhay Cube, bat buoc Ship cho qua")
+	var sign_node := lvl.get_node_or_null("ControlSign") as Label
+	assert_true(sign_node != null and sign_node.text.contains("SHIP"), "level_02 co huong dan Ship")
+	var portal := lvl.get_node("Portals/ShipPortal") as FormPortal
+	assert_eq(portal.target_form, "SHIP", "portal chuyen P1 thanh Ship")
+	assert_eq(portal.allowed_player, "P1_ONLY", "portal chi cho P1")
+	var btn := lvl.get_node("Mechanisms/PressureButton") as PressureButton
+	var box := lvl.get_node("Mechanisms/CoopBox") as RigidBody2D
+	var door := lvl.get_node("Mechanisms/DoorPlatform") as MechanizedPlatform
+	assert_true(btn != null and box != null and door != null, "level_02 co du Button, CoopBox va DoorPlatform")
+	assert_true(door.move_offset != Vector2.ZERO, "door platform co hanh trinh nang/ha")
+	host_root.remove_child(lvl)
+	lvl.free()
+
+
 func test_level_03_loads_and_paints() -> void:
 	var ps: PackedScene = load("res://levels/level_03.tscn") as PackedScene
 	assert_true(ps != null, "level_03 load duoc")
@@ -366,6 +387,28 @@ func test_level_03_loads_and_paints() -> void:
 	lvl.free()
 
 
+func test_level_03_coop_design_guarantees() -> void:
+	var lvl: Node = (load("res://levels/level_03.tscn") as PackedScene).instantiate()
+	host_root.add_child(lvl)
+	var sign_node := lvl.get_node_or_null("ControlSign") as Label
+	assert_true(sign_node != null and sign_node.text.contains("UFO"), "level_03 co huong dan UFO")
+	var grav_in := lvl.get_node("Portals/P1GravityPortal") as GravityPortal
+	var grav_out := lvl.get_node("Portals/ExitGravityPortal") as GravityPortal
+	assert_eq(grav_in.target_direction, -1, "grav_in dao trong luc len tran")
+	assert_eq(grav_out.target_direction, 1, "grav_out tra trong luc ve thuong")
+	var ufo := lvl.get_node("Portals/UfoPortal") as FormPortal
+	assert_eq(ufo.target_form, "UFO", "ufo portal chuyen thanh UFO")
+	var btn_top := lvl.get_node("Mechanisms/ButtonTop") as PressureButton
+	var btn_bot := lvl.get_node("Mechanisms/ButtonBottom") as PressureButton
+	var wall := lvl.get_node("Mechanisms/MiddleWall") as MechanizedPlatform
+	assert_eq(btn_top.mode, 2, "btn_top la simultaneous")
+	assert_eq(btn_bot.mode, 2, "btn_bot la simultaneous")
+	assert_eq(btn_top.paired_button, NodePath("../ButtonBottom"), "btn_top cap voi btn_bot")
+	assert_true(wall.require_all, "MiddleWall bat buoc ca 2 nut duoc bam dong thoi")
+	host_root.remove_child(lvl)
+	lvl.free()
+
+
 func test_level_04_loads_and_paints() -> void:
 	var ps: PackedScene = load("res://levels/level_04.tscn") as PackedScene
 	assert_true(ps != null, "level_04 load duoc")
@@ -393,6 +436,30 @@ func test_level_04_loads_and_paints() -> void:
 	assert_true(gate != null, "level_04 co DualExitGate hoan thanh chuoi man")
 	assert_true(door.linked_triggers.has(NodePath("../CeilingButton")), "Door duoc noi day voi CeilingButton")
 
+	host_root.remove_child(lvl)
+	lvl.free()
+
+
+func test_level_04_coop_design_guarantees() -> void:
+	var lvl: Node = (load("res://levels/level_04.tscn") as PackedScene).instantiate()
+	host_root.add_child(lvl)
+	var sign_node := lvl.get_node_or_null("ControlSign") as Label
+	assert_true(sign_node != null and sign_node.text.contains("GRAND FINALE"), "level_04 co huong dan Grand Finale")
+	var dash_p := lvl.get_node("Portals/DashPortal") as FormPortal
+	var ship_p := lvl.get_node("Portals/ShipPortal") as FormPortal
+	var ufo_p := lvl.get_node("Portals/UfoPortal") as FormPortal
+	var cube_p := lvl.get_node("Portals/CubeFinalPortal") as FormPortal
+	assert_eq(dash_p.target_form, "DASH", "co DashPortal")
+	assert_eq(ship_p.target_form, "SHIP", "co ShipPortal")
+	assert_eq(ufo_p.target_form, "UFO", "co UfoPortal")
+	assert_eq(cube_p.target_form, "CUBE", "co CubeFinalPortal")
+	var wall := lvl.get_node("Mechanisms/BreakableDashWall") as BreakableDashBlock
+	var orb := lvl.get_node("Mechanisms/DashOrb") as DashOrb
+	var laser := lvl.get_node("Hazards/LaserGate") as LaserHazard
+	var btn := lvl.get_node("Mechanisms/CeilingButton") as PressureButton
+	var door := lvl.get_node("Mechanisms/ExitPlatformDoor") as MechanizedPlatform
+	assert_true(wall != null and orb != null and laser != null and btn != null and door != null, "level_04 co du cac co che")
+	assert_true(door.linked_triggers.has(NodePath("../CeilingButton")), "door platform noi day voi ceiling button")
 	host_root.remove_child(lvl)
 	lvl.free()
 

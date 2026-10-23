@@ -1,4 +1,4 @@
-[gd_scene load_steps=19 format=3]
+[gd_scene load_steps=20 format=3]
 
 [ext_resource type="Script" path="res://levels/level_controller.gd" id="1"]
 [ext_resource type="PackedScene" path="res://levels/default_world_environment.tscn" id="2"]
@@ -18,12 +18,24 @@
 [ext_resource type="PackedScene" path="res://components/pressure_button.tscn" id="16_button"]
 [ext_resource type="PackedScene" path="res://components/mechanized_platform.tscn" id="17_platform"]
 [ext_resource type="PackedScene" path="res://components/jump_pad.tscn" id="18_pad"]
+[ext_resource type="PackedScene" path="res://components/jump_orb.tscn" id="19_orb"]
 
 [node name="LevelRoot" type="Node2D"]
 script = ExtResource("1")
 level_index = 2
 background = "FOREST"
-ascii_map = PackedStringArray("============================================", "============================================", "                                            ", "                                            ", "                                            ", "======-==================             ======", "                                            ", "                                            ", "                                            ", "============================================", "############################################", "############################################")
+ascii_map = PackedStringArray("================================================", "================================================", "                                                ", "    .       .       .       .       .       .   ", "                                                ", "=======-======================             =====", "                                                ", "                                                ", "                                                ", "================================================", "################################################", "################################################")
+
+[node name="ControlSign" type="Label" parent="."]
+offset_left = 120.0
+offset_top = 260.0
+offset_right = 780.0
+offset_bottom = 330.0
+mouse_filter = 2
+z_index = 1
+theme_override_colors/font_color = Color(0.35, 0.93, 1, 0.78)
+theme_override_font_sizes/font_size = 15
+text = "P1: TRONG LUC NGUOC (DI TRAN) + UFO (NHAP NHA W DE NAY)\nP1 & P2: DONG THOI GIAM NUT TREN & DUOI DE MO VACH NGAN!"
 
 [node name="DefaultWorldEnvironment" parent="." instance=ExtResource("2")]
 
@@ -50,43 +62,57 @@ hazard_type = 0
 position = Vector2(680, 420)
 hazard_type = 0
 
+[node name="SpikeCyan" parent="Hazards" instance=ExtResource("15_spike")]
+position = Vector2(860, 110)
+rotation = 3.14159
+hazard_type = 1
+
+[node name="SpikeOrange" parent="Hazards" instance=ExtResource("15_spike")]
+position = Vector2(860, 420)
+hazard_type = 2
+
 [node name="Portals" type="Node2D" parent="."]
 
 [node name="P1GravityPortal" parent="Portals" instance=ExtResource("13_gravity")]
-position = Vector2(300, 320)
+position = Vector2(280, 370)
 target_direction = -1
+allowed_player = "P1_ONLY"
 
 [node name="UfoPortal" parent="Portals" instance=ExtResource("12_portal")]
-position = Vector2(440, 160)
+position = Vector2(440, 150)
 target_form = "UFO"
 allowed_player = "P1_ONLY"
 
 [node name="ExitGravityPortal" parent="Portals" instance=ExtResource("13_gravity")]
-position = Vector2(1500, 160)
+position = Vector2(1680, 150)
 target_direction = 1
 
 [node name="Mechanisms" type="Node2D" parent="."]
 
 [node name="ButtonTop" parent="Mechanisms" instance=ExtResource("16_button")]
-position = Vector2(980, 110)
+position = Vector2(1040, 110)
 mode = 2
 activator = 1
 paired_button = NodePath("../ButtonBottom")
 
 [node name="ButtonBottom" parent="Mechanisms" instance=ExtResource("16_button")]
-position = Vector2(980, 420)
+position = Vector2(1040, 420)
 mode = 2
 activator = 2
 paired_button = NodePath("../ButtonTop")
 
 [node name="MiddleWall" parent="Mechanisms" instance=ExtResource("17_platform")]
-position = Vector2(1250, 260)
+position = Vector2(1300, 264)
 linked_triggers = [NodePath("../ButtonTop"), NodePath("../ButtonBottom")]
-move_offset = Vector2(0, -120)
+move_offset = Vector2(0, -144)
 require_all = true
 
+[node name="JumpPad" parent="Mechanisms" instance=ExtResource("18_pad")]
+position = Vector2(1440, 416)
+pad_type = 0
+
 [node name="DualExitGate" parent="Mechanisms" instance=ExtResource("14_gate")]
-position = Vector2(1850, 360)
+position = Vector2(2180, 360)
 
 [node name="Checkpoints" type="Node2D" parent="."]
 
@@ -95,14 +121,14 @@ position = Vector2(520, 420)
 checkpoint_order = 1
 
 [node name="Checkpoint2" parent="Checkpoints" instance=ExtResource("8_checkpoint")]
-position = Vector2(1380, 420)
+position = Vector2(1540, 420)
 checkpoint_order = 2
 
 [node name="SpawnP1" type="Marker2D" parent="."]
 position = Vector2(120, 380)
 
 [node name="SpawnP2" type="Marker2D" parent="."]
-position = Vector2(160, 380)
+position = Vector2(180, 380)
 
 [node name="Players" type="Node2D" parent="."]
 

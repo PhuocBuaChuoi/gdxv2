@@ -75,10 +75,43 @@ Dạy 3 cơ chế coop theo thứ tự, mỗi bên có 1 hố chỉ mình qua đ
    `ButtonC` (HOLD) → `Lift` ở rãnh cột 38–39 nâng P1 lên cùng độ cao,
    `DualExitGate` ở (2220, 232) kết thúc màn.
 
-Đồ trang trí/bí mật: `JumpPadStart` (72,416) + `GravityJumpOrb` (72,170) +
-`GravityPortal` (216,140, `toggle_mode`) tạo đường tắt trên trần;
-`DashOrb` (540,160), `CoopBox` (1760,250) nằm trên bệ một chiều, `FloatPair`
-(280,190). Checkpoint: (888,380) và (1704,380).
+### `level_02` — Đôi cánh không trung: Ship + Cube (48×12, sàn hàng 9)
+Tập trung vào cơ chế cõng đồng đội trên lưng Tàu và dùng tia từ tính kéo hộp:
+
+1. **Cổng Tàu (x=340)**: P1 biến thành Tàu (Ship, P1_ONLY), P2 giữ dạng Cube.
+2. **Hố gai sâu (cột 9–15, 336px > max jump 303px)**: P2 nhảy lên lưng Tàu P1.
+   P1 giữ W bay qua đường hầm trần gai, chở P2 an toàn sang đảo giữa.
+3. **Kéo hộp CoopBox mở cửa (cột 16–28)**: Có khối hộp `CoopBox` và công tắc
+   `PressureButton` (HOLD). P1 bật tia kéo Tether (phím S) nhấc bổng hộp thả lên nút
+   bấm, kích hoạt `DoorPlatform` hạ xuống mở đường hầm cho P2.
+4. **Cổng biến hình hoàn trả & Đích**: P1 vào `CubeFinalPortal` để cả 2 về dạng Cube
+   cùng tiến vào `DualExitGate` ở (2180, 328).
+
+### `level_03` — Nhịp điệu Đĩa bay & Đảo Trọng lực: UFO + Gravity (48×12, sàn hàng 9, trần hàng 0-1)
+Thử thách 2 tầng độc lập đòi hỏi sự phối hợp kích hoạt nút đồng thời:
+
+1. **Phân tầng trọng lực (x=280–440)**: P1 đi qua `P1GravityPortal` (target_direction=-1)
+   bị đảo trọng lực bay lên trần nhà, sau đó qua `UfoPortal` biến thành UFO trần.
+   P2 vẫn ở tầng sàn nhà.
+2. **Đường đua song song (cột 10–25)**: P1 dạng UFO trần nhấp nhả W lách qua gai trần
+   và gai Cyan. P2 chạy dưới sàn nhảy qua gai sàn và gai Orange.
+3. **Mở vách ngăn giữa màn (MiddleWall)**: Cần P1 (trần) và P2 (sàn) đồng thời giẫm
+   vào cặp nút `ButtonTop` và `ButtonBottom` (chế độ SIMULTANEOUS trong 0.5s)
+   để hạ `MiddleWall` chắn ngang.
+4. **Hồi trọng lực & Về đích**: P1 qua `ExitGravityPortal` trở lại sàn cùng P2,
+   cả hai chạm `DualExitGate` ở (2180, 360).
+
+### `level_04` — Đột phá Tốc độ & Grand Finale (48×12, sàn hàng 9)
+Tổ hợp liên hoàn cả 4 dạng nhân vật (Cube → Dash → Ship → UFO → Cube):
+
+1. **Chặng 1 (Dash Phá Tường)**: P1 qua `DashPortal`, lướt 950 px/s tông vỡ
+   `BreakableDashWall` (x=480), chạm `DashOrb` trên không để hồi lượt vượt vực.
+2. **Chặng 2 (Ship & Laser Hazard)**: P2 qua `ShipPortal` thành Tàu, P1 đứng lên
+   lưng P2 để P2 chở luồn qua bẫy `LaserGate` chớp tắt theo chu kỳ.
+3. **Chặng 3 (UFO Bấm Công Tắc Trần)**: P1 qua `UfoPortal` thành UFO, búng nhịp lên
+   trần bấm `CeilingButton` mở cửa `ExitPlatformDoor`.
+4. **Chặng 4 (Khúc khải hoàn)**: Cả hai qua `CubeFinalPortal` biến về Cube,
+   cùng bước vào `DualExitGate` ở (2150, 340) hoàn tất chiến dịch!
 
 ## Quy ước bắt buộc
 
