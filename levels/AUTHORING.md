@@ -43,8 +43,42 @@ Thay vì vẽ tile trong editor, điền export `ascii_map` của LevelRoot
 | `.` | (3,0) trang trí | không |
 | ` ` (cách) | trống | không |
 
+`#` và `=` tự chọn biến thể viền neon theo hàng xóm (16 biến thể: viền ở
+cạnh nào thì vẽ cạnh đó) — không cần căn tay từng ô. Ô `#`/`=` không có
+hàng xóm ở trên vẫn có viền trên, nên sàn 1 hàng trông đúng kiểu GD.
+
 Controller tự `paint_terrain()` trong `_ready` — diff review được,
 test đọc lại cell để khóa layout.
+
+## Số liệu thiết kế (đo thực, 120 Hz)
+
+| Đại lượng | Giá trị | Dùng để |
+|---|---|---|
+| Cao nhảy | ~120 px (2.5 ô) | bậc leo tối đa 2 ô |
+| Xa nhảy | ~303 px | hố an toàn ≤ 6 ô, hố 7 ô (336) bắt buộc coop |
+| Đứng trên đầu đồng đội | +51 px → cao ~171 px | bậc 3 ô (144) chỉ leo được khi cõng nhau |
+| Tile | 48 px | |
+
+## Thiết kế 4 màn (T7.05–T7.08)
+
+### `level_01` — Bàn nhập môn (48×12, sàn hàng 9)
+Dạy 3 cơ chế coop theo thứ tự, mỗi bên có 1 hố chỉ mình qua được:
+
+1. **Hố Cyan (cột 9–15)**: P1 đi xuyên (gai cyan an toàn cho P1). P2 đứng
+   chờ bên trái. P1 bấm `ButtonA` (TOGGLE, P1_ONLY) → 5 nhịp
+   `WalkwayCyan*` hạ từ y240 → y360, P2 nhảy lên băng qua.
+   Đường phụ: P2 đứng trên đầu P1 (không khuyến khích — P1 nhảy là rơi).
+2. **Hố Orange (cột 23–29)**: ngược lại — P2 đi xuyên gai orange, bấm
+   `ButtonB` (TOGGLE, P2_ONLY) → `WalkwayOrange*` hạ, P1 băng qua.
+3. **Leo cao nguyên (cột 40–47, mặt y288)**: mép cao 3 ô (144 px) — không
+   ai nhảy một mình tới; P2 đứng đầu P1 rồi nhảy (171 px). P2 bấm giữ
+   `ButtonC` (HOLD) → `Lift` ở rãnh cột 38–39 nâng P1 lên cùng độ cao,
+   `DualExitGate` ở (2220, 232) kết thúc màn.
+
+Đồ trang trí/bí mật: `JumpPadStart` (72,416) + `GravityJumpOrb` (72,170) +
+`GravityPortal` (216,140, `toggle_mode`) tạo đường tắt trên trần;
+`DashOrb` (540,160), `CoopBox` (1760,250) nằm trên bệ một chiều, `FloatPair`
+(280,190). Checkpoint: (888,380) và (1704,380).
 
 ## Quy ước bắt buộc
 

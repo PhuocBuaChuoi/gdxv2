@@ -32,8 +32,8 @@
                                      ".agents/ownership.json",
                                      ".agents/COLLAB.md"
                                  ],
-                       "status":  "active",
-                       "updated":  "2026-10-15"
+                       "status":  "done",
+                       "updated":  "2026-10-23"
                    },
                    {
                        "id":  "phase2-vfx",
@@ -44,8 +44,8 @@
                                      "scripts/procedural_shapes.gd",
                                      "levels/default_world_environment.tscn"
                                  ],
-                       "status":  "active",
-                       "updated":  "2026-10-15"
+                       "status":  "done",
+                       "updated":  "2026-10-23"
                    },
                    {
                        "id":  "harden-tests",
@@ -56,8 +56,8 @@
                                      "tests/test_phase2_vfx.gd",
                                      "tests/test_collab_registry.gd"
                                  ],
-                       "status":  "active",
-                       "updated":  "2026-10-15"
+                       "status":  "done",
+                       "updated":  "2026-10-23"
                    },
                    {
                        "id":  "support-t3",
@@ -66,8 +66,8 @@
                        "paths":  [
                                      "tests/test_phase3_player.gd"
                                  ],
-                       "status":  "active",
-                       "updated":  "2026-10-15"
+                       "status":  "done",
+                       "updated":  "2026-10-23"
                    },
                    {
                        "id":  "phase4-state-machine",

@@ -25,7 +25,9 @@ func _physics_process(delta: float) -> void:
 			# Rider phai o phia "dau" cua platform theo trong luc cua ho.
 			if (body.global_position.y - global_position.y) * float(gd) >= 0.0:
 				continue
-			(body as CharacterBody2D).velocity.x += carrier_velocity.x
+			# CharacterBody2D tu dong keo rider theo AnimatableBody2D qua
+			# platform_velocity. Cong them velocity/motion o day se nhan doi
+			# carry va lam rider truot khoi dau (bug cu).
 			var dash := (body as CharacterBody2D).get("current_state") as DashState
 			if dash != null and dash.has_method("notify_rider_contact"):
 				dash.notify_rider_contact()

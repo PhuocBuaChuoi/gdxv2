@@ -29,10 +29,10 @@
 - `[x]` `resources/gd_neon_tileset.tres` + `resources/neon_tiles_atlas.png` đã có và được test.
 
 ## Checklist merge Net này (trước khi merge sang main)
-- [ ] Xóa bỏ các claim `active` thừa/tham trong `.agents/ownership.json`, chỉ giữ lại claim thực tế đang làm.
+- [x] Xóa bỏ các claim `active` thừa/tham trong `.agents/ownership.json`, chỉ giữ lại claim thực tế đang làm.
 - [x] Tạo đủ file Phase-7 (`test_phase7_levels.gd`, `base_level.tscn`, `level_controller.gd`, `level_manager.gd`).
 - [x] Chạy headless suite cho `exit 0` — bao gồm Phase 5/7 và bonus physics.
-- [ ] Không để `scenes/main/Main.tscn` mang UID lớn bất thường — giữ lại UID gốc để snapshot pipeline không false-positive.
+- [x] Không để `scenes/main/Main.tscn` mang UID lớn bất thường — giữ lại UID gốc để snapshot pipeline không false-positive.
 - [ ] Sau merge, đánh `status: done` cho mọi claim trong Net này và tạo claim mới cho task kế.
 
 ## Ghi chú chống đổ vỡ (agent tương lai)

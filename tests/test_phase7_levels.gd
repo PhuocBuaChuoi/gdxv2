@@ -126,10 +126,11 @@ func test_level_01_loads_and_paints() -> void:
 	host_root.add_child(lvl)
 	var terrain: TileMapLayer = lvl.get_node("TerrainLayer") as TileMapLayer
 	assert_eq(terrain.get_cell_atlas_coords(Vector2i(0, 9)), Vector2i(1, 3), "san trai: vien N+W (mask 9)")
-	assert_eq(terrain.get_cell_atlas_coords(Vector2i(6, 6)), Vector2i(1, 3), "khoi 1 o le: vien N+W (mask 9)")
-	assert_eq(terrain.get_cell_atlas_coords(Vector2i(14, 6)), Vector2i(1, 4), "khoi lo lung: vien N+S+W (mask 13)")
-	assert_eq(terrain.get_cell_atlas_coords(Vector2i(12, 3)), Vector2i(2, 0), "cau mot chieu")
-	assert_eq(terrain.get_cell_atlas_coords(Vector2i(0, 0)), Vector2i(-1, -1), "troi trong")
+	assert_eq(terrain.get_cell_atlas_coords(Vector2i(40, 6)), Vector2i(1, 3), "mep trai mep cao: vien N+W (mask 9)")
+	assert_eq(terrain.get_cell_atlas_coords(Vector2i(47, 7)), Vector2i(2, 1), "mep phai map: vien E (mask 2)")
+	assert_eq(terrain.get_cell_atlas_coords(Vector2i(1, 10)), Vector2i(0, 0), "long dat: khong vien (mask 0)")
+	assert_eq(terrain.get_cell_atlas_coords(Vector2i(36, 6)), Vector2i(2, 0), "cau mot chieu")
+	assert_eq(terrain.get_cell_atlas_coords(Vector2i(20, 0)), Vector2i(-1, -1), "troi trong")
 	var p1: Node2D = lvl.get_node("Players/PlayerP1") as Node2D
 	var p2: Node2D = lvl.get_node("Players/PlayerP2") as Node2D
 	assert_eq(p1.global_position, (lvl.get_node("SpawnP1") as Marker2D).global_position, "P1 dung vi tri spawn")
@@ -173,6 +174,80 @@ func test_level_01_uses_animated_character_skins() -> void:
 	assert_true(p1.get_node("VisualRoot/OutlineLine") is Line2D, "skin van giu vien neon procedural")
 	host_root.remove_child(lvl)
 	lvl.free()
+
+
+func test_level_01_coop_design_guarantees() -> void:
+	var lvl: Node = (load("res://levels/level_01.tscn") as PackedScene).instantiate()
+	host_root.add_child(lvl)
+	var terrain: TileMapLayer = lvl.get_node("TerrainLayer") as TileMapLayer
+	# Ho gai rong hon tam nhay toi da => bat buoc phai phoi hop.
+	var max_jump := (2.0 * GdxPlayer.JUMP_VELOCITY / GdxPlayer.BASE_GRAVITY) * GdxPlayer.MOVE_SPEED
+	var gap_tiles := _longest_gap(terrain, 9)
+	assert_true(float(gap_tiles) * 48.0 > max_jump + 16.0, "ho gai (%d o) > tam nhay %.1fpx" % [gap_tiles, max_jump])
+	# Meo cao 3 o: tren tam nhay don, duoi tam nhay khi cuoi len dau dong doi.
+	var floor_row := 9
+	var ledge_row := 6
+	var climb := float(floor_row - ledge_row) * 48.0
+	var jump_height := GdxPlayer.JUMP_VELOCITY * GdxPlayer.JUMP_VELOCITY / (2.0 * GdxPlayer.BASE_GRAVITY)
+	assert_true(climb > jump_height + 10.0, "meo cao %.0fpx > tam nhay don %.1fpx" % [climb, jump_height])
+	assert_true(climb < jump_height + 51.0, "meo cao %.0fpx < tam nhay co dong doi %.1fpx" % [climb, jump_height + 51.0])
+	var cyan := 0
+	var orange := 0
+	for h in lvl.get_node("Hazards").get_children():
+		if h is SpikeHazard:
+			if int(h.get("hazard_type")) == 1:
+				cyan += 1
+			elif int(h.get("hazard_type")) == 2:
+				orange += 1
+	assert_true(cyan >= 4, "co ho gai Cyan an toan cho P1 (%d)" % cyan)
+	assert_true(orange >= 4, "co ho gai Orange an toan cho P2 (%d)" % orange)
+	var btn_a := lvl.get_node("Mechanisms/ButtonA") as PressureButton
+	var btn_b := lvl.get_node("Mechanisms/ButtonB") as PressureButton
+	var btn_c := lvl.get_node("Mechanisms/ButtonC") as PressureButton
+	assert_eq(btn_a.activator, 1, "ButtonA chi P1 bam")
+	assert_eq(btn_b.activator, 2, "ButtonB chi P2 bam")
+	assert_eq(btn_c.mode, 0, "ButtonC giu de nang thang may")
+	var bridges_a := _linked_platforms(lvl, "../ButtonA")
+	var bridges_b := _linked_platforms(lvl, "../ButtonB")
+	assert_true(bridges_a.size() >= 4, "ButtonA mo cau cho P2 (%d nhip)" % bridges_a.size())
+	assert_true(bridges_b.size() >= 4, "ButtonB mo cau cho P1 (%d nhip)" % bridges_b.size())
+	for p in bridges_a + bridges_b:
+		var platform := p as MechanizedPlatform
+		assert_true(platform.move_offset != Vector2.ZERO, "%s co hanh trinh" % platform.name)
+		var top := platform.position.y + platform.move_offset.y - 12.0
+		assert_true(top > 288.0 and top < 420.0, "%s ha xuong tam voi (%0.0f)" % [platform.name, top])
+	var lift_platforms := _linked_platforms(lvl, "../ButtonC")
+	assert_eq(lift_platforms.size(), 1, "chi 1 thang may cho ButtonC")
+	if lift_platforms.size() == 1:
+		var lift := lift_platforms[0] as MechanizedPlatform
+		assert_true(lift.move_offset.y < 0.0, "thang may di len")
+		assert_near(lift.position.y + lift.move_offset.y - 12.0, 288.0, 0.5, "thang may len ngang mep cao")
+	host_root.remove_child(lvl)
+	lvl.free()
+
+
+func _longest_gap(layer: TileMapLayer, row: int) -> int:
+	var best := 0
+	var run := 0
+	var width := layer.get_used_rect().size.x
+	for x in range(0, width):
+		if layer.get_cell_source_id(Vector2i(x, row)) == -1:
+			run += 1
+			best = maxi(best, run)
+		else:
+			run = 0
+	return best
+
+
+func _linked_platforms(lvl: Node, trigger_path: String) -> Array:
+	var found: Array = []
+	for child in lvl.get_node("Mechanisms").get_children():
+		if child is MechanizedPlatform:
+			for p in (child as MechanizedPlatform).linked_triggers:
+				if String(p) == trigger_path:
+					found.append(child)
+					break
+	return found
 
 
 func test_main_scene_launches_level_01() -> void:
