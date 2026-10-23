@@ -130,7 +130,7 @@ func _safe_scene(path: String) -> bool:
 func _breakpoint_key(path: String, line: int) -> String:
     return "%s:%d" % [path, line]
 func _safe_debug_script(path: String) -> bool:
-    if not path.begins_with("res://") or not path.ends_with(".gd") or path.contains("..") or path.contains("\\") or path.contains("\u0000"):
+    if not path.begins_with("res://") or not path.ends_with(".gd") or path.contains("..") or path.contains("\\") or path.to_utf8_buffer().has(0):
         return false
     var relative := path.trim_prefix("res://")
     if relative.is_empty():
