@@ -285,3 +285,17 @@ func test_dash_mode_movement_jump_and_facing() -> void:
 	host_root.remove_child(player)
 	player.free()
 
+
+func test_cube_keep_upright_on_jump() -> void:
+	var player := (load("res://characters/player.tscn") as PackedScene).instantiate() as GdxPlayer
+	host_root.add_child(player)
+	player.global_position = Vector2(0, -500)
+	player.velocity = Vector2(120, 0)
+	player.keep_upright_on_jump = true
+	var cube := player.current_state as CubeState
+	player.visual_root.rotation = 0.0
+	cube.physics_update(1.0 / 60.0)
+	assert_eq(player.visual_root.rotation, 0.0, "Cube giu nguyen goc 0.0 khi keep_upright_on_jump bat")
+	host_root.remove_child(player)
+	player.free()
+

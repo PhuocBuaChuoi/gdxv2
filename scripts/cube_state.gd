@@ -39,12 +39,18 @@ func physics_update(delta: float) -> void:
 		player._coyote_timer = 0.0
 
 	# Xoay theo hướng ĐANG di chuyển (kể cả quán tính), không theo phím:
-	# cube 360°/jump, GD-style. ROTATION_SPEED là độ/giây nên phải đổi radian.
+	# Nếu nhân vật có skin hoặc bật keep_upright_on_jump: luôn giữ đầu hướng lên trên (0.0 rad).
 	if not player.is_on_floor():
-		var spin_dir: float = 1.0 if player.velocity.x >= 0.0 else -1.0
-		player.visual_root.rotation += deg_to_rad(ROTATION_SPEED) * spin_dir * delta
+		if player.keep_upright_on_jump or player.skin != "NONE":
+			player.visual_root.rotation = 0.0
+		else:
+			var spin_dir: float = 1.0 if player.velocity.x >= 0.0 else -1.0
+			player.visual_root.rotation += deg_to_rad(ROTATION_SPEED) * spin_dir * delta
 	else:
-		snap_landing_rotation(delta)
+		if player.keep_upright_on_jump or player.skin != "NONE":
+			player.visual_root.rotation = 0.0
+		else:
+			snap_landing_rotation(delta)
 
 
 ## Tiếp đất: bắt visual về bội số 90° gần nhất (SNAP_SPEED °/s, ~0.07s cho 60°).

@@ -48,6 +48,8 @@ func _ready() -> void:
 	_position_players()
 	player_one.switch_form(start_form_p1)
 	player_two.switch_form(start_form_p2)
+	player_one.keep_upright_on_jump = true
+	player_two.keep_upright_on_jump = true
 	respawn_coordinator.register_players(player_one, player_two)
 	respawn_coordinator.level_reset_to_checkpoint.connect(_on_level_reset_to_checkpoint)
 	respawn_coordinator.attempt_changed.connect(_on_attempt_changed)

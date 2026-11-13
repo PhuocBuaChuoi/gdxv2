@@ -42,11 +42,12 @@ func apply_background() -> void:
 	_sprite.texture = tex
 	var vw: float = float(ProjectSettings.get_setting("display/window/size/viewport_width", 1920))
 	var vh: float = float(ProjectSettings.get_setting("display/window/size/viewport_height", 1080))
-	# Phu full man hinh (scale vua khit viewport de art net; parallax doc
-	# khoa theo camera nen khong bao gio ho top/bottom).
-	var s: float = maxf(vw / tex.get_width(), vh / tex.get_height())
+	# Phu cuc lon cho moi man: phong to 1.8x de phu vuot ca tran va vuc sau, khong bao gio lo vien den
+	var s: float = maxf(vw / tex.get_width(), vh / tex.get_height()) * 1.8
 	_sprite.scale = Vector2(s, s)
+	_sprite.position = Vector2(0.0, 360.0)
 	_sprite.modulate = Color(dim, dim, dim)
+	_layer.motion_scale = Vector2(0.12, 0.04)
 	_layer.motion_mirroring = Vector2(tex.get_width() * s, 0.0)
 	var span: float = tex.get_width() * s
 	# Ban lat guong dat canh ban goc -> hai mep anh trung khop tung pixel,
@@ -56,7 +57,9 @@ func apply_background() -> void:
 	_mirror.scale = Vector2(-s, s)
 	_mirror.position = _sprite.position + Vector2(span, 0.0)
 	_mirror.modulate = _sprite.modulate
+	scroll_scale = Vector2(0.12, 0.04)
 	repeat_size = Vector2(span * 2.0, 0.0)
+	repeat_times = 16
 
 
 func _ensure_mirror() -> void:

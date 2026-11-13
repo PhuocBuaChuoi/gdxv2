@@ -384,3 +384,24 @@ func test_button_glow_and_pad_glow() -> void:
 	_despawn(pad)
 	_despawn(orb)
 
+
+func test_modular_spike_and_blocks() -> void:
+	var spike := _spawn("res://components/spike_hazard.tscn") as SpikeHazard
+	spike.tile_count = 3
+	spike.orientation = 1 # DOWN (tran)
+	assert_near(spike.rotation, PI, 0.001, "spike quay tran")
+	spike.position = Vector2(49.2, 95.8)
+	spike.snap_to_grid(48.0)
+	assert_eq(spike.position, Vector2(48.0, 96.0), "spike snap vao luoi 48px")
+	assert_true(spike.get_node_or_null("BaseBlock") != null, "spike co BaseBlock modular")
+	_despawn(spike)
+
+	var block := _spawn("res://components/breakable_dash_block.tscn") as BreakableDashBlock
+	block.block_size = Vector2i(2, 4)
+	assert_eq(block.block_size, Vector2i(2, 4), "dash block ho tro block_size tuy bien")
+	block.position = Vector2(100.0, 140.0)
+	block.snap_to_grid(48.0)
+	assert_eq(block.position, Vector2(96.0, 144.0), "dash block snap vao luoi 48px")
+	_despawn(block)
+
+

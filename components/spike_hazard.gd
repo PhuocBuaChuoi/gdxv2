@@ -16,6 +16,12 @@ extends Area2D
 		tile_count = maxi(1, value)
 		_rebuild_geometry()
 
+## Huong lap ghep: UP (san), DOWN (tran), LEFT (tuong phai), RIGHT (tuong trai)
+@export_enum("UP", "DOWN", "LEFT", "RIGHT") var orientation: int = 0:
+	set(value):
+		orientation = value
+		_apply_orientation()
+
 const HAZARD_LAYERS := {0: 4, 1: 5, 2: 6}
 const HAZARD_COLORS := {
 	0: Color(1, 0.3, 0.3, 0.95),
@@ -27,6 +33,20 @@ const HAZARD_COLORS := {
 func _ready() -> void:
 	_rebuild_geometry()
 	_apply_layer_and_color()
+	_apply_orientation()
+
+
+func _apply_orientation() -> void:
+	match orientation:
+		0: rotation = 0.0          # UP (san)
+		1: rotation = PI           # DOWN (tran)
+		2: rotation = -PI * 0.5    # LEFT (tuong phai dam sang trai)
+		3: rotation = PI * 0.5     # RIGHT (tuong trai dam sang phai)
+
+
+func snap_to_grid(grid_size: float = 48.0) -> void:
+	"""Tu dong can chinh vi tri bat dinh vao luoi 48px de de lap ghep."""
+	position = (position / grid_size).round() * grid_size
 
 
 func _rebuild_geometry() -> void:
@@ -34,6 +54,7 @@ func _rebuild_geometry() -> void:
 	var half_w := total_width * 0.5
 	var base_y := 12.0
 	var tip_y := -16.0
+	var socket_y := 24.0 # Day de lap ghep
 	
 	var pts := PackedVector2Array()
 	pts.append(Vector2(-half_w, base_y))
@@ -55,6 +76,16 @@ func _rebuild_geometry() -> void:
 	var base_line := get_node_or_null("BaseLine") as Line2D
 	if base_line != null:
 		base_line.points = PackedVector2Array([Vector2(-half_w, base_y), Vector2(half_w, base_y)])
+	
+	# Chan de modular de lap ghep khop noi voi mat dat hoac khoi khac
+	var base_block := get_node_or_null("BaseBlock") as Polygon2D
+	if base_block != null:
+		base_block.polygon = PackedVector2Array([
+			Vector2(-half_w, base_y),
+			Vector2(half_w, base_y),
+			Vector2(half_w, socket_y),
+			Vector2(-half_w, socket_y)
+		])
 	
 	var col_shape := get_node_or_null("CollisionShape2D") as CollisionShape2D
 	if col_shape != null:
