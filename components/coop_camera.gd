@@ -2,9 +2,10 @@ class_name CoopCamera
 extends Camera2D
 
 ## T5.05/T5.06 — camera follows midpoint and zooms to keep both players visible.
-@export var min_zoom: float = 0.65
-@export var max_zoom: float = 1.1
-@export var zoom_distance_near: float = 220.0
+## Fixed comfortable framing: max_zoom = 1.0 (tranh zoom vao qua manh/chat choi), min_zoom = 0.8
+@export var min_zoom: float = 0.8
+@export var max_zoom: float = 1.0
+@export var zoom_distance_near: float = 240.0
 @export var zoom_distance_far: float = 900.0
 @export var max_player_distance: float = 820.0
 var player_one: Node2D

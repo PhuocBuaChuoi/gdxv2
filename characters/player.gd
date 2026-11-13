@@ -346,10 +346,14 @@ func _update_visual() -> void:
 	
 	var has_skin_active: bool = _skin_visual != null and _skin_visual.visible
 	if fill_poly != null:
-		fill_poly.color = Color(color, 0.16 if has_skin_active else 0.70)
+		# Khi skin (Bird/Frog/Bunny) dang hien thi, an khoi bao vuong/hitbox de sprite dep, ro rang
+		fill_poly.visible = not has_skin_active
+		fill_poly.color = Color(color, 0.70)
 	if outline_line != null:
+		# An vien hop bao quanh nhan vat khi co skin
+		outline_line.visible = not has_skin_active
 		outline_line.default_color = color
-		outline_line.width = 4.0 if has_skin_active else 3.0
+		outline_line.width = 3.0
 
 
 func _setup_skin_visual() -> void:
@@ -427,6 +431,7 @@ func _sync_skin_rotation() -> void:
 		_skin_visual.rotation = -visual_root.rotation
 	else:
 		_skin_visual.rotation = 0.0
+	_update_visual()
 
 func _update_form_visibility() -> void:
 	var forms := visual_root.get_node_or_null("FormVisuals")
