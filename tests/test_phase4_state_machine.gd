@@ -285,3 +285,21 @@ func test_dash_mode_movement_jump_and_facing() -> void:
 	host_root.remove_child(player)
 	player.free()
 
+
+func test_skin_head_stays_upright_while_cube_rotates() -> void:
+	var player := (load("res://characters/player.tscn") as PackedScene).instantiate() as GdxPlayer
+	player.skin = "BIRD"
+	host_root.add_child(player)
+	var skin_visual := player._skin_visual
+	assert_true(skin_visual != null, "Skin visual duoc tao")
+	for angle in [0.0, 0.785, 1.57, 3.14]:
+		for facing in [1, -1]:
+			player.last_facing_dir = facing
+			player.visual_root.rotation = angle
+			player._update_skin_animation()
+			var up := -skin_visual.global_transform.y.normalized()
+			assert_true(up.is_equal_approx(Vector2.UP), "dau nhan vat luon huong thang len tren khi khoi xoay (facing=%d, angle=%.2f, up=%s)" % [facing, angle, str(up)])
+	host_root.remove_child(player)
+	player.free()
+
+

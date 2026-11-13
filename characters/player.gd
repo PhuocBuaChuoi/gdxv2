@@ -357,6 +357,12 @@ func _update_visual() -> void:
 
 
 func _setup_skin_visual() -> void:
+	if _skin_visual != null and is_instance_valid(_skin_visual):
+		_skin_visual.queue_free()
+		_skin_visual = null
+	var old := visual_root.get_node_or_null("SkinVisual")
+	if old != null:
+		old.free()
 	var skin_name := skin.to_lower()
 	if skin_name == "none" or not Skins.all_skins().has(skin_name):
 		skin = "NONE"
@@ -424,10 +430,17 @@ func _update_skin_animation() -> void:
 
 
 func _sync_skin_rotation() -> void:
-	if _skin_visual == null:
+	if _skin_visual == null or not is_instance_valid(_skin_visual):
 		return
 	_skin_visual.visible = (form == &"CUBE")
-	_skin_visual.rotation = 0.0
+	if not _skin_visual.visible:
+		return
+	# Giu dau nhan vat (skin chim/ech/tho) luon luon huong len tren trong khong gian the gioi,
+	# trong khi visual_root (khoi Cube) van xoay tron 360 do kieu Geometry Dash ban dau.
+	var facing: float = float(last_facing_dir if last_facing_dir != 0 else 1)
+	var target_angle: float = 0.0 if gravity_direction > 0 else PI
+	var target_scale := Vector2(facing if gravity_direction > 0 else -facing, 1.0)
+	_skin_visual.global_transform = Transform2D(target_angle, target_scale, 0.0, visual_root.global_position)
 	_update_visual()
 
 func _update_form_visibility() -> void:
