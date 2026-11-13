@@ -25,8 +25,6 @@ const JUMP_BUFFER_TIME: float = 0.10
 @export var ceiling_y: float = -48.0
 @export var floor_kill_y: float = 720.0
 @export var enforce_vertical_bounds: bool = true
-## Luon duy tri dau nhan vat huong len tren (dung nguyen huong ban dau, khong lon vong khi nhay)
-@export var keep_upright_on_jump: bool = false
 var form: StringName = &"CUBE"
 var control_locked: bool = false
 var _last_push_targets: Array = [] # T6.09 - khoi dang day (de ngat luc khi roi)
@@ -429,14 +427,7 @@ func _sync_skin_rotation() -> void:
 	if _skin_visual == null:
 		return
 	_skin_visual.visible = (form == &"CUBE")
-	if form == &"CUBE":
-		# Luon duy tri dau nhan vat huong len tren (giong het vi tri ban dau)
-		if gravity_direction > 0:
-			_skin_visual.global_rotation = 0.0
-		else:
-			_skin_visual.global_rotation = PI
-	else:
-		_skin_visual.rotation = 0.0
+	_skin_visual.rotation = 0.0
 	_update_visual()
 
 func _update_form_visibility() -> void:

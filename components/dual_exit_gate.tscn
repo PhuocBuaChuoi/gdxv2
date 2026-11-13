@@ -1,9 +1,10 @@
-[gd_scene load_steps=5 format=3]
+[gd_scene load_steps=6 format=3]
 
 [ext_resource type="Script" path="res://components/dual_exit_gate.gd" id="1_gate"]
+[ext_resource type="Texture2D" path="res://assets/sprites/dual_exit_gate.png" id="2_gate_tex"]
 
 [sub_resource type="RectangleShape2D" id="Rectangle_gate"]
-size = Vector2(140, 110)
+size = Vector2(160, 110)
 
 [sub_resource type="Gradient" id="Gradient_particles"]
 offsets = PackedFloat32Array(0, 0.5, 1)
@@ -20,6 +21,13 @@ script = ExtResource("1_gate")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("Rectangle_gate")
+
+[node name="GateSprite" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(0, -6)
+scale = Vector2(0.65, 0.65)
+texture = ExtResource("2_gate_tex")
+z_index = 0
 
 [node name="VortexBackdrop" type="Polygon2D" parent="."]
 polygon = PackedVector2Array(-54, 55, 54, 55, 54, -55, -54, -55)
@@ -78,37 +86,39 @@ z_index = -1
 
 [node name="PostLeft" type="Polygon2D" parent="."]
 polygon = PackedVector2Array(-72, 55, -54, 55, -54, -55, -72, -55)
-color = Color(0.2, 0.9, 1, 0.85)
+color = Color(0.2, 0.9, 1, 0.4)
+z_index = -1
 
 [node name="PostLeftInner" type="Polygon2D" parent="PostLeft"]
 polygon = PackedVector2Array(-69, 52, -57, 52, -57, -52, -69, -52)
-color = Color(0.05, 0.18, 0.28, 0.9)
+color = Color(0.05, 0.18, 0.28, 0.5)
 
 [node name="PostLeftCore" type="Line2D" parent="PostLeft"]
 points = PackedVector2Array(-63, -48, -63, 48)
 width = 3.0
-default_color = Color(0.4, 0.95, 1, 1)
+default_color = Color(0.4, 0.95, 1, 0.8)
 
 [node name="PostLeftCap" type="Polygon2D" parent="PostLeft"]
 polygon = PackedVector2Array(-74, -55, -52, -55, -58, -65, -68, -65)
-color = Color(0.2, 0.9, 1, 1)
+color = Color(0.2, 0.9, 1, 0.6)
 
 [node name="PostRight" type="Polygon2D" parent="."]
 polygon = PackedVector2Array(54, 55, 72, 55, 72, -55, 54, -55)
-color = Color(1, 0.6, 0.1, 0.85)
+color = Color(1, 0.6, 0.1, 0.4)
+z_index = -1
 
 [node name="PostRightInner" type="Polygon2D" parent="PostRight"]
 polygon = PackedVector2Array(57, 52, 69, 52, 69, -52, 57, -52)
-color = Color(0.28, 0.14, 0.04, 0.9)
+color = Color(0.28, 0.14, 0.04, 0.5)
 
 [node name="PostRightCore" type="Line2D" parent="PostRight"]
 points = PackedVector2Array(63, -48, 63, 48)
 width = 3.0
-default_color = Color(1, 0.75, 0.25, 1)
+default_color = Color(1, 0.75, 0.25, 0.8)
 
 [node name="PostRightCap" type="Polygon2D" parent="PostRight"]
 polygon = PackedVector2Array(52, -55, 74, -55, 68, -65, 58, -65)
-color = Color(1, 0.6, 0.1, 1)
+color = Color(1, 0.6, 0.1, 0.6)
 
 [node name="ArchGlow" type="Line2D" parent="."]
 points = PackedVector2Array(-70, -55, -30, -70, 30, -70, 70, -55)
