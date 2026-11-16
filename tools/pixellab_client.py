@@ -7,6 +7,7 @@ import json
 import time
 import os
 import sys
+import re
 
 MCP_URL = "https://api.pixellab.ai/mcp"
 
@@ -50,6 +51,39 @@ def get_balance():
     return text
 
 
+def fetch_job(job_id, output_path):
+    print(f"[*] Polling job {job_id}...")
+    for attempt in range(25):
+        poll_res = call_mcp("tools/call", {
+            "name": "get_image",
+            "arguments": {"job_id": job_id}
+        })
+        poll_text = ""
+        for c in poll_res.get("result", {}).get("content", []):
+            poll_text += c.get("text", "")
+            
+        urls = re.findall(r"https?://[^\s)\]\"\'<>]+", poll_text)
+        if urls:
+            img_url = urls[0]
+            print(f"[+] Image ready: {img_url}")
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            urllib.request.urlretrieve(img_url, output_path)
+            print(f"[+] Saved cleanly to {output_path}")
+            print(f"[*] Balance after generation:")
+            print(get_balance())
+            return True
+            
+        if "error" in poll_text.lower() or "failed" in poll_text.lower():
+            print("[!] Job failed:", poll_text)
+            return False
+            
+        print(f"    ... waiting ({attempt+1}/25): {poll_text[:80]}...")
+        time.sleep(3)
+            
+    print("[!] Timeout waiting for image.")
+    return False
+
+
 def generate_sprite(description, width=64, height=64, output_path="assets/sprites/custom_sprite.png", detail="low detail", view="side"):
     print(f"[*] Checking balance before generation...")
     print(get_balance())
@@ -71,69 +105,27 @@ def generate_sprite(description, width=64, height=64, output_path="assets/sprite
         print("[!] Error creating job:", res)
         return False
     
-    # Extract job id
     content_text = ""
     for c in res.get("result", {}).get("content", []):
         content_text += c.get("text", "")
     
     print(f"[*] Server response: {content_text}")
     
-    # Find job_id or image id
-    job_id = None
-    for token_part in content_text.replace("\n", " ").split(" "):
-        if "job_" in token_part or "job:" in token_part or token_part.startswith("job_"):
-            job_id = token_part.strip().replace("job:", "").replace("`", "").replace("'", "")
-            break
-        elif "id:" in token_part:
-            job_id = token_part.replace("id:", "").strip().replace("`", "")
-    
-    if not job_id:
-        # Check if json formatted
-        try:
-            d = json.loads(content_text)
-            job_id = d.get("job_id") or d.get("id")
-        except:
-            pass
-            
-    if not job_id:
-        print("[!] Could not parse job_id from response.")
+    # Extract UUID job id
+    uuids = re.findall(r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}", content_text)
+    if uuids:
+        job_id = uuids[0]
+    else:
+        print("[!] Could not parse job_id UUID from response.")
         return False
         
-    print(f"[*] Polling job {job_id}...")
-    for attempt in range(25):
-        time.sleep(3)
-        poll_res = call_mcp("tools/call", {
-            "name": "get_image",
-            "arguments": {"job_id": job_id}
-        })
-        poll_text = ""
-        for c in poll_res.get("result", {}).get("content", []):
-            poll_text += c.get("text", "")
-            
-        if "http" in poll_text:
-            # find url
-            for word in poll_text.replace("\n", " ").split(" "):
-                if word.startswith("http://") or word.startswith("https://"):
-                    img_url = word.strip().rstrip(").,'\"")
-                    print(f"[+] Image ready: {img_url}")
-                    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-                    urllib.request.urlretrieve(img_url, output_path)
-                    print(f"[+] Saved cleanly to {output_path}")
-                    print(f"[*] Balance after generation:")
-                    print(get_balance())
-                    return True
-        elif "error" in poll_text.lower() or "failed" in poll_text.lower():
-            print("[!] Job failed:", poll_text)
-            return False
-        else:
-            print(f"    ... waiting ({attempt+1}/25): {poll_text[:80]}...")
-            
-    print("[!] Timeout waiting for image.")
-    return False
+    return fetch_job(job_id, output_path)
 
 
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
+    if len(sys.argv) > 2 and sys.argv[1] == "--poll":
+        fetch_job(sys.argv[2], sys.argv[3])
+    elif len(sys.argv) > 1:
         prompt = sys.argv[1]
         out = sys.argv[2] if len(sys.argv) > 2 else "assets/sprites/test_gen.png"
         generate_sprite(prompt, output_path=out)
