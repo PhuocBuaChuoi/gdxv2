@@ -16,6 +16,11 @@ const ORB_COLORS := {
 	1: Color(0.3, 0.6, 1, 0.95),
 	2: Color(1, 0.3, 0.75, 0.95),
 }
+const ORB_TEXTURES := {
+	0: preload("res://assets/sprites/jump_orb_yellow.png"),
+	1: preload("res://assets/sprites/jump_orb_blue.png"),
+	2: preload("res://assets/sprites/jump_orb_pink.png"),
+}
 
 var _overlapping: Dictionary = {}
 var _pulse_time: float = 0.0
@@ -32,12 +37,16 @@ func _physics_process(_delta: float) -> void:
 	var pulse := 0.5 + 0.5 * sin(_pulse_time * 4.0)
 	var glow := get_node_or_null("Glow") as Polygon2D
 	var ring := get_node_or_null("Ring") as Line2D
+	var spr := get_node_or_null("Sprite") as Sprite2D
 	if glow != null:
 		glow.scale = Vector2.ONE * (1.0 + pulse * 0.12)
 		glow.color.a = 0.12 + pulse * 0.12
 	if ring != null:
 		ring.rotation = _pulse_time * 0.7
-		ring.modulate.a = 0.45 + pulse * 0.35
+		ring.modulate.a = 0.3 + pulse * 0.2
+	if spr != null:
+		spr.scale = Vector2.ONE * (0.46 + pulse * 0.04)
+		spr.rotation = _pulse_time * 0.35
 	for body in _overlapping.values():
 		if is_instance_valid(body) and _jump_just_pressed(body):
 			trigger(body)
@@ -93,3 +102,10 @@ func _update_color() -> void:
 	var orb := get_node_or_null("Orb") as Polygon2D
 	if orb != null:
 		orb.color = ORB_COLORS.get(orb_type, Color.WHITE)
+	var glow := get_node_or_null("Glow") as Polygon2D
+	if glow != null:
+		var c: Color = ORB_COLORS.get(orb_type, Color.WHITE)
+		glow.color = Color(c.r, c.g, c.b, 0.16)
+	var spr := get_node_or_null("Sprite") as Sprite2D
+	if spr != null and ORB_TEXTURES.has(orb_type):
+		spr.texture = ORB_TEXTURES[orb_type]

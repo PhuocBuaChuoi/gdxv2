@@ -11,19 +11,25 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	# Neon GD-style: nhan pulse + vong halo xoay (visual-only, khong scale Area).
 	_pulse += delta
-	var s := 1.0 + 0.09 * sin(_pulse * 4.2)
+	var s := 1.0 + 0.08 * sin(_pulse * 4.2)
 	var glow := get_node_or_null("Glow") as Polygon2D
 	if glow != null:
 		glow.scale = Vector2(s, s)
 	var ring := get_node_or_null("GlowRing") as Line2D
 	if ring != null:
 		ring.scale = Vector2(s, s)
-		ring.rotation += delta * 0.9
-		ring.modulate.a = 0.55 + 0.3 * (0.5 + 0.5 * sin(_pulse * 4.2))
+		ring.rotation += delta * 0.8
+		ring.modulate.a = 0.4 + 0.25 * (0.5 + 0.5 * sin(_pulse * 4.2))
+	var spr := get_node_or_null("Sprite") as Sprite2D
+	if spr != null:
+		spr.scale = Vector2(0.46 * s, 0.46 * s)
+		spr.rotation += delta * 0.4
+
 
 func _on_body_entered(body: Node2D) -> void:
 	if body is GdxPlayer:
 		recharge(body as GdxPlayer)
+
 
 func recharge(player: GdxPlayer) -> bool:
 	if player == null or player.form != &"DASH":
