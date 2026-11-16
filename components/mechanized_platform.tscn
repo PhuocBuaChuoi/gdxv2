@@ -15,8 +15,17 @@ shape = SubResource("Rectangle_mechanized_platform")
 
 [node name="Deck" type="Polygon2D" parent="."]
 polygon = PackedVector2Array(-48, -12, 48, -12, 48, 12, -48, 12)
-color = Color(0.55, 0.6, 0.75, 1)
+color = Color(0.06, 0.08, 0.14, 0.95)
 
 [node name="GlowLine" type="Polygon2D" parent="."]
 polygon = PackedVector2Array(-48, -12, 48, -12, 48, -8, -48, -8)
-color = Color(0.3, 0.9, 1, 0.8)
+color = Color(0.18, 0.88, 1.0, 0.95)
+
+[node name="BottomLine" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-44, 10, 44, 10, 44, 12, -44, 12)
+color = Color(0.1, 0.6, 0.8, 0.6)
+
+[node name="InsetLine" type="Line2D" parent="."]
+points = PackedVector2Array(-42, 2, 42, 2)
+width = 1.5
+default_color = Color(0.18, 0.28, 0.45, 0.75)

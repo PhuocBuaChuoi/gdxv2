@@ -20,7 +20,7 @@ color = Color(1, 0.3, 0.3, 0.35)
 
 [node name="BaseBlock" type="Polygon2D" parent="."]
 polygon = PackedVector2Array(-48, 12, 48, 12, 48, 24, -48, 24)
-color = Color(0.18, 0.2, 0.25, 0.8)
+color = Color(0.08, 0.11, 0.18, 0.95)
 z_index = -1
 
 [node name="SpikeOutline" type="Line2D" parent="."]
@@ -30,5 +30,5 @@ default_color = Color(1, 0.4, 0.4, 1)
 
 [node name="BaseLine" type="Line2D" parent="."]
 points = PackedVector2Array(-48, 12, 48, 12)
-width = 3.0
-default_color = Color(1, 1, 1, 0.85)
+width = 2.0
+default_color = Color(0.25, 0.38, 0.55, 0.8)

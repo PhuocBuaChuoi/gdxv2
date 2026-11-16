@@ -22,11 +22,16 @@ const ROWS := 5
 const ATLAS_PATH := "res://resources/neon_tiles_atlas.png"
 const TILESET_PATH := "res://resources/gd_neon_tileset.tres"
 
-const BODY := Color("#1a1f2c")
-const NEON := Color("#35e0ff")
-const NEON_SOFT := Color("#22b8d6")
-const NEON_DIM := Color("#0f6f8a")
-const NEON_HOT := Color("#d8fbff")
+## Cyberpunk / Geometry Dash palette
+const BODY := Color("#0e1320")
+const BODY_INSET := Color("#1a233a")
+const BODY_TECH := Color("#243354")
+const BODY_NOTCH := Color("#354d7e")
+
+const NEON := Color("#2fe0ff")
+const NEON_SOFT := Color("#1baecc")
+const NEON_DIM := Color("#0e5f73")
+const NEON_HOT := Color("#e8fcff")
 
 var _done := false
 
@@ -67,8 +72,6 @@ func _run() -> int:
 	var src := TileSetAtlasSource.new()
 	src.texture = tex
 	src.texture_region_size = Vector2i(TILE, TILE)
-	# Gan source vao TileSet TRUOC khi cau hinh tile: TileData can
-	# doc so physics layers tu TileSet, gan sau se out-of-bounds.
 	ts.add_source(src)
 	for ty in range(ROWS):
 		for tx in range(COLS):
@@ -76,7 +79,6 @@ func _run() -> int:
 	_solid_collision(src, Vector2i(0, 0), false)
 	_solid_collision(src, Vector2i(1, 0), false)
 	_slab_collision(src, Vector2i(2, 0))
-	# Tile (3,0) deco: khong them polygon = khong collision.
 	for ty in range(1, ROWS):
 		for tx in range(COLS):
 			_solid_collision(src, Vector2i(tx, ty), false)
@@ -92,41 +94,77 @@ func _origin(tx: int, ty: int) -> Vector2i:
 
 
 func _fill_body(img: Image, tx: int, ty: int) -> void:
-	img.fill_rect(Rect2i(_origin(tx, ty), Vector2i(TILE, TILE)), BODY)
+	var o: Vector2i = _origin(tx, ty)
+	# 1. Base deep cyber slate
+	img.fill_rect(Rect2i(o, Vector2i(TILE, TILE)), BODY)
+	
+	# 2. Inset geometric frame (4px margin)
+	img.fill_rect(Rect2i(o + Vector2i(4, 4), Vector2i(TILE - 8, 1)), BODY_INSET)
+	img.fill_rect(Rect2i(o + Vector2i(4, TILE - 5), Vector2i(TILE - 8, 1)), BODY_INSET)
+	img.fill_rect(Rect2i(o + Vector2i(4, 4), Vector2i(1, TILE - 8)), BODY_INSET)
+	img.fill_rect(Rect2i(o + Vector2i(TILE - 5, 4), Vector2i(1, TILE - 8)), BODY_INSET)
+	
+	# 3. 4 Corner tech brackets (inside 8px)
+	var c_offsets := [
+		Vector2i(8, 8), Vector2i(TILE - 10, 8),
+		Vector2i(8, TILE - 10), Vector2i(TILE - 10, TILE - 10)
+	]
+	for c in c_offsets:
+		img.fill_rect(Rect2i(o + c, Vector2i(2, 2)), BODY_NOTCH)
+	
+	# 4. Center cyber emblem / tech cross
+	var mid := Vector2i(o.x + TILE / 2, o.y + TILE / 2)
+	img.fill_rect(Rect2i(mid - Vector2i(4, 0), Vector2i(9, 1)), BODY_TECH)
+	img.fill_rect(Rect2i(mid - Vector2i(0, 4), Vector2i(1, 9)), BODY_TECH)
+	img.set_pixel(mid.x, mid.y, BODY_NOTCH)
 
 
-## Ve vien neon cho cac canh lo ra ngoai (bit trong mask).
-## Thu tu: doc (W/E) -> ngang (N/S) de duong vien tren cung chay lien.
 func _draw_edges(img: Image, tx: int, ty: int, mask: int) -> void:
 	var o: Vector2i = _origin(tx, ty)
+	# W (West / Left)
 	if mask & 8:
-		img.fill_rect(Rect2i(o, Vector2i(3, TILE)), NEON_SOFT)
+		img.fill_rect(Rect2i(o, Vector2i(2, TILE)), NEON_SOFT)
+		img.fill_rect(Rect2i(o + Vector2i(2, 0), Vector2i(1, TILE)), NEON)
 		img.fill_rect(Rect2i(o + Vector2i(3, 0), Vector2i(2, TILE)), NEON_DIM)
+	# E (East / Right)
 	if mask & 2:
-		img.fill_rect(Rect2i(o + Vector2i(TILE - 3, 0), Vector2i(3, TILE)), NEON_SOFT)
+		img.fill_rect(Rect2i(o + Vector2i(TILE - 2, 0), Vector2i(2, TILE)), NEON_SOFT)
+		img.fill_rect(Rect2i(o + Vector2i(TILE - 3, 0), Vector2i(1, TILE)), NEON)
 		img.fill_rect(Rect2i(o + Vector2i(TILE - 5, 0), Vector2i(2, TILE)), NEON_DIM)
+	# N (North / Top walking runway)
 	if mask & 1:
 		img.fill_rect(Rect2i(o, Vector2i(TILE, 1)), NEON_HOT)
-		img.fill_rect(Rect2i(o + Vector2i(0, 1), Vector2i(TILE, 3)), NEON)
+		img.fill_rect(Rect2i(o + Vector2i(0, 1), Vector2i(TILE, 2)), NEON)
+		img.fill_rect(Rect2i(o + Vector2i(0, 3), Vector2i(TILE, 1)), NEON_SOFT)
 		img.fill_rect(Rect2i(o + Vector2i(0, 4), Vector2i(TILE, 2)), NEON_DIM)
+	# S (South / Ceiling)
 	if mask & 4:
-		img.fill_rect(Rect2i(o + Vector2i(0, TILE - 3), Vector2i(TILE, 3)), NEON_SOFT)
-		img.fill_rect(Rect2i(o + Vector2i(0, TILE - 5), Vector2i(TILE, 2)), NEON_DIM)
+		img.fill_rect(Rect2i(o + Vector2i(0, TILE - 2), Vector2i(TILE, 2)), NEON_SOFT)
+		img.fill_rect(Rect2i(o + Vector2i(0, TILE - 4), Vector2i(TILE, 2)), NEON_DIM)
 
 
 func _draw_oneway(img: Image, tx: int, ty: int) -> void:
 	var o: Vector2i = _origin(tx, ty)
 	img.fill_rect(Rect2i(o, Vector2i(TILE, 1)), NEON_HOT)
 	img.fill_rect(Rect2i(o + Vector2i(0, 1), Vector2i(TILE, 2)), NEON)
-	img.fill_rect(Rect2i(o + Vector2i(0, 3), Vector2i(TILE, 1)), NEON_SOFT)
-	img.fill_rect(Rect2i(o + Vector2i(0, 4), Vector2i(TILE, 2)), Color(NEON_DIM, 0.55))
+	img.fill_rect(Rect2i(o + Vector2i(0, 3), Vector2i(TILE, 2)), NEON_SOFT)
+	img.fill_rect(Rect2i(o + Vector2i(0, 5), Vector2i(TILE, 3)), Color(NEON_DIM, 0.6))
+	# Subtle upward chevron indicators
+	var c_dim := Color(NEON, 0.45)
+	for i in range(4):
+		var cx := o.x + 6 + i * 10
+		img.set_pixel(cx + 2, o.y + 8, c_dim)
+		img.set_pixel(cx + 1, o.y + 9, c_dim)
+		img.set_pixel(cx + 3, o.y + 9, c_dim)
 
 
 func _draw_deco(img: Image, tx: int, ty: int) -> void:
 	var o: Vector2i = _origin(tx, ty)
-	var c := Color(1, 1, 1, 0.10)
-	img.fill_rect(Rect2i(o + Vector2i(TILE / 2 - 1, 4), Vector2i(2, TILE - 8)), c)
-	img.fill_rect(Rect2i(o + Vector2i(4, TILE / 2 - 1), Vector2i(TILE - 8, 2)), c)
+	var c := Color(NEON_SOFT, 0.25)
+	var c_hot := Color(NEON_HOT, 0.45)
+	img.fill_rect(Rect2i(o + Vector2i(TILE / 2 - 1, 6), Vector2i(2, TILE - 12)), c)
+	img.fill_rect(Rect2i(o + Vector2i(6, TILE / 2 - 1), Vector2i(TILE - 12, 2)), c)
+	img.fill_rect(Rect2i(o + Vector2i(TILE / 2 - 2, TILE / 2 - 2), Vector2i(4, 4)), c_hot)
 
 
 func _full_rect() -> PackedVector2Array:
@@ -142,7 +180,6 @@ func _solid_collision(src: TileSetAtlasSource, coords: Vector2i, one_way: bool) 
 
 
 func _slab_collision(src: TileSetAtlasSource, coords: Vector2i) -> void:
-	# Be mong 1/4 tren cua tile (toa do tile, goc giua o).
 	var td: TileData = src.get_tile_data(coords, 0)
 	td.add_collision_polygon(0)
 	td.set_collision_polygon_points(0, 0, PackedVector2Array([Vector2(-24, -24), Vector2(24, -24), Vector2(24, -12), Vector2(-24, -12)]))

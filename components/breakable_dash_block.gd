@@ -46,6 +46,16 @@ func _rebuild_geometry() -> void:
 			Vector2(-half_w, half_h)
 		])
 	
+	var border := get_node_or_null("Border") as Line2D
+	if border != null:
+		border.points = PackedVector2Array([
+			Vector2(-half_w, -half_h),
+			Vector2(half_w, -half_h),
+			Vector2(half_w, half_h),
+			Vector2(-half_w, half_h),
+			Vector2(-half_w, -half_h)
+		])
+	
 	var detector := get_node_or_null("DashDetector") as Area2D
 	var det_shape := detector.get_node_or_null("CollisionShape2D") as CollisionShape2D if detector else null
 	if det_shape != null and det_shape.shape is RectangleShape2D:
