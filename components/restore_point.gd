@@ -28,7 +28,10 @@ func activate(player_id: int) -> bool:
 	is_active = true
 	var diamond := get_node_or_null("Diamond") as Polygon2D
 	if diamond != null:
-		diamond.color = Color(0.25, 1.0, 0.4, 1.0)
+		diamond.color = Color(0.15, 0.9, 0.35, 0.95)
+	var inner_glow := get_node_or_null("InnerGlow") as Polygon2D
+	if inner_glow != null:
+		inner_glow.color = Color(0.2, 1.0, 0.4, 0.8)
 	var particles := get_node_or_null("ActivationParticles") as GPUParticles2D
 	if particles != null:
 		particles.one_shot = true
@@ -64,7 +67,10 @@ func reset_activation() -> void:
 		particles.emitting = false
 	var diamond := get_node_or_null("Diamond") as Polygon2D
 	if diamond != null:
-		diamond.color = Color(0.45, 0.45, 0.5, 1.0)
+		diamond.color = Color(0.06, 0.15, 0.25, 0.9)
+	var inner_glow := get_node_or_null("InnerGlow") as Polygon2D
+	if inner_glow != null:
+		inner_glow.color = Color(0.2, 0.85, 1, 0.6)
 
 func _spawn_activation_particles() -> void:
 	var existing := get_node_or_null("ActivationParticles") as GPUParticles2D

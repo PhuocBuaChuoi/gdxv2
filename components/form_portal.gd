@@ -18,9 +18,9 @@ extends Area2D
 var _pulse: float = 0.0
 
 const FORM_COLORS := {
-	"CUBE": Color(1, 1, 1, 0.9),
+	"CUBE": Color(0.25, 0.9, 1, 0.9),
 	"SHIP": Color(0.3, 0.8, 1, 0.9),
-	"UFO": Color(1, 0.4, 0.9, 0.9),
+	"UFO": Color(0.95, 0.3, 0.85, 0.9),
 	"DASH": Color(1, 0.35, 0.2, 0.9),
 }
 
@@ -78,10 +78,19 @@ func _player_allowed(body: Node2D) -> bool:
 
 
 func _update_color() -> void:
-	var c: Color = FORM_COLORS.get(target_form, Color.WHITE)
+	var c: Color = FORM_COLORS.get(target_form, Color(0.25, 0.9, 1))
 	var frame := get_node_or_null("Frame") as Polygon2D
 	if frame != null:
 		frame.color = c
 	var inner := get_node_or_null("Inner") as Polygon2D
 	if inner != null:
-		inner.color = Color(c.r, c.g, c.b, c.a * 0.35)
+		inner.color = Color(c.r * 0.3, c.g * 0.3, c.b * 0.3, 0.85)
+	var glow := get_node_or_null("Glow") as Polygon2D
+	if glow != null:
+		glow.color = Color(c.r, c.g, c.b, 0.12)
+	var back_glow := get_node_or_null("BackGlow") as Polygon2D
+	if back_glow != null:
+		back_glow.color = Color(c.r, c.g, c.b, 0.1)
+	var border := get_node_or_null("NeonBorder") as Line2D
+	if border != null:
+		border.default_color = Color(c.r, c.g, c.b, 0.8)

@@ -108,7 +108,7 @@ linked_triggers = [NodePath("../CeilingButton")]
 move_offset = Vector2(0, -120)
 
 [node name="DualExitGate" parent="Mechanisms" instance=ExtResource("16_gate")]
-position = Vector2(2150, 340)
+position = Vector2(2150, 377)
 
 [node name="Checkpoints" type="Node2D" parent="."]
 

@@ -15,11 +15,11 @@ script = ExtResource("1_orb")
 shape = SubResource("Circle_dash_orb")
 
 [node name="Glow" type="Polygon2D" parent="."]
-polygon = PackedVector2Array(0, -20, 15, 0, 0, 20, -15, 0)
+polygon = PackedVector2Array(0, -18, 7, -16, 13, -13, 16, -7, 18, 0, 16, 7, 13, 13, 7, 16, 0, 18, -7, 16, -13, 13, -16, 7, -18, 0, -16, -7, -13, -13, -7, -16)
 color = Color(1, 0.35, 0.8, 0.15)
 
 [node name="GlowRing" type="Line2D" parent="."]
-points = PackedVector2Array(0, -28, 20, 0, 0, 28, -20, 0, 0, -28)
+points = PackedVector2Array(0, -22, 8.4, -20.3, 15.6, -15.6, 20.3, -8.4, 22, 0, 20.3, 8.4, 15.6, 15.6, 8.4, 20.3, 0, 22, -8.4, 20.3, -15.6, 15.6, -20.3, 8.4, -22, 0, -20.3, -8.4, -15.6, -15.6, -8.4, -20.3, 0, -22)
 width = 3.5
 default_color = Color(1, 0.7, 0.9, 0.5)
 

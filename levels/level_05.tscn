@@ -149,7 +149,7 @@ linked_triggers = [NodePath("../ButtonHigh")]
 move_offset = Vector2(0, -144)
 
 [node name="DualExitGate" parent="Mechanisms" instance=ExtResource("13_gate")]
-position = Vector2(2200, 328)
+position = Vector2(2200, 377)
 
 [node name="Checkpoints" type="Node2D" parent="."]
 

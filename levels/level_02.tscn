@@ -107,7 +107,7 @@ move_offset = Vector2(0, -120)
 speed = 180.0
 
 [node name="DualExitGate" parent="Mechanisms" instance=ExtResource("14_gate")]
-position = Vector2(2180, 328)
+position = Vector2(2180, 377)
 
 [node name="Checkpoints" type="Node2D" parent="."]
 

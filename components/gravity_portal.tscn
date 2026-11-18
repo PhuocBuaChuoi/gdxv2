@@ -13,20 +13,24 @@ script = ExtResource("1_portal")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("Circle_portal")
 
+[node name="Backdrop" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-24, 0, -12, -20, 12, -20, 24, 0, 12, 20, -12, 20)
+color = Color(0.08, 0.05, 0.18, 0.85)
+z_index = -1
+
 [node name="PortalLine" type="Line2D" parent="."]
 points = PackedVector2Array(-24, 0, -12, -20, 12, -20, 24, 0, 12, 20, -12, 20, -24, 0)
-width = 4.5
+width = 3.5
 closed = true
-default_color = Color(0.65, 0.5, 1, 1)
+default_color = Color(0.7, 0.45, 1, 0.95)
 
 [node name="GlowRing" type="Line2D" parent="."]
-points = PackedVector2Array(-46, 0, -24, -40, 24, -40, 46, 0, 24, 40, -24, 40, -46, 0)
-width = 7.0
+points = PackedVector2Array(-36, 0, -18, -30, 18, -30, 36, 0, 18, 30, -18, 30, -36, 0)
+width = 6.0
 closed = true
-default_color = Color(0.35, 0.8, 1, 0.4)
-z_index = -1
+default_color = Color(0.5, 0.25, 1, 0.35)
+z_index = -2
 
 [node name="Core" type="Polygon2D" parent="."]
-polygon = PackedVector2Array(-15, -15, 15, -15, 15, 15, -15, 15)
-color = Color(0.8, 0.55, 1, 0.35)
-z_index = -1
+polygon = PackedVector2Array(-12, -12, 12, -12, 12, 12, -12, 12)
+color = Color(0.75, 0.5, 1, 0.45)

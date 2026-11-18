@@ -25,12 +25,22 @@ shape = SubResource("Rectangle_restore")
 
 [node name="Diamond" type="Polygon2D" parent="."]
 polygon = PackedVector2Array(0, -24, 16, 0, 0, 24, -16, 0)
-color = Color(0.45, 0.45, 0.5, 1)
+color = Color(0.06, 0.15, 0.25, 0.9)
+
+[node name="InnerGlow" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, -16, 10, 0, 0, 16, -10, 0)
+color = Color(0.2, 0.85, 1, 0.6)
 
 [node name="Outline" type="Line2D" parent="."]
 points = PackedVector2Array(0, -24, 16, 0, 0, 24, -16, 0, 0, -24)
-width = 3.0
-default_color = Color(0.8, 0.9, 1, 1)
+width = 2.5
+default_color = Color(0.25, 0.9, 1, 0.9)
+
+[node name="OuterGlow" type="Line2D" parent="."]
+points = PackedVector2Array(0, -26, 18, 0, 0, 26, -18, 0, 0, -26)
+width = 5.0
+default_color = Color(0.2, 0.8, 1, 0.2)
+z_index = -1
 
 [node name="ActivationParticles" type="GPUParticles2D" parent="."]
 emitting = false

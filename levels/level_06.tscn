@@ -127,7 +127,7 @@ require_all = true
 position = Vector2(1850, 380)
 
 [node name="DualExitGate" parent="Mechanisms" instance=ExtResource("14_gate")]
-position = Vector2(2180, 360)
+position = Vector2(2180, 377)
 
 [node name="Checkpoints" type="Node2D" parent="."]
 

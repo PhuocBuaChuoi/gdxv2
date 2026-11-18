@@ -112,7 +112,7 @@ position = Vector2(1440, 416)
 pad_type = 0
 
 [node name="DualExitGate" parent="Mechanisms" instance=ExtResource("14_gate")]
-position = Vector2(2180, 360)
+position = Vector2(2180, 377)
 
 [node name="Checkpoints" type="Node2D" parent="."]
 
