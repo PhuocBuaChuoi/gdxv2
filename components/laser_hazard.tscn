@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://components/laser_hazard.gd" id="1_laser"]
+[ext_resource type="Texture2D" path="res://assets/sprites/laser_emitter.png" id="2_emitter_tex"]
 
 [sub_resource type="RectangleShape2D" id="Rectangle_laser_beam"]
 size = Vector2(24, 120)
@@ -27,7 +28,16 @@ position = Vector2(0, -64)
 polygon = PackedVector2Array(-16, -6, 16, -6, 16, 6, -16, 6)
 color = Color(0.35, 0.38, 0.45, 1)
 
+[node name="EmitterTop" type="Sprite2D" parent="PostTop"]
+texture_filter = 1
+rotation = 3.14159
+texture = ExtResource("2_emitter_tex")
+
 [node name="PostBottom" type="Polygon2D" parent="."]
 position = Vector2(0, 64)
 polygon = PackedVector2Array(-16, -6, 16, -6, 16, 6, -16, 6)
 color = Color(0.35, 0.38, 0.45, 1)
+
+[node name="EmitterBottom" type="Sprite2D" parent="PostBottom"]
+texture_filter = 1
+texture = ExtResource("2_emitter_tex")

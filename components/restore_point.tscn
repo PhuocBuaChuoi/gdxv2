@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://components/restore_point.gd" id="1_restore"]
+[ext_resource type="Texture2D" path="res://assets/sprites/restore_point.png" id="2_restore_tex"]
 
 [sub_resource type="RectangleShape2D" id="Rectangle_restore"]
 size = Vector2(52, 72)
@@ -41,6 +42,10 @@ points = PackedVector2Array(0, -26, 18, 0, 0, 26, -18, 0, 0, -26)
 width = 5.0
 default_color = Color(0.2, 0.8, 1, 0.2)
 z_index = -1
+
+[node name="CrystalSprite" type="Sprite2D" parent="."]
+texture_filter = 1
+texture = ExtResource("2_restore_tex")
 
 [node name="ActivationParticles" type="GPUParticles2D" parent="."]
 emitting = false

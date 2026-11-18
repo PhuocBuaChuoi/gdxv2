@@ -13,6 +13,9 @@ extends Area2D
 @export var pair_window: float = 0.5
 @export var min_heavy_mass: float = 1.0
 
+const TEX_NORMAL = preload("res://assets/sprites/pressure_button.png")
+const TEX_PRESSED = preload("res://assets/sprites/pressure_button_pressed.png")
+
 signal triggered(is_on: bool)
 
 var is_on: bool = false
@@ -104,3 +107,6 @@ func _update_visual() -> void:
 	var glow := get_node_or_null("Glow") as Polygon2D
 	if glow != null:
 		glow.color.a = 0.35 if is_on else 0.0
+	var spr := get_node_or_null("Visual/ButtonSprite") as Sprite2D
+	if spr != null:
+		spr.texture = TEX_PRESSED if is_on else TEX_NORMAL

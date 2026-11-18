@@ -12,6 +12,8 @@ signal shattered()
 		block_size = Vector2i(maxi(1, value.x), maxi(1, value.y))
 		_rebuild_geometry()
 
+const WALL_TEX = preload("res://assets/sprites/breakable_dash_wall.png")
+
 @onready var _detector: Area2D = $DashDetector
 var _shattered: bool = false
 
@@ -62,6 +64,18 @@ func _rebuild_geometry() -> void:
 		if not det_shape.shape.resource_local_to_scene:
 			det_shape.shape = det_shape.shape.duplicate()
 		(det_shape.shape as RectangleShape2D).size = Vector2(total_w + 12.0, total_h + 12.0)
+
+	var spr_container := get_node_or_null("Sprites") as Node2D
+	if spr_container != null:
+		for c in spr_container.get_children():
+			c.queue_free()
+		for x in range(block_size.x):
+			for y in range(block_size.y):
+				var spr := Sprite2D.new()
+				spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+				spr.texture = WALL_TEX
+				spr.position = Vector2(-half_w + float(x) * 48.0 + 24.0, -half_h + float(y) * 48.0 + 24.0)
+				spr_container.add_child(spr)
 
 
 func is_dashing_body(body: Node2D) -> bool:

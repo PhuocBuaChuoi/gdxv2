@@ -4,6 +4,9 @@ extends Area2D
 ## T5.01/T5.03 — ordered co-op checkpoint with activation feedback.
 signal activated(checkpoint: RestorePoint, player_id: int)
 
+const TEX_INACTIVE = preload("res://assets/sprites/restore_point.png")
+const TEX_ACTIVE = preload("res://assets/sprites/restore_point_active.png")
+
 @export var checkpoint_order: int = 0
 @export var require_both_players: bool = false
 var is_active: bool = false
@@ -32,6 +35,9 @@ func activate(player_id: int) -> bool:
 	var inner_glow := get_node_or_null("InnerGlow") as Polygon2D
 	if inner_glow != null:
 		inner_glow.color = Color(0.2, 1.0, 0.4, 0.8)
+	var spr := get_node_or_null("CrystalSprite") as Sprite2D
+	if spr != null:
+		spr.texture = TEX_ACTIVE
 	var particles := get_node_or_null("ActivationParticles") as GPUParticles2D
 	if particles != null:
 		particles.one_shot = true
@@ -71,6 +77,9 @@ func reset_activation() -> void:
 	var inner_glow := get_node_or_null("InnerGlow") as Polygon2D
 	if inner_glow != null:
 		inner_glow.color = Color(0.2, 0.85, 1, 0.6)
+	var spr := get_node_or_null("CrystalSprite") as Sprite2D
+	if spr != null:
+		spr.texture = TEX_INACTIVE
 
 func _spawn_activation_particles() -> void:
 	var existing := get_node_or_null("ActivationParticles") as GPUParticles2D

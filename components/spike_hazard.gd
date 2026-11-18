@@ -28,6 +28,11 @@ const HAZARD_COLORS := {
 	1: Color(0.2, 0.9, 1, 0.95),
 	2: Color(1, 0.6, 0.1, 0.95),
 }
+const SPIKE_TEXTURES := {
+	0: preload("res://assets/sprites/spike_red.png"),
+	1: preload("res://assets/sprites/spike_cyan.png"),
+	2: preload("res://assets/sprites/spike_orange.png"),
+}
 
 
 func _ready() -> void:
@@ -95,6 +100,24 @@ func _rebuild_geometry() -> void:
 				col_shape.shape = col_shape.shape.duplicate()
 			(col_shape.shape as RectangleShape2D).size = Vector2(total_width, 24.0)
 		col_shape.position = Vector2(0.0, -6.0)
+	
+	_rebuild_sprites(half_w)
+
+
+func _rebuild_sprites(half_w: float) -> void:
+	var container := get_node_or_null("Sprites") as Node2D
+	if container == null:
+		return
+	for c in container.get_children():
+		c.queue_free()
+	var tex: Texture2D = SPIKE_TEXTURES.get(hazard_type, SPIKE_TEXTURES[0])
+	for i in range(tile_count):
+		var x_mid := -half_w + float(i) * 48.0 + 24.0
+		var spr := Sprite2D.new()
+		spr.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST
+		spr.texture = tex
+		spr.position = Vector2(x_mid, -12.0)
+		container.add_child(spr)
 
 
 func _apply_layer_and_color() -> void:
@@ -106,3 +129,9 @@ func _apply_layer_and_color() -> void:
 	var outline := get_node_or_null("SpikeOutline") as Line2D
 	if outline != null:
 		outline.default_color = Color(col.r, col.g, col.b, 1.0)
+	var container := get_node_or_null("Sprites") as Node2D
+	if container != null:
+		var tex: Texture2D = SPIKE_TEXTURES.get(hazard_type, SPIKE_TEXTURES[0])
+		for spr in container.get_children():
+			if spr is Sprite2D:
+				(spr as Sprite2D).texture = tex
