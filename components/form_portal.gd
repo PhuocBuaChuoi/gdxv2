@@ -24,6 +24,13 @@ const FORM_COLORS := {
 	"DASH": Color(1, 0.35, 0.2, 0.9),
 }
 
+const PORTAL_TEXTURES := {
+	"CUBE": preload("res://assets/sprites/portal_cube.png"),
+	"SHIP": preload("res://assets/sprites/portal_ship.png"),
+	"UFO": preload("res://assets/sprites/portal_ufo.png"),
+	"DASH": preload("res://assets/sprites/portal_dash.png"),
+}
+
 
 func _ready() -> void:
 	_update_color()
@@ -94,3 +101,6 @@ func _update_color() -> void:
 	var border := get_node_or_null("NeonBorder") as Line2D
 	if border != null:
 		border.default_color = Color(c.r, c.g, c.b, 0.8)
+	var spr := get_node_or_null("PortalSprite") as Sprite2D
+	if spr != null:
+		spr.texture = PORTAL_TEXTURES.get(target_form, PORTAL_TEXTURES["CUBE"])

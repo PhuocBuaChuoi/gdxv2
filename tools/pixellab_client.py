@@ -19,7 +19,7 @@ def get_token():
     return os.environ.get("PIXELLAB_API_KEY", "")
 
 
-def call_mcp(method, params, req_id=1):
+def call_mcp(method, params, req_id=1, retries=3):
     token = get_token()
     if not token:
         raise ValueError("Missing PixelLab token in ~/.gemini/config/pixellab_key.txt")
@@ -34,13 +34,21 @@ def call_mcp(method, params, req_id=1):
         "method": method,
         "params": params
     }
-    req = urllib.request.Request(MCP_URL, data=json.dumps(payload).encode("utf-8"), headers=headers)
-    with urllib.request.urlopen(req) as resp:
-        body = resp.read().decode("utf-8")
-        for line in body.split("\n"):
-            if line.startswith("data: "):
-                return json.loads(line[6:])
-    return None
+    for attempt in range(retries):
+        try:
+            req = urllib.request.Request(MCP_URL, data=json.dumps(payload).encode("utf-8"), headers=headers)
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                body = resp.read().decode("utf-8")
+                for line in body.split("\n"):
+                    if line.startswith("data: "):
+                        return json.loads(line[6:])
+            return None
+        except Exception as e:
+            if attempt < retries - 1:
+                print(f"[!] MCP call failed ({e}), retrying {attempt+1}/{retries}...")
+                time.sleep(2)
+            else:
+                raise e
 
 
 def get_balance():

@@ -74,18 +74,21 @@ default_color = Color(1, 1, 1, 0.45)
 z_index = 0
 
 [node name="Threshold" type="Line2D" parent="."]
+visible = false
 points = PackedVector2Array(-72, 55, 72, 55)
 width = 2.5
 default_color = Color(0.2, 0.85, 1, 0.4)
 z_index = -1
 
 [node name="ThresholdGlow" type="Line2D" parent="."]
+visible = false
 points = PackedVector2Array(-70, 55, 0, 55, 70, 55)
 width = 6.0
 default_color = Color(0.2, 0.8, 1, 0.2)
 z_index = -1
 
 [node name="PostLeft" type="Polygon2D" parent="."]
+visible = false
 polygon = PackedVector2Array(-72, 55, -54, 55, -54, -55, -72, -55)
 color = Color(0.2, 0.9, 1, 0.4)
 z_index = -1
@@ -104,6 +107,7 @@ polygon = PackedVector2Array(-74, -55, -52, -55, -58, -65, -68, -65)
 color = Color(0.2, 0.9, 1, 0.6)
 
 [node name="PostRight" type="Polygon2D" parent="."]
+visible = false
 polygon = PackedVector2Array(54, 55, 72, 55, 72, -55, 54, -55)
 color = Color(1, 0.6, 0.1, 0.4)
 z_index = -1
@@ -122,18 +126,21 @@ polygon = PackedVector2Array(52, -55, 74, -55, 68, -65, 58, -65)
 color = Color(1, 0.6, 0.1, 0.6)
 
 [node name="ArchGlow" type="Line2D" parent="."]
+visible = false
 points = PackedVector2Array(-70, -55, -30, -70, 30, -70, 70, -55)
 width = 8.0
 default_color = Color(0.3, 0.85, 1, 0.25)
 z_index = -1
 
 [node name="Arch" type="Line2D" parent="."]
+visible = false
 points = PackedVector2Array(-70, -55, -30, -68, 30, -68, 70, -55)
 width = 3.0
 default_color = Color(0.4, 0.9, 1, 0.5)
 z_index = -1
 
 [node name="ArchCore" type="Line2D" parent="."]
+visible = false
 points = PackedVector2Array(-68, -56, -30, -68, 30, -68, 68, -56)
 width = 1.5
 default_color = Color(0.8, 0.95, 1, 0.7)

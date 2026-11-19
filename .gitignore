@@ -48,6 +48,10 @@ desktop.ini
 # Godot downloaded ZIP (not part of repo)
 godot_*.zip
 
+# Python caches
+__pycache__/
+*.pyc
+
 # Godot Engine binary folder (local only, not committed)
 godot_engine/
 artifacts/

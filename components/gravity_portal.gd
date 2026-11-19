@@ -20,6 +20,9 @@ func _process(delta: float) -> void:
 	var pulse := 0.5 + 0.5 * sin(_pulse_time * 3.0)
 	var ring := get_node_or_null("GlowRing") as Line2D
 	var core := get_node_or_null("Core") as Polygon2D
+	var spr := get_node_or_null("PortalSprite") as Sprite2D
+	if spr != null:
+		spr.scale = Vector2.ONE * (1.0 + pulse * 0.06)
 	if ring != null:
 		ring.scale = Vector2.ONE * (1.0 + pulse * 0.10)
 		ring.rotation = sin(_pulse_time * 0.6) * 0.12

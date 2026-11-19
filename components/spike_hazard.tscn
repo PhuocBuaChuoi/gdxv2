@@ -15,10 +15,12 @@ position = Vector2(0, -6)
 shape = SubResource("Rectangle_spike_pool")
 
 [node name="Spikes" type="Polygon2D" parent="."]
+visible = false
 polygon = PackedVector2Array(-48, 12, -24, -16, 0, 12, 0, 12, 24, -16, 48, 12)
 color = Color(1, 0.3, 0.3, 0.35)
 
 [node name="BaseBlock" type="Polygon2D" parent="."]
+visible = false
 polygon = PackedVector2Array(-48, 12, 48, 12, 48, 24, -48, 24)
 color = Color(0.08, 0.11, 0.18, 0.95)
 z_index = -1
@@ -26,11 +28,13 @@ z_index = -1
 [node name="Sprites" type="Node2D" parent="."]
 
 [node name="SpikeOutline" type="Line2D" parent="."]
+visible = false
 points = PackedVector2Array(-48, 12, -24, -16, 0, 12, 0, 12, 24, -16, 48, 12)
 width = 3.0
 default_color = Color(1, 0.4, 0.4, 1)
 
 [node name="BaseLine" type="Line2D" parent="."]
+visible = false
 points = PackedVector2Array(-48, 12, 48, 12)
 width = 2.0
 default_color = Color(0.25, 0.38, 0.55, 0.8)
