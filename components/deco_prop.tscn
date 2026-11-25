@@ -1,0 +1,14 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://components/deco_prop.gd" id="1_deco"]
+[ext_resource type="Texture2D" path="res://assets/sprites/deco_pylon.png" id="2_tex"]
+
+[node name="DecoProp" type="Node2D"]
+z_index = 0
+script = ExtResource("1_deco")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(0, -48)
+modulate = Color(0.95, 0.98, 1, 0.92)
+texture = ExtResource("2_tex")

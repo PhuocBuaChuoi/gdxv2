@@ -52,6 +52,9 @@ func _process(delta: float) -> void:
 	if glow != null:
 		glow.scale = Vector2.ONE * (1.0 + pulse * 0.08)
 		glow.modulate.a = 0.18 + pulse * 0.16
+	var spr := get_node_or_null("PortalSprite") as Sprite2D
+	if spr != null:
+		spr.scale = Vector2(1.0 + pulse * 0.04, 1.0 - pulse * 0.02)
 
 
 func _on_body_entered(body: Node2D) -> void:

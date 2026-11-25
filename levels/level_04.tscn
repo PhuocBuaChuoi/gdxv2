@@ -20,6 +20,7 @@
 [ext_resource type="PackedScene" path="res://components/laser_hazard.tscn" id="18_laser"]
 [ext_resource type="PackedScene" path="res://components/pressure_button.tscn" id="19_button"]
 [ext_resource type="PackedScene" path="res://components/mechanized_platform.tscn" id="20_platform"]
+[ext_resource type="PackedScene" path="res://components/deco_prop.tscn" id="21_deco"]
 
 [node name="LevelRoot" type="Node2D"]
 script = ExtResource("1")
@@ -55,6 +56,36 @@ motion_scale = Vector2(0.3, 0.3)
 [node name="TerrainLayer" type="TileMapLayer" parent="."]
 tile_set = ExtResource("3")
 
+[node name="Decorations" type="Node2D" parent="."]
+
+[node name="DecoArrow1" parent="Decorations" instance=ExtResource("21_deco")]
+position = Vector2(260, 432)
+prop_type = 5
+
+[node name="DecoVine1" parent="Decorations" instance=ExtResource("21_deco")]
+position = Vector2(420, 96)
+prop_type = 3
+
+[node name="DecoCrystals1" parent="Decorations" instance=ExtResource("21_deco")]
+position = Vector2(672, 432)
+prop_type = 1
+
+[node name="DecoTerminal1" parent="Decorations" instance=ExtResource("21_deco")]
+position = Vector2(820, 432)
+prop_type = 4
+
+[node name="DecoFoliage1" parent="Decorations" instance=ExtResource("21_deco")]
+position = Vector2(1040, 432)
+prop_type = 2
+
+[node name="DecoVine2" parent="Decorations" instance=ExtResource("21_deco")]
+position = Vector2(1320, 96)
+prop_type = 3
+
+[node name="DecoPylon1" parent="Decorations" instance=ExtResource("21_deco")]
+position = Vector2(1960, 432)
+prop_type = 0
+
 [node name="Hazards" type="Node2D" parent="."]
 
 [node name="LaserGate" parent="Hazards" instance=ExtResource("18_laser")]
@@ -77,22 +108,22 @@ hazard_type = 0
 [node name="Portals" type="Node2D" parent="."]
 
 [node name="DashPortal" parent="Portals" instance=ExtResource("12_portal")]
-position = Vector2(340, 380)
+position = Vector2(340, 388)
 target_form = "DASH"
 allowed_player = "P1_ONLY"
 
 [node name="ShipPortal" parent="Portals" instance=ExtResource("12_portal")]
-position = Vector2(920, 380)
+position = Vector2(920, 388)
 target_form = "SHIP"
 allowed_player = "P2_ONLY"
 
 [node name="UfoPortal" parent="Portals" instance=ExtResource("12_portal")]
-position = Vector2(1460, 380)
+position = Vector2(1460, 388)
 target_form = "UFO"
 allowed_player = "P1_ONLY"
 
 [node name="CubeFinalPortal" parent="Portals" instance=ExtResource("12_portal")]
-position = Vector2(1872, 380)
+position = Vector2(1872, 388)
 target_form = "CUBE"
 allowed_player = "BOTH"
 

@@ -245,6 +245,8 @@ func _physics_process(delta: float) -> void:
 	_apply_base_gravity(delta)
 	
 	move_and_slide()
+	if head_platform != null:
+		head_platform.position = Vector2(0.0, -25.0 * float(gravity_direction))
 	_push_blocks()
 	_enforce_vertical_bounds()
 	if motion_trail != null:

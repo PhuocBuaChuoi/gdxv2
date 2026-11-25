@@ -15,8 +15,8 @@ script = ExtResource("1_portal")
 shape = SubResource("Rectangle_form_portal")
 
 [node name="Glow" type="Polygon2D" parent="."]
-polygon = PackedVector2Array(-36, -52, 36, -52, 36, 52, -36, 52)
-color = Color(0.18, 0.75, 1, 0.12)
+polygon = PackedVector2Array(0, -52, 16, -48, 28, -36, 33, -18, 34, 0, 33, 18, 28, 36, 16, 48, 0, 52, -16, 48, -28, 36, -33, 18, -34, 0, -33, -18, -28, -36, -16, -48)
+color = Color(0.18, 0.75, 1, 0.14)
 
 [node name="Frame" type="Polygon2D" parent="."]
 visible = false
@@ -29,7 +29,7 @@ polygon = PackedVector2Array(-18, -38, 18, -38, 18, 40, 0, 48, -18, 40)
 color = Color(0.06, 0.12, 0.22, 0.85)
 
 [node name="BackGlow" type="Polygon2D" parent="."]
-polygon = PackedVector2Array(-34, -54, 34, -54, 34, 54, 0, 62, -34, 54)
+polygon = PackedVector2Array(0, -50, 14, -46, 25, -34, 30, -16, 31, 0, 30, 16, 25, 34, 14, 46, 0, 50, -14, 46, -25, 34, -30, 16, -31, 0, -30, -16, -25, -34, -14, -46)
 color = Color(0.18, 0.75, 1, 0.1)
 z_index = -1
 

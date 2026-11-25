@@ -119,9 +119,9 @@ func _shatter() -> void:
 	visible = false
 	var col := get_node_or_null("CollisionShape2D") as CollisionShape2D
 	if col != null:
-		col.disabled = true
-	_detector.monitoring = false
-	_detector.monitorable = false
+		col.set_deferred("disabled", true)
+	_detector.set_deferred("monitoring", false)
+	_detector.set_deferred("monitorable", false)
 
 
 func _spawn_sparks() -> void:

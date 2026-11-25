@@ -83,26 +83,28 @@ def process_spikes():
 
 
 def process_portals():
-    raw_path = os.path.join(SPRITES_DIR, "ai_portal.png")
+    raw_path = os.path.join(SPRITES_DIR, "ai_portal_tall.png")
     if not os.path.exists(raw_path):
-        print("[!] ai_portal.png not found")
+        raw_path = os.path.join(SPRITES_DIR, "ai_portal.png")
+    if not os.path.exists(raw_path):
+        print("[!] ai_portal_tall.png not found")
         return
-        
+
     img = Image.open(raw_path).convert("RGBA")
     bbox = img.getbbox()
-    cropped = img.crop(bbox)
-    
-    # FormPortal has collision size (56, 96). Let's fit portal to 56x92 canvas
-    target_h = 92
-    aspect = cropped.width / cropped.height
-    target_w = int(target_h * aspect)
+    cropped = img.crop(bbox) if bbox else img
+
+    # Fit completely inside (60, 96) WITHOUT clipping left/right arches!
+    scale = min(60.0 / cropped.width, 94.0 / cropped.height)
+    target_w = max(1, int(round(cropped.width * scale)))
+    target_h = max(1, int(round(cropped.height * scale)))
     scaled = cropped.resize((target_w, target_h), Image.Resampling.NEAREST)
-    
-    canvas = Image.new("RGBA", (56, 96), (0, 0, 0, 0))
-    paste_x = (56 - target_w) // 2
+
+    canvas = Image.new("RGBA", (64, 96), (0, 0, 0, 0))
+    paste_x = (64 - target_w) // 2
     paste_y = (96 - target_h) // 2
     canvas.paste(scaled, (paste_x, paste_y), scaled)
-    
+
     # Variants for FormPortal
     variants = {
         "portal_cube.png": (47, 224, 255),    # Cyan
@@ -110,11 +112,11 @@ def process_portals():
         "portal_ufo.png": (220, 60, 255),     # Magenta / Purple
         "portal_dash.png": (255, 90, 40),     # Orange / Red
     }
-    
+
     for filename, rgb in variants.items():
         p_img = tint_image(canvas, rgb)
         p_img.save(os.path.join(SPRITES_DIR, filename))
-        print(f"[+] Created AI {filename} (56x96)")
+        print(f"[+] Created AI {filename} ({target_w}x{target_h} inside 64x96)")
 
 
 def process_box():
