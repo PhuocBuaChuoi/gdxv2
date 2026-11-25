@@ -99,6 +99,43 @@ func test_ship_horizontal_thrust_and_gravity_orientation() -> void:
 	host_root.remove_child(player)
 	player.free()
 
+func test_form_switch_cleans_previous_form_state() -> void:
+	var player := (load("res://characters/player.tscn") as PackedScene).instantiate() as GdxPlayer
+	host_root.add_child(player)
+	# 1. DASH -> CUBE giua luc luot: khong duoc mang theo 950 px/s va goc nghieng.
+	player.switch_form(&"DASH")
+	(player.current_state as DashState).activate_dash(1)
+	player.switch_form(&"CUBE")
+	assert_true(absf(player.velocity.x) <= CubeState.BASE_SPEED, "T4.08 doi dang tu Dash khong giu toc do luot (vx=%s)" % str(player.velocity.x))
+	assert_near(fposmod(rad_to_deg(player.visual_root.rotation), 90.0), 0.0, 0.01, "T4.08 vao Cube thi goc ve boi so 90")
+	# 2. SHIP -> CUBE: sensor tether phai tat va tia keo phai an.
+	player.switch_form(&"SHIP")
+	Input.action_press("p1_action")
+	player.current_state.physics_update(1.0 / 120.0)
+	Input.action_release("p1_action")
+	var beam := player.get_node_or_null("TetherBeam") as Area2D
+	assert_true(beam != null, "T4.05 tether gan vao Player (khong theo VisualRoot xoay)")
+	if beam != null:
+		assert_true((beam.get_node("TetherLine") as Line2D).visible, "T4.05 giu action thi tia keo hien")
+		assert_true(beam.monitoring, "T4.05 dang la tau thi sensor tether bat")
+	player.switch_form(&"CUBE")
+	if beam != null:
+		assert_true(not beam.monitoring, "T4.05 roi dang tau phai tat sensor tether")
+		assert_true(not (beam.get_node("TetherLine") as Line2D).visible, "T4.05 roi dang tau phai an tia keo")
+	host_root.remove_child(player)
+	player.free()
+
+
+func test_form_name_is_validated() -> void:
+	var player := (load("res://characters/player.tscn") as PackedScene).instantiate() as GdxPlayer
+	host_root.add_child(player)
+	player.switch_form(&"NOT_A_FORM")
+	assert_eq(player.form, &"CUBE", "T4.08 form la fallback ve CUBE")
+	assert_true(player.current_state is CubeState, "T4.08 form la van co state song")
+	host_root.remove_child(player)
+	player.free()
+
+
 func test_cube_jump_squash_is_applied() -> void:
 	var player := (load("res://characters/player.tscn") as PackedScene).instantiate() as GdxPlayer
 	host_root.add_child(player)

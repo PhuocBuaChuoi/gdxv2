@@ -35,6 +35,10 @@ func exit() -> void:
 	if is_dashing:
 		is_dashing = false
 		dash_timer = 0.0
+	# Rời dạng Dash giữa lúc lướt: hạ tốc độ về ngưỡng đi bộ, nếu không dạng mới
+	# (Cube/Ship/UFO) bị bắn đi 950 px/s thêm nhiều frame cho tới khi giảm tốc.
+	if player != null:
+		player.velocity.x = clampf(player.velocity.x, -BASE_SPEED, BASE_SPEED)
 
 
 func physics_update(delta: float) -> void:

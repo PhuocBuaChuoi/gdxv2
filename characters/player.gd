@@ -17,6 +17,7 @@ const JUMP_VELOCITY: float = 650.0
 const PUSH_FORCE: float = 700.0 # T6.09 - luc day khoi Pushable_Blocks khi ap sat
 const COYOTE_TIME: float = 0.08
 const JUMP_BUFFER_TIME: float = 0.10
+const FORM_NAMES: Array[StringName] = [&"CUBE", &"SHIP", &"UFO", &"DASH"]
 
 
 @export_range(1, 2) var player_id: int = 1
@@ -85,9 +86,9 @@ func _setup_collision_layers() -> void:
 
 
 func _setup_state_machine() -> void:
-	"""Khởi tạo State Machine và attach vào node (T4.01)."""
+	"""Khởi tạo State Machine (T4.01). State đầu tiên do switch_form() tạo,
+	nếu tạo thêm ở đây thì _ready() init FSM 2 lần (enter/exit thừa ngay frame đầu)."""
 	_state_machine = StateMachine.new()
-	current_state = _state_machine.get_cube_state(self, null)
 
 
 func get_move_axis() -> float:
@@ -106,9 +107,22 @@ func is_action_pressed() -> bool:
 	return Input.is_action_pressed("p%d_action" % player_id)
 
 
+func is_action_just_pressed() -> bool:
+	"""T4.07 - Dash chỉ kích hoạt khi BẤM action, không kích lại khi giữ phím."""
+	return Input.is_action_just_pressed("p%d_action" % player_id)
+
+
 func switch_form(new_form_name: StringName) -> void:
 	"""T4.08 - Chuyển đổi form với hiệu ứng và state update."""
-	form = new_form_name.to_upper()
+	# Chuẩn hoá + whitelist: tên dạng lạ (sai chính tả trong level/portal) trước đây
+	# khiến state cũ bị exit() nhưng current_state vẫn trỏ vào nó -> FSM chết im lặng.
+	var requested := StringName(str(new_form_name).to_upper())
+	if not FORM_NAMES.has(requested):
+		push_warning("switch_form: form '%s' khong hop le, fallback CUBE" % str(new_form_name))
+		requested = &"CUBE"
+	form = requested
+	if _state_machine == null:
+		_state_machine = StateMachine.new()
 	
 	# Exit old state
 	if current_state != null:
@@ -306,12 +320,12 @@ func _handle_input_logic() -> void:
 					velocity.y = -JUMP_VELOCITY * gravity_direction
 					_jump_buffer_timer = 0.0
 					_coyote_timer = 0.0
-				elif is_action_pressed() and _can_activate_dash():
+				elif is_action_just_pressed() and _can_activate_dash():
 					var dash_state = _get_dash_state()
 					if dash_state != null:
 						dash_state.activate_dash(last_facing_dir)
 			else:
-				if (jump_just_pressed or is_action_pressed()) and _can_activate_dash():
+				if jump_just_pressed and _can_activate_dash():
 					var dash_state = _get_dash_state()
 					if dash_state != null:
 						dash_state.activate_dash(last_facing_dir)

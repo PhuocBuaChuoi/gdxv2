@@ -59,6 +59,14 @@ func _on_body_entered(body: Node2D) -> void:
 		return
 	if not _player_allowed(body):
 		return
+	# Đã đúng dạng / đang bị khoá điều khiển (chết, hồi sinh): không switch lại,
+	# tránh reset state + spam hiệu ứng + âm thanh mỗi lần chạm vùng cổng.
+	var locked: Variant = body.get("control_locked")
+	if locked is bool and locked:
+		return
+	var current_form: Variant = body.get("form")
+	if current_form != null and str(current_form) == target_form:
+		return
 	body.call("switch_form", StringName(target_form))
 	AudioManager.play_sfx("portal")
 	_flash()

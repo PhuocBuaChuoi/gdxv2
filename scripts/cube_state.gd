@@ -18,8 +18,9 @@ const SNAP_SPEED: float = 720.0
 
 func enter(player_ref: GdxPlayer, prev: PlayerFormState) -> void:
 	super.enter(player_ref, prev)
-	# Reset rotation về 0 khi vào Cube state
-	player.visual_root.rotation = lerp(player.visual_root.rotation, 0.0, 0.15)
+	# Vào Cube từ Ship (mũi tàu đang nghiêng) hay Dash: bắt về bội số 90° gần nhất
+	# ngay. lerp(..., 0.15) cũ chỉ là phép gán 15% nên khối vào game vẫn nghiêng.
+	player.visual_root.rotation = deg_to_rad(snappedf(rad_to_deg(player.visual_root.rotation), 90.0))
 
 
 func exit() -> void:
