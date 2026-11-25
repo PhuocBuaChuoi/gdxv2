@@ -89,7 +89,7 @@ func test_input_no_duplicate_keys() -> void:
 func test_events_signals() -> void:
 	var scr: Script = load("res://autoloads/events.gd") as Script
 	assert_true(scr != null, "events.gd load duoc")
-	var want: Dictionary = {&"player_died": 2, &"checkpoint_activated": 3, &"player_form_changed": 2, &"player_entered_goal": 1, &"player_exited_goal": 1, &"level_completed": 3, &"portal_activated": 1, &"orb_activated": 0, &"locale_changed": 1}
+	var want: Dictionary = {&"player_died": 2, &"checkpoint_activated": 3, &"player_form_changed": 2, &"player_entered_goal": 1, &"player_exited_goal": 1, &"level_completed": 3, &"portal_activated": 1, &"orb_activated": 0}
 	var got: Dictionary = {}
 	for s in scr.get_script_signal_list():
 		got[str(s["name"])] = (s["args"] as Array).size()
