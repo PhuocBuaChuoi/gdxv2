@@ -9,6 +9,7 @@ var manager: Node = null
 
 @onready var _settings: Control = $SettingsPanel
 @onready var _volume: HSlider = $SettingsPanel/VolumeRow/VolumeSlider
+@onready var _volume_val: Label = $SettingsPanel/VolumeRow/VolumeValue
 
 
 func _ready() -> void:
@@ -17,7 +18,9 @@ func _ready() -> void:
 	_settings.visible = false
 	var audio: Node = get_node_or_null("/root/AudioManager")
 	if audio != null and _volume != null:
-		_volume.value = float(audio.get("volume_db"))
+		var db := float(audio.get("volume_db"))
+		_volume.value = db
+		_refresh_volume_label(db)
 
 
 func _play_index(mgr: Node) -> int:
@@ -50,6 +53,14 @@ func _on_volume_changed(value: float) -> void:
 	var audio: Node = get_node_or_null("/root/AudioManager")
 	if audio != null:
 		audio.call("set_volume", value)
+	_refresh_volume_label(value)
+
+
+func _refresh_volume_label(db: float) -> void:
+	if _volume_val == null:
+		return
+	var pct := clampi(int(round(((db + 24.0) / 24.0) * 100.0)), 0, 100)
+	_volume_val.text = "%d%%" % pct
 
 
 func _on_quit_pressed() -> void:

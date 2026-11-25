@@ -20,7 +20,7 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0.01, 0.03, 0.08, 0.72)
+color = Color(0.01, 0.03, 0.08, 0.74)
 
 [node name="Card" type="Panel" parent="."]
 layout_mode = 1
@@ -29,10 +29,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -210.0
-offset_top = -185.0
-offset_right = 210.0
-offset_bottom = 185.0
+offset_left = -240.0
+offset_top = -225.0
+offset_right = 240.0
+offset_bottom = 225.0
 mouse_filter = 2
 
 [node name="MenuBox" type="VBoxContainer" parent="."]
@@ -42,38 +42,49 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -175.0
-offset_top = -160.0
-offset_right = 175.0
-offset_bottom = 160.0
+offset_left = -200.0
+offset_top = -195.0
+offset_right = 200.0
+offset_bottom = 195.0
 theme_override_constants/separation = 14
 
 [node name="Title" type="Label" parent="MenuBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.25, 0.92, 1, 1)
+theme_override_colors/font_color = Color(0.28, 0.95, 1, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.12, 0.24, 0.95)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.85)
+theme_override_constants/outline_size = 5
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
 theme_override_font_sizes/font_size = 44
 text = "TẠM DỪNG"
 horizontal_alignment = 1
 
+[node name="AccentRule" type="ColorRect" parent="MenuBox"]
+custom_minimum_size = Vector2(0, 2)
+layout_mode = 2
+color = Color(0.22, 0.85, 1, 0.45)
+
 [node name="ResumeBtn" type="Button" parent="MenuBox"]
+custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Tiếp Tục"
 
 [node name="CheckpointBtn" type="Button" parent="MenuBox"]
+custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
-text = "Về Checkpoint (R)"
+text = "Về Checkpoint  (R)"
 
 [node name="RestartBtn" type="Button" parent="MenuBox"]
+custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Chơi Lại Từ Đầu"
 
 [node name="SelectBtn" type="Button" parent="MenuBox"]
+custom_minimum_size = Vector2(0, 52)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "Về Chọn Màn"

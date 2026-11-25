@@ -23,20 +23,36 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
-color = Color(0.02, 0.04, 0.1, 0.52)
+color = Color(0.02, 0.045, 0.11, 0.54)
 
 [node name="Title" type="Label" parent="."]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
-offset_top = 42.0
-offset_bottom = 128.0
-theme_override_colors/font_color = Color(0.25, 0.94, 1, 1)
+offset_top = 44.0
+offset_bottom = 122.0
+theme_override_colors/font_color = Color(0.28, 0.95, 1, 1)
+theme_override_colors/font_outline_color = Color(0.03, 0.12, 0.24, 0.98)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.9)
+theme_override_constants/outline_size = 6
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 3
 theme_override_font_sizes/font_size = 64
 text = "CHỌN MÀN"
+horizontal_alignment = 1
+
+[node name="ProgressLabel" type="Label" parent="."]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 126.0
+offset_bottom = 160.0
+theme_override_colors/font_color = Color(1, 0.78, 0.3, 0.95)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.85)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 2
+theme_override_font_sizes/font_size = 22
+text = "Tiến độ: 1 / 6 màn đã mở khóa"
 horizontal_alignment = 1
 
 [node name="CardsPanel" type="Panel" parent="."]
@@ -46,10 +62,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -310.0
-offset_top = -170.0
-offset_right = 310.0
-offset_bottom = 260.0
+offset_left = -390.0
+offset_top = -315.0
+offset_right = 390.0
+offset_bottom = 385.0
 mouse_filter = 2
 
 [node name="CardsBox" type="VBoxContainer" parent="."]
@@ -59,24 +75,39 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -280.0
-offset_top = -145.0
-offset_right = 280.0
-offset_bottom = 185.0
-theme_override_constants/separation = 12
+offset_left = -350.0
+offset_top = -282.0
+offset_right = 350.0
+offset_bottom = 266.0
+theme_override_constants/separation = 14
 
-[node name="BackBtn" type="Button" parent="."]
+[node name="Divider" type="ColorRect" parent="."]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -160.0
-offset_top = 195.0
-offset_right = 160.0
-offset_bottom = 248.0
+offset_left = -335.0
+offset_top = 282.0
+offset_right = 335.0
+offset_bottom = 284.0
+mouse_filter = 2
+color = Color(0.22, 0.85, 1, 0.35)
+
+[node name="BackBtn" type="Button" parent="."]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -180.0
+offset_top = 300.0
+offset_right = 180.0
+offset_bottom = 356.0
 theme_override_font_sizes/font_size = 24
-text = "Quay Lại"
+text = "Quay Lại Menu"
 
 [connection signal="pressed" from="BackBtn" to="." method="_on_back_pressed"]
