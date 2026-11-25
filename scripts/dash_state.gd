@@ -85,7 +85,9 @@ func _reset_dash() -> void:
 
 func update_visuals(delta: float) -> void:
 	# Hiệu ứng ánh sáng/trail động cho Dash
-	var trail_line: Line2D = player.visual_root.get_node_or_null("MotionTrail") as Line2D
+	# MotionTrail là node con của Player, không nằm trong VisualRoot — đường dẫn cũ
+	# luôn trả null nên vệt Dash không bao giờ đổi độ dày/alpha.
+	var trail_line: Line2D = player.get_node_or_null("MotionTrail") as Line2D
 	if trail_line != null:
 		trail_line.width = lerp(trail_line.width, 6.0 if is_dashing else 3.0, 10.0 * delta)
 		trail_line.default_color.a = 0.7 + 0.3 * (1.0 if is_dashing else 0.0)

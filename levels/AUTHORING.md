@@ -38,7 +38,7 @@ Thay vì vẽ tile trong editor, điền export `ascii_map` của LevelRoot
 | Ký tự | Tile | Collision |
 |---|---|---|
 | `#` | (0,0) khối đặc | full ô |
-| `=` | (1,0) khối viền neon | full ô |
+| `=` | auto-variant giống `#` | full ô |
 | `-` | (2,0) bệ mỏng | một chiều (nhảy xuyên từ dưới) |
 | `.` | (3,0) trang trí | không |
 | ` ` (cách) | trống | không |

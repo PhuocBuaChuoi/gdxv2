@@ -3,9 +3,13 @@ extends Area2D
 
 ## T6.02 / bonus — cổng đảo trọng lực cho Player và vật thể vật lý.
 ## toggle_mode: TOGGLE (đảo chiều hiện tại thay vì ép Normal/Inverted).
-@export_enum("Normal", "Inverted") var target_direction: int = -1
+## Giá trị là CHIỀU trọng lực trực tiếp: -1 = inverted, +1 = normal.
+## (Dùng int thay vì export_enum vì enum chỉ có chỉ số 0/1 -> "Inverted" từng bị
+##  gán thành +1 nên cổng không bao giờ đảo được trọng lực.)
+@export var target_direction: int = -1
 @export var one_shot: bool = false
-@export var toggle_mode: bool = false
+@export_enum("FIXED", "TOGGLE") var direction_mode: int = 0
+@export var toggle_mode: bool = false # alias cũ của direction_mode = TOGGLE
 @export var retrigger_delay: float = 0.4
 var _used_bodies: Dictionary = {}
 var _last_used: Dictionary = {}
@@ -13,6 +17,7 @@ var _pulse_time: float = 0.0
 
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
+	add_to_group("gravity_portal")
 
 
 func _process(delta: float) -> void:
@@ -45,8 +50,8 @@ func _on_body_entered(body: Node2D) -> void:
 	_used_bodies[body.get_instance_id()] = true
 
 func apply_to(body: Node2D) -> void:
-	var direction := target_direction
-	if toggle_mode:
+	var direction := 1 if target_direction >= 0 else -1
+	if direction_mode == 1 or toggle_mode:
 		var cur := _current_gravity_dir(body)
 		if cur == 0:
 			return
@@ -80,4 +85,6 @@ func _flash() -> void:
 	tween.tween_property(ring, "modulate:a", 0.28, 0.22)
 
 func reset_body(body: Node2D) -> void:
-	_used_bodies.erase(body.get_instance_id())
+	var id := body.get_instance_id()
+	_used_bodies.erase(id)
+	_last_used.erase(id)

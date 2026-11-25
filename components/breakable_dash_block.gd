@@ -20,7 +20,22 @@ var _shattered: bool = false
 
 func _ready() -> void:
 	_detector.body_entered.connect(_on_body_entered)
+	add_to_group("checkpoint_resettable")
 	_rebuild_geometry()
+
+
+## T5.04.5 — tường vỡ phải mọc lại sau respawn. Dùng ẩn + tắt collision thay vì
+## queue_free() để node vẫn tồn tại và có thể khôi phục (tránh softlock).
+func reset_to_checkpoint(_snapshot: CheckpointSnapshot = null) -> void:
+	if not _shattered:
+		return
+	_shattered = false
+	visible = true
+	var col := get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if col != null:
+		col.disabled = false
+	_detector.monitoring = true
+	_detector.monitorable = true
 
 
 func snap_to_grid(grid_size: float = 48.0) -> void:
@@ -101,7 +116,12 @@ func _shatter() -> void:
 	shattered.emit()
 	_spawn_sparks()
 	AudioManager.play_sfx("death")
-	queue_free()
+	visible = false
+	var col := get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if col != null:
+		col.disabled = true
+	_detector.monitoring = false
+	_detector.monitorable = false
 
 
 func _spawn_sparks() -> void:

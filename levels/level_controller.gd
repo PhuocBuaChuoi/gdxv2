@@ -51,12 +51,23 @@ func _ready() -> void:
 	respawn_coordinator.register_players(player_one, player_two)
 	respawn_coordinator.level_reset_to_checkpoint.connect(_on_level_reset_to_checkpoint)
 	respawn_coordinator.attempt_changed.connect(_on_attempt_changed)
+	# T7.03: deaths phải tăng khi chết thật, không chỉ khi test gọi add_death().
+	# Dùng tín hiệu cục bộ của coordinator (mỗi level một instance) để không bị
+	# cộng dồn từ các level/test khác qua Events bus.
+	respawn_coordinator.death_counted.connect(_on_player_died)
 	coop_camera.set_players(player_one, player_two)
 	coop_camera.set_terrain_limits(terrain_layer)
 	if enforce_vertical_bounds and coop_camera.has_method("set_vertical_limits"):
 		coop_camera.set_vertical_limits(ceiling_y, floor_kill_y)
 	_on_attempt_changed(respawn_coordinator.attempt_count)
+	if not Events.level_completed.is_connected(_on_level_completed):
+		Events.level_completed.connect(_on_level_completed)
 	_apply_background()
+
+
+func _exit_tree() -> void:
+	if Events.level_completed.is_connected(_on_level_completed):
+		Events.level_completed.disconnect(_on_level_completed)
 
 
 func _check_cli_screenshot() -> void:
@@ -87,11 +98,16 @@ func _position_players() -> void:
 	player_two.global_position = spawn_p2.global_position
 
 
+func _unhandled_input(event: InputEvent) -> void:
+	# T1.08: dùng event thay vì poll trong _process để "just_pressed" không bị
+	# kéo dài qua nhiều lần _process trong cùng frame (headless/test).
+	if running and event.is_action_pressed("game_restart_checkpoint"):
+		respawn_coordinator.request_respawn(1)
+
+
 func _process(delta: float) -> void:
 	if running:
 		level_time += delta
-	if Input.is_action_just_pressed("game_restart_checkpoint"):
-		respawn_coordinator.request_respawn(1)
 	if _screenshot_path != "":
 		_screenshot_frames += 1
 		if _screenshot_frames >= 6:
@@ -107,14 +123,33 @@ func _process(delta: float) -> void:
 					print("[Screenshot] Captured to: %s (err=%d)" % [abs_path, err])
 			get_tree().quit(0)
 
+## Thắng xong phải dừng đồng hồ: trước đây `running` mãi true nên HUD tiếp tục
+## chạy sau khi hoàn thành và phím restart còn teleport 2 player về checkpoint.
+func _on_level_completed(completed_index: int, _deaths: int, _time_taken: float) -> void:
+	if completed_index != level_index:
+		return
+	running = false
+
+
 func _on_attempt_changed(value: int) -> void:
 	if attempt_label != null:
 		attempt_label.text = "Attempt #%d" % value
 
 func _on_level_reset_to_checkpoint(snapshot: CheckpointSnapshot) -> void:
+	# T5.04.5: khôi phục mọi cơ chế đã đổi trạng thái trước khi chết, nếu không
+	# player có thể bị kẹt vĩnh viễn (cửa đóng, nút latch, tường đã vỡ...).
 	for node in get_tree().get_nodes_in_group("checkpoint_resettable"):
 		if node.has_method("reset_to_checkpoint"):
-			node.reset_to_checkpoint(snapshot)
+			node.call("reset_to_checkpoint", snapshot)
+	# one_shot portal cũng phải mở lại cho lần hồi sinh tiếp theo.
+	for portal in get_tree().get_nodes_in_group("gravity_portal"):
+		if portal.has_method("reset_body"):
+			for body in [player_one, player_two]:
+				portal.call("reset_body", body)
+
+
+func _on_player_died(_player_id: int) -> void:
+	add_death()
 
 
 func add_death() -> void:

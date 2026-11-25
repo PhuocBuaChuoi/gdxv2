@@ -4,6 +4,9 @@ extends Node
 ## T5.04 — one death respawns both players from the latest snapshot.
 signal level_reset_to_checkpoint(snapshot: CheckpointSnapshot)
 signal attempt_changed(attempt_count: int)
+## Tín hiệu cục bộ (mỗi level một coordinator) để level_controller đếm deaths
+## mà không bị rò qua signal bus toàn cục giữa các màn/test.
+signal death_counted(player_id: int)
 
 @export var respawn_delay: float = 0.35
 var player_one: GdxPlayer
@@ -99,6 +102,7 @@ func request_respawn(death_player_id: int) -> bool:
 	if camera != null:
 		camera.shake(8.0, 0.2)
 	Events.player_died.emit(death_player_id, dead.global_position)
+	death_counted.emit(death_player_id)
 	return true
 
 func _process(delta: float) -> void:

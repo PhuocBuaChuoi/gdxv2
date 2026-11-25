@@ -28,7 +28,17 @@ var _latched: bool = false
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
+	add_to_group("checkpoint_resettable")
 	_update_visual()
+
+
+## T5.04.5 — mở latch/kết thúc trạng thái TOGGLE khi hồi sinh để cửa không bị
+## giữ mở (hoặc giữ đóng) sai so với trạng thái lúc lưu checkpoint.
+func reset_to_checkpoint(_snapshot: CheckpointSnapshot = null) -> void:
+	_bodies.clear()
+	_latched = false
+	_press_time = -10.0
+	_set_on(false)
 
 
 func is_latched() -> bool:

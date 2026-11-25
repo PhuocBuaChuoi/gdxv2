@@ -29,6 +29,7 @@ const FORM_NAMES: Array[StringName] = [&"CUBE", &"SHIP", &"UFO", &"DASH"]
 var form: StringName = &"CUBE"
 var control_locked: bool = false
 var _last_push_targets: Array = [] # T6.09 - khoi dang day (de ngat luc khi roi)
+var _forced_push_target: RigidBody2D = null # T6.09 - target duoc gan luc truc tiep boi _push_box
 var _death_reported: bool = false
 
 
@@ -174,6 +175,20 @@ func _update_head_platform() -> void:
 
 func set_control_locked(locked: bool) -> void:
 	control_locked = locked
+	# T6.09: đang đẩy khối mà bị khoá (chết/thắng) thì ngắt lực đẩy ngay, nếu không
+	# khối vẫn bị `constant_force` đẩy mãi trong lúc player đã bị vô hiệu hoá.
+	if locked:
+		_release_pushed_blocks()
+
+
+func _release_pushed_blocks() -> void:
+	for body in _last_push_targets:
+		if is_instance_valid(body):
+			_push_box(body, 0.0)
+	_last_push_targets = []
+	if _forced_push_target != null and is_instance_valid(_forced_push_target):
+		_push_box(_forced_push_target, 0.0)
+	_forced_push_target = null
 
 
 func _physics_process(delta: float) -> void:
@@ -265,6 +280,10 @@ func _push_blocks() -> void:
 func _push_box(body: RigidBody2D, dir: float) -> void:
 	"""T6.09 - gan luc day lien tuc khi ap sat (0 = ngat)."""
 	body.constant_force = Vector2(dir * PUSH_FORCE, 0.0)
+	if dir != 0.0:
+		_forced_push_target = body
+	elif _forced_push_target == body:
+		_forced_push_target = null
 
 
 func _apply_base_gravity(delta: float) -> void:

@@ -15,6 +15,12 @@ var _home: Vector2
 
 func _ready() -> void:
 	_home = global_position
+	add_to_group("checkpoint_resettable")
+
+
+## T5.04.5 — respawn đưa bệ về vị trí ban đầu ngay cả khi trigger còn bật.
+func reset_to_checkpoint(_snapshot: CheckpointSnapshot = null) -> void:
+	global_position = _home
 
 
 func _physics_process(delta: float) -> void:

@@ -79,6 +79,20 @@ func test_level_controller() -> void:
 	lvl.free()
 
 
+func test_level_timer_stops_after_completion() -> void:
+	var lvl: Node = (load("res://levels/base_level.tscn") as PackedScene).instantiate()
+	host_root.add_child(lvl)
+	lvl.call("_process", 0.5)
+	var before: float = float(lvl.get("level_time"))
+	assert_true(bool(lvl.get("running")), "T7.03 timer dang chay truoc khi hoan thanh")
+	Events.level_completed.emit(int(lvl.get("level_index")), 0, before)
+	assert_true(not bool(lvl.get("running")), "T7.03 hoan thanh man -> dung dong ho")
+	lvl.call("_process", 0.5)
+	assert_near(float(lvl.get("level_time")), before, 0.001, "T7.03 dong ho khong chay tiep sau khi thang")
+	host_root.remove_child(lvl)
+	lvl.free()
+
+
 func test_level_manager() -> void:
 	assert_eq(ProjectSettings.get_setting("autoload/LevelManager"), "*res://autoloads/level_manager.gd", "T7.04 autoload dang ky")
 	var mgr: Node = (load("res://autoloads/level_manager.gd") as Script).new()
