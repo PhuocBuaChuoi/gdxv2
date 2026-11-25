@@ -19,14 +19,14 @@ var _phase: float = 0.0
 
 func _ready() -> void:
 	_apply_layer_and_color()
-	is_on = start_on
+	is_on = _want_on_at(0.0)
 	_set_active(is_on)
 	_update_visual()
 
 
 func _process(delta: float) -> void:
 	_phase = fmod(_phase + delta, period)
-	var want := ((_phase < period * duty) == start_on) or (period <= 0.0)
+	var want := _want_on_at(_phase)
 	if want != is_on:
 		is_on = want
 		_set_active(is_on)
@@ -42,6 +42,19 @@ func _process(delta: float) -> void:
 ## tắt `monitoring` nên tia đang TẮT vẫn giết người đi qua.
 ## Layer 0 khi tắt để chắc chắn cặp va chạm bị gỡ, bật lại thì detector nhận
 ## `area_entered` như lần đầu (kể cả khi player đang đứng sẵn trong tia).
+## duty = 0 nghia la 0% thoi gian BAT -> phai luon TAT, duty = 1 -> luon BAT.
+## Cong thuc cu so sanh thang voi start_on nen duty=0 + start_on=false dao
+## nguoc va cho ra tia BAT vinh vien (duty=0 lai nguy hiem nhat).
+func _want_on_at(phase: float) -> bool:
+	if period <= 0.0:
+		return start_on
+	if duty <= 0.0:
+		return false
+	if duty >= 1.0:
+		return true
+	return (phase < period * duty) == start_on
+
+
 func _set_active(on: bool) -> void:
 	monitoring = on
 	monitorable = on

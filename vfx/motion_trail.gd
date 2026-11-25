@@ -29,6 +29,12 @@ func set_width_for_form(form: StringName) -> void:
 func _physics_process(_delta: float) -> void:
 	if _target == null or not is_instance_valid(_target):
 		return
+	# Player chet bi respawn_coordinator an di: neu van ghi diem thi vet dung yen
+	# tai cho chet roi noi mot duong dai toi diem hoi sinh. Xoa vet va bo qua.
+	if _target is CanvasItem and not (_target as CanvasItem).is_visible_in_tree():
+		if get_point_count() > 0:
+			clear_points()
+		return
 	add_point(to_local(_target.global_position))
 	while get_point_count() > max_points:
 		remove_point(0)

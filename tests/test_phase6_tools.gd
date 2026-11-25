@@ -86,6 +86,47 @@ func test_jump_pad_requires_real_landing_contact() -> void:
 	_despawn(pad)
 
 
+func test_jump_pad_squash_visible_after_boost() -> void:
+	var pad := _spawn("res://components/jump_pad.tscn")
+	var player := _player(1)
+	player.global_position = pad.global_position + Vector2(0.0, -12.0)
+	player.velocity = Vector2(0.0, 10.0)
+	pad.call("_on_body_entered", player)
+	var spr := pad.get_node("Sprite") as Sprite2D
+	pad.call("_process", 0.016)
+	# Truoc day Tween bi _process ghi de scale moi frame -> hieu ung nun mat.
+	assert_true(spr.scale.y < 0.5, "T6.03 pad co hieu ung nun sau khi bung (scale.y=%s)" % str(spr.scale.y))
+	_despawn(player)
+	_despawn(pad)
+
+
+func test_laser_duty_extremes() -> void:
+	var laser := _spawn("res://components/laser_hazard.tscn")
+	laser.set("duty", 0.0)
+	laser.call("_process", 0.1)
+	assert_true(not bool(laser.get("is_on")), "T6.05 duty=0 -> luon TAT")
+	assert_true(not (laser as Area2D).monitoring, "T6.05 duty=0 tat monitoring")
+	laser.set("duty", 1.0)
+	laser.call("_process", 0.1)
+	assert_true(bool(laser.get("is_on")), "T6.05 duty=1 -> luon BAT")
+	_despawn(laser)
+
+
+func test_motion_trail_skips_hidden_player() -> void:
+	var trail := _spawn("res://vfx/motion_trail.tscn") as Line2D
+	var player := _player(1)
+	trail.call("setup", player, Color.WHITE)
+	player.visible = false
+	player.global_position = Vector2(200, 200)
+	trail.call("_physics_process", 0.016)
+	assert_eq(trail.get_point_count(), 0, "T2.05 khong ve vet khi player bi an (dang chet)")
+	player.visible = true
+	trail.call("_physics_process", 0.016)
+	assert_true(trail.get_point_count() >= 1, "T2.05 ve lai vet khi player hien lai")
+	_despawn(player)
+	_despawn(trail)
+
+
 func test_jump_orb_types() -> void:
 	var orb := _spawn("res://components/jump_orb.tscn")
 	var p := _player(1)

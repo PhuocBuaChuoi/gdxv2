@@ -24,6 +24,8 @@ const PAD_HALF_HEIGHT: float = 12.0
 const PLAYER_HALF_HEIGHT: float = 22.0
 const CONTACT_MARGIN: float = 4.0
 var _pulse_time: float = 0.0
+## Hieu ung "nun" khi bung: 1.0 -> 0.0 trong ~0.17s, giam deu moi frame.
+var _squash: float = 0.0
 
 
 func _ready() -> void:
@@ -43,7 +45,11 @@ func _process(delta: float) -> void:
 	if edge != null:
 		edge.modulate.a = 0.40 + pulse * 0.25
 	if spr != null:
-		spr.scale = Vector2(0.55, 0.55 + pulse * 0.03)
+		# Truoc day dung Tween cho hieu ung nun, nhung _process ghi de scale
+		# moi frame nen hieu ung khong bao gio nhin thay. Gio giam _squash
+		# ngay trong _process de chi mot nguon dieu khien scale.
+		_squash = maxf(_squash - delta * 6.0, 0.0)
+		spr.scale = Vector2(0.55 + _squash * 0.13, 0.55 + pulse * 0.03 - _squash * 0.17)
 
 
 func boost_value() -> float:
@@ -58,11 +64,7 @@ func _on_body_entered(body: Node2D) -> void:
 		return
 	var gd := player.gravity_direction
 	player.velocity.y = -boost_value() * gd
-	var spr := get_node_or_null("Sprite") as Sprite2D
-	if spr != null:
-		var tw := create_tween()
-		tw.tween_property(spr, "scale", Vector2(0.68, 0.38), 0.05)
-		tw.tween_property(spr, "scale", Vector2(0.55, 0.55), 0.15)
+	_squash = 1.0
 	AudioManager.play_sfx("jump")
 
 

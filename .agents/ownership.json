@@ -73,6 +73,14 @@
             "paths": [".agents/ownership.json", "PHASE4_COMPLETE.md", "README.md", "CHECKPOINT_AGENT_TRANSITION.md", "autoloads/audio_manager.gd", "characters/player.gd", "characters/player.tscn", "components/breakable_dash_block.gd", "components/carrier_platform.gd", "components/gravity_portal.gd", "components/laser_hazard.gd", "components/mechanized_platform.gd", "components/pressure_button.gd", "components/respawn_coordinator.gd", "levels/AUTHORING.md", "levels/level_controller.gd", "levels/stage_background.gd", "resources/color_palette.gd", "scripts/cube_state.gd", "scripts/dash_state.gd", "scripts/visual_root.gd", "tests/test_asset_catalog.gd", "tests/test_audit_fixes.gd", "tests/test_phase6_tools.gd", "tests/test_phase7_levels.gd", "ui/main_menu.tscn", "ui/menu_dancer.gd", "vfx/motion_trail.gd"],
             "status": "done",
             "updated": "2026-11-25"
+        },
+        {
+            "id": "fix-bugs-round2",
+            "owner": "buffy",
+            "branch": "feature/fix-audit-p0-p1",
+            "paths": ["components/jump_pad.gd", "components/laser_hazard.gd", "vfx/motion_trail.gd", "tests/test_phase6_tools.gd", "tests/test_phase1_setup.gd", "tests/test_phase8_ui.gd"],
+            "status": "done",
+            "updated": "2026-11-26"
         }
     ]
 }
