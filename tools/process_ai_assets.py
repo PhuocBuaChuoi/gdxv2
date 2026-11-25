@@ -144,16 +144,21 @@ def process_breakable_wall():
 
 
 def process_mech_platform():
-    raw_path = os.path.join(SPRITES_DIR, "ai_mech_platform.png")
+    raw_path = os.path.join(SPRITES_DIR, "ai_mech_platform_v2.png")
     if not os.path.exists(raw_path):
-        print("[!] ai_mech_platform.png not found")
+        raw_path = os.path.join(SPRITES_DIR, "ai_mech_platform.png")
+    if not os.path.exists(raw_path):
+        print("[!] ai_mech_platform_v2.png not found")
         return
     img = Image.open(raw_path).convert("RGBA")
     bbox = img.getbbox()
     cropped = img.crop(bbox) if bbox else img
+    # Trim 1px outer black outline on left/right so side-by-side 96px segments connect cleanly as a continuous bridge
+    if cropped.width > 8:
+        cropped = cropped.crop((1, 0, cropped.width - 1, cropped.height))
     scaled = cropped.resize((96, 24), Image.Resampling.NEAREST)
     scaled.save(os.path.join(SPRITES_DIR, "mechanized_platform.png"))
-    print("[+] Created AI mechanized_platform.png (96x24)")
+    print("[+] Created AI mechanized_platform.png (96x24 seamless girder)")
 
 
 def process_checkpoints():
@@ -175,8 +180,10 @@ def process_checkpoints():
 
 
 def process_button_and_emitter():
-    # Build strictly horizontal 2D side-view pressure switch from AI metallic deck (tinted emerald neon)
-    btn_src = os.path.join(SPRITES_DIR, "ai_mech_platform.png")
+    # Build strictly horizontal 2D side-view pressure switch from AI steel girder deck (tinted emerald neon)
+    btn_src = os.path.join(SPRITES_DIR, "ai_mech_platform_v2.png")
+    if not os.path.exists(btn_src):
+        btn_src = os.path.join(SPRITES_DIR, "ai_mech_platform.png")
     if os.path.exists(btn_src):
         img = Image.open(btn_src).convert("RGBA")
         bbox = img.getbbox()
@@ -187,9 +194,9 @@ def process_button_and_emitter():
         normal_canvas.paste(normal, (0, 1), normal)
         normal_canvas.save(os.path.join(SPRITES_DIR, "pressure_button.png"))
 
-        pressed_pad = tint_image(cropped.resize((72, 14), Image.Resampling.NEAREST), (140, 255, 110))
+        pressed_pad = tint_image(cropped.resize((72, 13), Image.Resampling.NEAREST), (140, 255, 110))
         pressed_canvas = Image.new("RGBA", (72, 20), (0, 0, 0, 0))
-        pressed_canvas.paste(pressed_pad, (0, 6), pressed_pad)
+        pressed_canvas.paste(pressed_pad, (0, 7), pressed_pad)
         pressed_canvas.save(os.path.join(SPRITES_DIR, "pressure_button_pressed.png"))
         print("[+] Created AI horizontal pressure_button.png + pressure_button_pressed.png (72x20)")
 
@@ -277,12 +284,101 @@ def process_tileset_atlas():
     print("[+] Upgraded resources/neon_tiles_atlas.png with AI cyberpunk tiles")
 
 
+def _process_sheet_frames(src_path: str, out_path: str, frame_count: int, transform_fn) -> bool:
+    if not os.path.exists(src_path):
+        print(f"[!] {src_path} not found")
+        return False
+    sheet = Image.open(src_path).convert("RGBA")
+    fw = sheet.width // frame_count
+    fh = sheet.height
+    processed = []
+    for i in range(frame_count):
+        frame = sheet.crop((i * fw, 0, (i + 1) * fw, fh))
+        processed.append(transform_fn(frame, i))
+    tw, th = processed[0].size
+    out = Image.new("RGBA", (tw * frame_count, th), (0, 0, 0, 0))
+    for i, fr in enumerate(processed):
+        out.paste(fr, (i * tw, 0), fr)
+    out.save(out_path)
+    print(f"[+] Created animated sheet {out_path} ({out.width}x{out.height}, {frame_count} frames)")
+    return True
+
+
+def process_animations():
+    # 1. Animated FormPortals (4 variants from ai_portal_tall_anim.png)
+    tall_anim = os.path.join(SPRITES_DIR, "ai_portal_tall_anim.png")
+    if os.path.exists(tall_anim):
+        variants = {
+            "portal_cube_anim.png": (47, 224, 255),
+            "portal_ship_anim.png": (70, 150, 255),
+            "portal_ufo_anim.png": (220, 60, 255),
+            "portal_dash_anim.png": (255, 90, 40),
+        }
+        for filename, rgb in variants.items():
+            def _fit_portal(fr: Image.Image, _idx: int, col=rgb) -> Image.Image:
+                bbox = fr.getbbox()
+                cropped = fr.crop(bbox) if bbox else fr
+                scale = min(60.0 / cropped.width, 94.0 / cropped.height)
+                tw = max(1, int(round(cropped.width * scale)))
+                th = max(1, int(round(cropped.height * scale)))
+                scaled = cropped.resize((tw, th), Image.Resampling.NEAREST)
+                canvas = Image.new("RGBA", (64, 96), (0, 0, 0, 0))
+                canvas.paste(scaled, ((64 - tw) // 2, (96 - th) // 2), scaled)
+                return tint_image(canvas, col)
+            _process_sheet_frames(tall_anim, os.path.join(SPRITES_DIR, filename), 4, _fit_portal)
+
+    # 2. Animated RestorePoint (inactive + active green)
+    rp_anim = os.path.join(SPRITES_DIR, "ai_restore_point_anim.png")
+    if os.path.exists(rp_anim):
+        _process_sheet_frames(rp_anim, os.path.join(SPRITES_DIR, "restore_point_anim.png"), 4, lambda fr, _i: fr)
+        _process_sheet_frames(rp_anim, os.path.join(SPRITES_DIR, "restore_point_active_anim.png"), 4, lambda fr, _i: tint_image(fr, (55, 255, 110)))
+
+    # 3. Direct copy animated sheets for GravityPortal, DashOrb, DecoProps
+    direct_copies = [
+        ("ai_gravity_portal_anim.png", "gravity_portal_anim.png"),
+        ("ai_dash_orb_anim.png", "dash_orb_anim.png"),
+        ("ai_deco_crystals_anim.png", "deco_crystals_anim.png"),
+        ("ai_deco_terminal_anim.png", "deco_terminal_anim.png"),
+        ("ai_deco_hanging_vines_anim.png", "deco_hanging_vines_anim.png"),
+        ("ai_deco_pylon_anim.png", "deco_pylon_anim.png"),
+    ]
+    for src_name, dst_name in direct_copies:
+        src = os.path.join(SPRITES_DIR, src_name)
+        if os.path.exists(src):
+            Image.open(src).convert("RGBA").save(os.path.join(SPRITES_DIR, dst_name))
+            print(f"[+] Saved animated sheet {dst_name}")
+
+    # 4. Seamless MechanizedPlatform animated girder (384x24, 4 frames of 96x24)
+    mech_anim = os.path.join(SPRITES_DIR, "ai_mech_platform_v2_anim.png")
+    if os.path.exists(mech_anim):
+        def _fit_mech(fr: Image.Image, idx: int) -> Image.Image:
+            bbox = fr.getbbox()
+            cropped = fr.crop(bbox) if bbox else fr
+            if cropped.width > 8:
+                cropped = cropped.crop((1, 0, cropped.width - 1, cropped.height))
+            scaled = cropped.resize((96, 24), Image.Resampling.NEAREST)
+            # Add crisp scrolling cyan pulse along the top energy rail (y=1..2, x=14..82)
+            px = scaled.load()
+            pulse_center = 16 + idx * 18
+            for x in range(14, 82):
+                dist = abs(x - pulse_center)
+                if dist <= 6:
+                    for y in (1, 2, 6):
+                        r, g, b, a = px[x, y]
+                        if a > 128 and b > 150:
+                            boost = int(75 * (1.0 - dist / 7.0))
+                            px[x, y] = (min(255, r + boost), min(255, g + boost // 2), 255, a)
+            return scaled
+        _process_sheet_frames(mech_anim, os.path.join(SPRITES_DIR, "mechanized_platform_anim.png"), 4, _fit_mech)
+
+
 if __name__ == "__main__":
     process_spikes()
     process_portals()
     process_box()
     process_breakable_wall()
     process_mech_platform()
+    process_animations()
     process_checkpoints()
     process_button_and_emitter()
     process_tileset_atlas()

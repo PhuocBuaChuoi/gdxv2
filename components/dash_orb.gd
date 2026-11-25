@@ -1,11 +1,14 @@
 class_name DashOrb
 extends Area2D
 
+const DASH_SHEET := preload("res://assets/sprites/dash_orb_anim.png")
+
 ## T4.07 — contact with this orb immediately restores a Dash charge.
 var _pulse: float = 0.0
 
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
+	SpriteAnim.setup_sheet(get_node_or_null("Sprite") as Sprite2D, DASH_SHEET, 4)
 
 
 func _process(delta: float) -> void:
@@ -24,6 +27,7 @@ func _process(delta: float) -> void:
 	if spr != null:
 		spr.scale = Vector2(0.46 * s, 0.46 * s)
 		spr.rotation += delta * 0.4
+		SpriteAnim.step_sheet(spr, _pulse, 7.0, 4)
 
 
 func _on_body_entered(body: Node2D) -> void:

@@ -4,17 +4,24 @@ extends Area2D
 ## T5.01/T5.03 — ordered co-op checkpoint with activation feedback.
 signal activated(checkpoint: RestorePoint, player_id: int)
 
-const TEX_INACTIVE = preload("res://assets/sprites/restore_point.png")
-const TEX_ACTIVE = preload("res://assets/sprites/restore_point_active.png")
+const TEX_INACTIVE = preload("res://assets/sprites/restore_point_anim.png")
+const TEX_ACTIVE = preload("res://assets/sprites/restore_point_active_anim.png")
 
 @export var checkpoint_order: int = 0
 @export var require_both_players: bool = false
 var is_active: bool = false
 var _touched_players: Dictionary = {}
+var _anim_time: float = 0.0
 
 func _ready() -> void:
 	add_to_group("restore_points")
 	body_entered.connect(_on_body_entered)
+	SpriteAnim.setup_sheet(get_node_or_null("CrystalSprite") as Sprite2D, TEX_INACTIVE, 4)
+
+
+func _process(delta: float) -> void:
+	_anim_time += delta
+	SpriteAnim.step_sheet(get_node_or_null("CrystalSprite") as Sprite2D, _anim_time, 6.0, 4)
 
 func _on_body_entered(body: Node2D) -> void:
 	if body is GdxPlayer:

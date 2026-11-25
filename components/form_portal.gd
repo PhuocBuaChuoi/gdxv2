@@ -25,10 +25,10 @@ const FORM_COLORS := {
 }
 
 const PORTAL_TEXTURES := {
-	"CUBE": preload("res://assets/sprites/portal_cube.png"),
-	"SHIP": preload("res://assets/sprites/portal_ship.png"),
-	"UFO": preload("res://assets/sprites/portal_ufo.png"),
-	"DASH": preload("res://assets/sprites/portal_dash.png"),
+	"CUBE": preload("res://assets/sprites/portal_cube_anim.png"),
+	"SHIP": preload("res://assets/sprites/portal_ship_anim.png"),
+	"UFO": preload("res://assets/sprites/portal_ufo_anim.png"),
+	"DASH": preload("res://assets/sprites/portal_dash_anim.png"),
 }
 
 
@@ -55,6 +55,7 @@ func _process(delta: float) -> void:
 	var spr := get_node_or_null("PortalSprite") as Sprite2D
 	if spr != null:
 		spr.scale = Vector2(1.0 + pulse * 0.04, 1.0 - pulse * 0.02)
+		SpriteAnim.step_sheet(spr, _pulse, 6.0, 4)
 
 
 func _on_body_entered(body: Node2D) -> void:
@@ -114,4 +115,4 @@ func _update_color() -> void:
 		border.default_color = Color(c.r, c.g, c.b, 0.8)
 	var spr := get_node_or_null("PortalSprite") as Sprite2D
 	if spr != null:
-		spr.texture = PORTAL_TEXTURES.get(target_form, PORTAL_TEXTURES["CUBE"])
+		SpriteAnim.setup_sheet(spr, PORTAL_TEXTURES.get(target_form, PORTAL_TEXTURES["CUBE"]), 4)

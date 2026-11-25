@@ -11,6 +11,8 @@ extends Area2D
 @export_enum("FIXED", "TOGGLE") var direction_mode: int = 0
 @export var toggle_mode: bool = false # alias cũ của direction_mode = TOGGLE
 @export var retrigger_delay: float = 0.4
+const PORTAL_SHEET := preload("res://assets/sprites/gravity_portal_anim.png")
+
 var _used_bodies: Dictionary = {}
 var _last_used: Dictionary = {}
 var _pulse_time: float = 0.0
@@ -18,6 +20,7 @@ var _pulse_time: float = 0.0
 func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	add_to_group("gravity_portal")
+	SpriteAnim.setup_sheet(get_node_or_null("PortalSprite") as Sprite2D, PORTAL_SHEET, 4)
 
 
 func _process(delta: float) -> void:
@@ -28,6 +31,7 @@ func _process(delta: float) -> void:
 	var spr := get_node_or_null("PortalSprite") as Sprite2D
 	if spr != null:
 		spr.scale = Vector2.ONE * (1.0 + pulse * 0.06)
+		SpriteAnim.step_sheet(spr, _pulse_time, 7.0, 4)
 	if ring != null:
 		ring.scale = Vector2.ONE * (1.0 + pulse * 0.10)
 		ring.rotation = sin(_pulse_time * 0.6) * 0.12
