@@ -21,7 +21,6 @@
 [ext_resource type="PackedScene" path="res://components/breakable_dash_block.tscn" id="19_dash_block"]
 [ext_resource type="PackedScene" path="res://components/coop_box.tscn" id="20_box"]
 [ext_resource type="PackedScene" path="res://components/jump_pad.tscn" id="21_pad"]
-[ext_resource type="Texture2D" path="res://assets/sprites/ai_bg_cyber_reactor.png" id="22_bg_tex"]
 
 [node name="LevelRoot" type="Node2D"]
 script = ExtResource("1")
@@ -47,8 +46,7 @@ text = "LEVEL 6: KHONG GIAN DAO CHIEU & LASER CHOP TAT\nP1: TRONG LUC TRAN + UFO
 
 [node name="StageBackground" parent="." instance=ExtResource("7_bg")]
 background = "BRIGHT"
-custom_texture = ExtResource("22_bg_tex")
-dim = 0.55
+dim = 0.5
 
 [node name="BackgroundGrid" type="ParallaxBackground" parent="."]
 
@@ -61,7 +59,7 @@ tile_set = ExtResource("3")
 [node name="Hazards" type="Node2D" parent="."]
 
 [node name="LaserTop" parent="Hazards" instance=ExtResource("16_laser")]
-position = Vector2(720, 140)
+position = Vector2(720, 168)
 period = 1.8
 duty = 0.5
 
@@ -69,6 +67,7 @@ duty = 0.5
 position = Vector2(1008, 108)
 rotation = 3.14159
 hazard_type = 0
+orientation = 1
 
 [node name="SpikeBottomOrange" parent="Hazards" instance=ExtResource("15_spike")]
 position = Vector2(768, 420)
@@ -121,7 +120,7 @@ linked_triggers = [NodePath("../ButtonFloor")]
 move_offset = Vector2(0, -60)
 
 [node name="ButtonTopSync" parent="Mechanisms" instance=ExtResource("17_button")]
-position = Vector2(1250, 108)
+position = Vector2(1250, 106)
 rotation = 3.14159
 mode = 2
 activator = 1

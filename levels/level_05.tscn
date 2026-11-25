@@ -20,7 +20,6 @@
 [ext_resource type="PackedScene" path="res://components/jump_pad.tscn" id="18_pad"]
 [ext_resource type="PackedScene" path="res://components/jump_orb.tscn" id="19_orb"]
 [ext_resource type="PackedScene" path="res://components/coop_box.tscn" id="20_box"]
-[ext_resource type="Texture2D" path="res://assets/sprites/ai_bg_neon_synth.png" id="21_bg_tex"]
 
 [node name="LevelRoot" type="Node2D"]
 script = ExtResource("1")
@@ -46,8 +45,7 @@ text = "LEVEL 5: CO-OP BAP BENH CAN BANG (FLOAT PAIR)\n1 NGUOI DE BOX A DE DAY B
 
 [node name="StageBackground" parent="." instance=ExtResource("7_bg")]
 background = "FOREST"
-custom_texture = ExtResource("21_bg_tex")
-dim = 0.58
+dim = 0.55
 
 [node name="BackgroundGrid" type="ParallaxBackground" parent="."]
 

@@ -36,6 +36,13 @@ const SPIKE_TEXTURES := {
 
 
 func _ready() -> void:
+	if orientation == 0 and not is_zero_approx(rotation):
+		if absf(absf(rotation) - PI) < 0.1:
+			orientation = 1
+		elif rotation < -1.0:
+			orientation = 2
+		elif rotation > 1.0:
+			orientation = 3
 	_rebuild_geometry()
 	_apply_layer_and_color()
 	_apply_orientation()

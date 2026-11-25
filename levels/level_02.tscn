@@ -19,7 +19,6 @@
 [ext_resource type="PackedScene" path="res://components/mechanized_platform.tscn" id="17_platform"]
 [ext_resource type="PackedScene" path="res://components/jump_pad.tscn" id="18_pad"]
 [ext_resource type="PackedScene" path="res://components/jump_orb.tscn" id="19_orb"]
-[ext_resource type="Texture2D" path="res://assets/sprites/ai_bg_cyber_reactor.png" id="20_bg_tex"]
 
 [node name="LevelRoot" type="Node2D"]
 script = ExtResource("1")
@@ -45,8 +44,7 @@ text = "P1: SHIP PORTAL (GIU W BAY, S KEO TETHER)   |   P2: CUBE\nCUOI LEN LUNG 
 
 [node name="StageBackground" parent="." instance=ExtResource("7_bg")]
 background = "BRIGHT"
-custom_texture = ExtResource("20_bg_tex")
-dim = 0.58
+dim = 0.55
 
 [node name="BackgroundGrid" type="ParallaxBackground" parent="."]
 
@@ -76,9 +74,10 @@ hazard_type = 0
 tile_count = 1
 
 [node name="SpikeCeiling" parent="Hazards" instance=ExtResource("15_spike")]
-position = Vector2(624, 216)
+position = Vector2(624, 252)
 rotation = 3.14159
 hazard_type = 0
+orientation = 1
 
 [node name="SpikeOrange1" parent="Hazards" instance=ExtResource("15_spike")]
 position = Vector2(1440, 468)

@@ -20,7 +20,6 @@
 [ext_resource type="PackedScene" path="res://components/laser_hazard.tscn" id="18_laser"]
 [ext_resource type="PackedScene" path="res://components/pressure_button.tscn" id="19_button"]
 [ext_resource type="PackedScene" path="res://components/mechanized_platform.tscn" id="20_platform"]
-[ext_resource type="Texture2D" path="res://assets/sprites/ai_bg_cyber_city.png" id="21_bg_tex"]
 
 [node name="LevelRoot" type="Node2D"]
 script = ExtResource("1")
@@ -46,8 +45,7 @@ text = "GRAND FINALE: TO HOP 4 DANG (CUBE -> DASH -> SHIP -> UFO)\nDASH PHA TUON
 
 [node name="StageBackground" parent="." instance=ExtResource("7_bg")]
 background = "FOREST"
-custom_texture = ExtResource("21_bg_tex")
-dim = 0.55
+dim = 0.5
 
 [node name="BackgroundGrid" type="ParallaxBackground" parent="."]
 
@@ -107,7 +105,7 @@ position = Vector2(480, 360)
 position = Vector2(576, 336)
 
 [node name="CeilingButton" parent="Mechanisms" instance=ExtResource("19_button")]
-position = Vector2(1600, 108)
+position = Vector2(1600, 106)
 rotation = 3.14159
 mode = 1
 activator = 0

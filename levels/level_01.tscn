@@ -21,7 +21,6 @@
 [ext_resource type="PackedScene" path="res://components/dash_orb.tscn" id="19_dashorb"]
 [ext_resource type="PackedScene" path="res://components/coop_box.tscn" id="20_box"]
 [ext_resource type="PackedScene" path="res://components/balanced_float_pair.tscn" id="21_pair"]
-[ext_resource type="Texture2D" path="res://assets/sprites/ai_bg_cyber_city.png" id="22_bg_tex"]
 
 [node name="LevelRoot" type="Node2D"]
 script = ExtResource("1")
@@ -46,7 +45,6 @@ text = "P1: A/D + W   |   P2: LEFT/RIGHT + UP\nCUOI LEN DAU DONG DOI DE LEO CAO 
 [node name="DefaultWorldEnvironment" parent="." instance=ExtResource("2")]
 
 [node name="StageBackground" parent="." instance=ExtResource("7_bg")]
-custom_texture = ExtResource("22_bg_tex")
 dim = 0.6
 
 [node name="BackgroundGrid" type="ParallaxBackground" parent="."]

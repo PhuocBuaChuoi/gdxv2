@@ -3,7 +3,6 @@
 [ext_resource type="Script" path="res://ui/main_menu.gd" id="1"]
 [ext_resource type="PackedScene" path="res://levels/stage_background.tscn" id="2"]
 [ext_resource type="Theme" path="res://resources/cyber_theme.tres" id="3_theme"]
-[ext_resource type="Texture2D" path="res://assets/sprites/ai_bg_cyber_city.png" id="4_bg_tex"]
 
 [node name="MainMenu" type="Control"]
 layout_mode = 3
@@ -16,8 +15,7 @@ theme = ExtResource("3_theme")
 script = ExtResource("1")
 
 [node name="StageBackground" parent="." instance=ExtResource("2")]
-custom_texture = ExtResource("4_bg_tex")
-dim = 0.72
+dim = 0.65
 
 [node name="BackdropTint" type="ColorRect" parent="."]
 layout_mode = 1

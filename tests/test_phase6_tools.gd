@@ -390,6 +390,12 @@ func test_modular_spike_and_blocks() -> void:
 	spike.tile_count = 3
 	spike.orientation = 1 # DOWN (tran)
 	assert_near(spike.rotation, PI, 0.001, "spike quay tran")
+	var rot_spike := (load("res://components/spike_hazard.tscn") as PackedScene).instantiate() as SpikeHazard
+	rot_spike.rotation = PI
+	host_root.add_child(rot_spike)
+	assert_eq(rot_spike.orientation, 1, "spike dat rotation=PI tu suy ra orientation=DOWN khi _ready")
+	assert_near(rot_spike.rotation, PI, 0.001, "spike dat rotation=PI khong bi reset ve 0 khi _ready")
+	_despawn(rot_spike)
 	spike.position = Vector2(49.2, 95.8)
 	spike.snap_to_grid(48.0)
 	assert_eq(spike.position, Vector2(48.0, 96.0), "spike snap vao luoi 48px")
