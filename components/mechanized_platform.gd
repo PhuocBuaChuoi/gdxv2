@@ -11,10 +11,12 @@ extends AnimatableBody2D
 @export var require_all: bool = false
 
 var _home: Vector2
+var _last_active: bool = false
 
 
 func _ready() -> void:
 	_home = global_position
+	_last_active = _triggers_active()
 	add_to_group("checkpoint_resettable")
 
 
@@ -26,7 +28,11 @@ func reset_to_checkpoint(_snapshot: CheckpointSnapshot = null) -> void:
 func _physics_process(delta: float) -> void:
 	if speed <= 0.0:
 		return
-	var target := _home + move_offset if _triggers_active() else _home
+	var active := _triggers_active()
+	if active != _last_active:
+		_last_active = active
+		AudioManager.play_sfx("door") # T8.06: tiếng cửa/bệ mở
+	var target := _home + move_offset if active else _home
 	global_position = global_position.move_toward(target, speed * delta)
 
 

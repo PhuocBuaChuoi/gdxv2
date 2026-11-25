@@ -100,6 +100,41 @@ func test_dash_charge_does_not_reset_on_form_switch() -> void:
 	_cleanup([p])
 
 
+func test_audio_has_music_and_door_sfx() -> void:
+	var audio: Node = host_root.get_node("/root/AudioManager")
+	assert_true(audio != null, "AUDIT06 AudioManager autoload ton tai")
+	if audio == null:
+		return
+	assert_true(bool(audio.call("has_sfx", "door")), "AUDIT06 co SFX mo cua")
+	assert_true(bool(audio.call("has_music")), "AUDIT06 co nhac nen chiptune sinh boi code")
+	assert_true(bool(audio.call("play_music")), "AUDIT06 play_music khong crash (headless)")
+	audio.call("stop_music")
+
+
+func test_menu_has_two_running_characters() -> void:
+	var menu := (load("res://ui/main_menu.tscn") as PackedScene).instantiate()
+	host_root.add_child(menu)
+	var d1 := menu.get_node_or_null("DancerP1") as Node2D
+	var d2 := menu.get_node_or_null("DancerP2") as Node2D
+	assert_true(d1 != null and d2 != null, "AUDIT07 menu co 2 nhan vat chay nhay")
+	if d1 != null:
+		assert_true(d1.get_node_or_null("Body") is Polygon2D, "AUDIT07 dancer co hinh ve")
+		var y0: float = d1.position.y
+		d1.call("_process", 0.3)
+		assert_true(d1.position.y != y0, "AUDIT07 dancer chuyen dong theo thoi gian")
+	_cleanup([menu])
+
+
+func test_level_background_grid_is_painted() -> void:
+	var lvl := LevelScene.instantiate()
+	host_root.add_child(lvl)
+	var grid := lvl.get_node_or_null("BackgroundGrid/GridLayer") as Node2D
+	assert_true(grid != null, "AUDIT08 BackgroundGrid/GridLayer ton tai")
+	if grid != null:
+		assert_true(grid.get_child_count() > 0, "AUDIT08 luoi nen duoc ve (khong con node rong)")
+	_cleanup([lvl])
+
+
 func test_visual_and_vfx_follow_spec() -> void:
 	var p := _player()
 	assert_eq(CubeState.ROTATION_SPEED, 420.0, "AUDIT05 toc do xoay Cube dung 420 do/giay")

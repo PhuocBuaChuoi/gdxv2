@@ -2,6 +2,13 @@ extends "res://tests/gdx_test.gd"
 
 const Assets = preload("res://resources/potential_assets.gd")
 
+
+## Dùng resource import thay vì Image.load_from_file(): cách cũ chỉ đọc file
+## thô, không đóng gói được khi export (Godot cảnh báo lúc chạy test).
+func _image(path: String) -> Image:
+	var tex := load(path) as Texture2D
+	return tex.get_image() if tex != null else null
+
 func test_catalog_paths_exist() -> void:
 	assert_true(Assets.is_ready_for_visual_import(), "potential asset catalog files exist")
 	assert_true(FileAccess.file_exists(Assets.character_sheet()), "character sheet path exists")
@@ -11,21 +18,21 @@ func test_catalog_paths_exist() -> void:
 		assert_true(path.begins_with("res://potential_Assets/"), "asset remains behind catalog boundary")
 
 func test_catalog_dimensions() -> void:
-	var sheet := Image.load_from_file(Assets.character_sheet())
+	var sheet := _image(Assets.character_sheet())
 	assert_true(sheet != null and not sheet.is_empty(), "character sheet loads")
 	if sheet != null and not sheet.is_empty():
 		assert_eq(sheet.get_width(), 252, "character sheet width")
 		assert_eq(sheet.get_height(), 408, "character sheet height")
-	var bright := Image.load_from_file(Assets.BACKGROUND_BRIGHT)
-	var forest := Image.load_from_file(Assets.BACKGROUND_FOREST)
+	var bright := _image(Assets.BACKGROUND_BRIGHT)
+	var forest := _image(Assets.BACKGROUND_FOREST)
 	assert_true(bright != null and not bright.is_empty(), "bright background loads")
 	assert_true(forest != null and not forest.is_empty(), "forest background loads")
 	if bright != null and not bright.is_empty():
 		assert_eq(Vector2i(bright.get_width(), bright.get_height()), Vector2i(735, 412), "bright background dimensions")
 	if forest != null and not forest.is_empty():
 		assert_eq(Vector2i(forest.get_width(), forest.get_height()), Vector2i(1199, 648), "forest background dimensions")
-	var bunny := Image.load_from_file(Assets.BUNNY_SHEET)
-	var frog := Image.load_from_file(Assets.FROG_SHEET)
+	var bunny := _image(Assets.BUNNY_SHEET)
+	var frog := _image(Assets.FROG_SHEET)
 	assert_true(bunny != null and not bunny.is_empty(), "bunny sheet loads")
 	assert_true(frog != null and not frog.is_empty(), "frog sheet loads")
 	if bunny != null and not bunny.is_empty():

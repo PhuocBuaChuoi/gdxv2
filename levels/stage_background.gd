@@ -52,8 +52,8 @@ func apply_background() -> void:
 	_sprite.scale = Vector2(s, s)
 	_sprite.position = Vector2(0.0, 280.0 if custom_texture != null else 360.0)
 	_sprite.modulate = Color(dim, dim, dim)
-	_layer.motion_scale = Vector2(0.12, 0.04)
-	_layer.motion_mirroring = Vector2(tex.get_width() * s, 0.0)
+	# Parallax2D dùng scroll_scale/repeat_size (các dòng dưới), không dùng
+	# motion_scale/motion_mirroring của ParallaxLayer legacy.
 	var span: float = tex.get_width() * s
 	# Ban lat guong dat canh ban goc -> hai mep anh trung khop tung pixel,
 	# nen tile lap lai khong lo duong noi. repeat_size = ca cap (2x).

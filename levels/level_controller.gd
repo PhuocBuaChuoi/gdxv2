@@ -44,6 +44,7 @@ func _ready() -> void:
 	_check_cli_screenshot()
 	running = true
 	paint_terrain()
+	_setup_background_grid()
 	_setup_bounds()
 	_position_players()
 	player_one.switch_form(start_form_p1)
@@ -76,6 +77,29 @@ func _check_cli_screenshot() -> void:
 		if args[i] == "--screenshot" and i + 1 < args.size():
 			_screenshot_path = args[i + 1]
 			break
+
+
+## T7.02 — BackgroundGrid trước đây là node rỗng. Vẽ lưới tối kiểu GD Editor
+## bằng Line2D ngay runtime để không phải sửa 6 scene copy của level.
+func _setup_background_grid() -> void:
+	var layer := get_node_or_null("BackgroundGrid/GridLayer") as Node2D
+	if layer == null or layer.get_child_count() > 0:
+		return
+	var step := 96.0
+	var half := 1440.0
+	var color := Color(0.25, 0.55, 0.8, 0.10)
+	for i in range(-15, 16):
+		var x := float(i) * step
+		var vertical := Line2D.new()
+		vertical.points = PackedVector2Array([Vector2(x, -half), Vector2(x, half)])
+		vertical.width = 1.0
+		vertical.default_color = color
+		layer.add_child(vertical)
+		var horizontal := Line2D.new()
+		horizontal.points = PackedVector2Array([Vector2(-half, x), Vector2(half, x)])
+		horizontal.width = 1.0
+		horizontal.default_color = color
+		layer.add_child(horizontal)
 
 
 func _setup_bounds() -> void:
