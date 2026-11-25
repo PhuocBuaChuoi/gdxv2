@@ -372,6 +372,86 @@ def process_animations():
         _process_sheet_frames(mech_anim, os.path.join(SPRITES_DIR, "mechanized_platform_anim.png"), 4, _fit_mech)
 
 
+def process_ui_assets():
+    # 1. Stylized winged GDXV2 logo (crop intact right half of ai_ui_logo_gdxv2.png)
+    logo_raw = os.path.join(SPRITES_DIR, "ai_ui_logo_gdxv2.png")
+    if os.path.exists(logo_raw):
+        im = Image.open(logo_raw).convert("RGBA")
+        right_half = im.crop((138, 0, im.width, im.height))
+        bbox = right_half.getbbox()
+        logo = right_half.crop(bbox) if bbox else right_half
+        # Slight padding for crisp UI layout
+        padded = Image.new("RGBA", (logo.width + 8, logo.height + 8), (0, 0, 0, 0))
+        padded.paste(logo, (4, 4), logo)
+        padded.save(os.path.join(SPRITES_DIR, "ui_logo_gdxv2.png"))
+        print(f"[+] Created ui_logo_gdxv2.png ({padded.width}x{padded.height})")
+
+    # 2. 9-slice Cyber Arcade Buttons (crop crisp octagonal cyan-LED button from right half of ai_ui_btn_raw.png)
+    btn_raw = os.path.join(SPRITES_DIR, "ai_ui_btn_raw.png")
+    if os.path.exists(btn_raw):
+        im = Image.open(btn_raw).convert("RGBA")
+        right_half = im.crop((68, 0, im.width, im.height))
+        bbox = right_half.getbbox()
+        btn = right_half.crop(bbox) if bbox else right_half
+        # Upscale 2x nearest-neighbor for crisp hi-res 9-slice margins (margin ~36px horizontal, ~20px vertical)
+        btn_2x = btn.resize((btn.width * 2, btn.height * 2), Image.Resampling.NEAREST)
+        btn_2x.save(os.path.join(SPRITES_DIR, "ui_btn_normal.png"))
+
+        # Hover: brighter steel + vivid electric cyan glow
+        hover = ImageEnhance.Brightness(btn_2x).enhance(1.25)
+        hover = ImageEnhance.Color(hover).enhance(1.2)
+        hover.save(os.path.join(SPRITES_DIR, "ui_btn_hover.png"))
+
+        # Pressed: warm amber-gold inner neon rim + slight vertical press
+        pressed_tint = tint_image(btn_2x, (255, 185, 45))
+        pressed_canvas = Image.new("RGBA", pressed_tint.size, (0, 0, 0, 0))
+        pressed_canvas.paste(pressed_tint, (0, 2), pressed_tint)
+        pressed_canvas.save(os.path.join(SPRITES_DIR, "ui_btn_pressed.png"))
+
+        # Disabled: muted slate monochrome
+        gray = ImageEnhance.Color(btn_2x).enhance(0.15)
+        disabled = ImageEnhance.Brightness(gray).enhance(0.65)
+        disabled.save(os.path.join(SPRITES_DIR, "ui_btn_disabled.png"))
+
+        # Primary CTA (Play / Next): rich emerald-cyan energy rim
+        primary = tint_image(btn_2x, (40, 255, 195))
+        primary_hover = ImageEnhance.Brightness(primary).enhance(1.24)
+        primary.save(os.path.join(SPRITES_DIR, "ui_btn_primary.png"))
+        primary_hover.save(os.path.join(SPRITES_DIR, "ui_btn_primary_hover.png"))
+        print(f"[+] Created 9-slice UI button variants ({btn_2x.width}x{btn_2x.height})")
+
+    # 3. 9-slice Cyber Steel Panel Frame (smooth seamless tileable edges from ai_ui_panel_raw.png)
+    panel_raw = os.path.join(SPRITES_DIR, "ai_ui_panel_raw.png")
+    if os.path.exists(panel_raw):
+        im = Image.open(panel_raw).convert("RGBA")
+        # Copy straight steel+cyan rail strips over the protruding mid-clamps so 9-slice stretches cleanly
+        # Straight border strip samples: top/bottom col x=54..61, left/right row y=54..61
+        for x in range(58, 102):
+            sx = 54 + ((x - 58) % 6)
+            for y in range(0, 44):
+                im.putpixel((x, y), im.getpixel((sx, y)))
+            for y in range(116, 160):
+                im.putpixel((x, y), im.getpixel((sx, y)))
+        for y in range(58, 102):
+            sy = 54 + ((y - 58) % 6)
+            for x in range(0, 44):
+                im.putpixel((x, y), im.getpixel((x, sy)))
+            for x in range(116, 160):
+                im.putpixel((x, y), im.getpixel((x, sy)))
+        # Uniform deep translucent navy interior so text always pops clearly
+        px = im.load()
+        for y in range(34, 126):
+            for x in range(34, 126):
+                r, g, b, a = px[x, y]
+                if a > 200 and max(r, g, b) < 70:
+                    px[x, y] = (10, 18, 36, 236)
+        im.save(os.path.join(SPRITES_DIR, "ui_panel_frame.png"))
+
+        gold_panel = tint_image(im, (255, 195, 55))
+        gold_panel.save(os.path.join(SPRITES_DIR, "ui_panel_frame_gold.png"))
+        print("[+] Created 9-slice ui_panel_frame.png + ui_panel_frame_gold.png (160x160)")
+
+
 if __name__ == "__main__":
     process_spikes()
     process_portals()
@@ -379,6 +459,7 @@ if __name__ == "__main__":
     process_breakable_wall()
     process_mech_platform()
     process_animations()
+    process_ui_assets()
     process_checkpoints()
     process_button_and_emitter()
     process_tileset_atlas()

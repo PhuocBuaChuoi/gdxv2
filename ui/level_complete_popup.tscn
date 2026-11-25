@@ -1,27 +1,46 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=9 format=3]
 
 [ext_resource type="Script" path="res://ui/level_complete_popup.gd" id="1"]
 [ext_resource type="Theme" path="res://resources/cyber_theme.tres" id="2_theme"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui_panel_frame_gold.png" id="3_gold_panel"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui_btn_primary.png" id="4_pri"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui_btn_primary_hover.png" id="5_pri_h"]
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_win_card"]
-bg_color = Color(0.03, 0.06, 0.135, 0.94)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(1, 0.78, 0.22, 0.92)
-corner_radius_top_left = 12
-corner_radius_top_right = 24
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 24
-content_margin_left = 24.0
-content_margin_top = 20.0
-content_margin_right = 24.0
-content_margin_bottom = 20.0
-shadow_color = Color(1, 0.68, 0.12, 0.28)
-shadow_size = 18
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_win_card"]
+texture = ExtResource("3_gold_panel")
+texture_margin_left = 42.0
+texture_margin_top = 42.0
+texture_margin_right = 42.0
+texture_margin_bottom = 42.0
+content_margin_left = 28.0
+content_margin_top = 24.0
+content_margin_right = 28.0
+content_margin_bottom = 24.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_pri"]
+texture = ExtResource("4_pri")
+texture_margin_left = 40.0
+texture_margin_top = 18.0
+texture_margin_right = 40.0
+texture_margin_bottom = 18.0
+content_margin_left = 30.0
+content_margin_top = 12.0
+content_margin_right = 30.0
+content_margin_bottom = 12.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_pri_h"]
+texture = ExtResource("5_pri_h")
+texture_margin_left = 40.0
+texture_margin_top = 18.0
+texture_margin_right = 40.0
+texture_margin_bottom = 18.0
+content_margin_left = 30.0
+content_margin_top = 12.0
+content_margin_right = 30.0
+content_margin_bottom = 12.0
 
 [node name="CompletePopup" type="Control"]
+texture_filter = 1
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -46,12 +65,12 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -275.0
-offset_top = -270.0
-offset_right = 275.0
-offset_bottom = 270.0
+offset_left = -295.0
+offset_top = -290.0
+offset_right = 295.0
+offset_bottom = 290.0
 mouse_filter = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_win_card")
+theme_override_styles/panel = SubResource("StyleBoxTexture_win_card")
 
 [node name="PanelBox" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -60,10 +79,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -230.0
-offset_top = -238.0
-offset_right = 230.0
-offset_bottom = 238.0
+offset_left = -232.0
+offset_top = -235.0
+offset_right = 232.0
+offset_bottom = 235.0
 theme_override_constants/separation = 12
 
 [node name="Title" type="Label" parent="PanelBox"]
@@ -74,7 +93,7 @@ theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.85)
 theme_override_constants/outline_size = 5
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 44
+theme_override_font_sizes/font_size = 42
 text = "HOÀN THÀNH!"
 horizontal_alignment = 1
 
@@ -86,7 +105,7 @@ theme_override_colors/font_shadow_color = Color(0.4, 0.22, 0, 0.9)
 theme_override_constants/outline_size = 4
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 56
+theme_override_font_sizes/font_size = 54
 text = "★★★"
 horizontal_alignment = 1
 
@@ -114,21 +133,24 @@ custom_minimum_size = Vector2(0, 4)
 layout_mode = 2
 
 [node name="NextBtn" type="Button" parent="PanelBox"]
-custom_minimum_size = Vector2(0, 52)
+custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxTexture_pri")
+theme_override_styles/hover = SubResource("StyleBoxTexture_pri_h")
+theme_override_styles/focus = SubResource("StyleBoxTexture_pri_h")
 text = "Màn Tiếp Theo"
 
 [node name="RetryBtn" type="Button" parent="PanelBox"]
-custom_minimum_size = Vector2(0, 52)
+custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 23
 text = "Chơi Lại"
 
 [node name="MenuBtn" type="Button" parent="PanelBox"]
-custom_minimum_size = Vector2(0, 52)
+custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 23
 text = "Về Chọn Màn"
 
 [connection signal="pressed" from="PanelBox/NextBtn" to="." method="_on_next_pressed"]

@@ -1,10 +1,9 @@
 extends Control
 
 ## T8.03 — HUD trong màn: tên màn + Attempt, đồng hồ, dạng P1/P2.
-## Tự tìm LevelRoot cha, đọc timer, nghe Events + RespawnCoordinator.
-## Không sửa level_controller — mọi thứ qua get()/signal (decouple).
 
 var _level: Node = null
+var _level_index: int = 0
 var _attempts: int = 1
 var _forms := {1: &"CUBE", 2: &"CUBE"}
 
@@ -20,16 +19,18 @@ func _ready() -> void:
 	if _level != null:
 		var level_index = _level.get("level_index")
 		if level_index != null:
-			_title.text = "Màn %d" % (int(level_index) + 1)
+			_level_index = int(level_index)
 		var p1: Node = _level.get_node_or_null("Players/PlayerP1")
 		var p2: Node = _level.get_node_or_null("Players/PlayerP2")
 		if p1 != null:
 			_forms[1] = p1.get("form")
 		if p2 != null:
 			_forms[2] = p2.get("form")
+	_refresh_title()
 	_refresh_forms()
 	if not Events.player_form_changed.is_connected(_on_form_changed):
 		Events.player_form_changed.connect(_on_form_changed)
+	LocalePack.subscribe(Callable(self, "_on_locale_changed"))
 	var coord: Node = _level.get_node_or_null("RespawnCoordinator") if _level != null else null
 	if coord == null:
 		var ancestor: Node = get_parent()
@@ -45,6 +46,12 @@ func _ready() -> void:
 func _exit_tree() -> void:
 	if Events.player_form_changed.is_connected(_on_form_changed):
 		Events.player_form_changed.disconnect(_on_form_changed)
+	LocalePack.unsubscribe(Callable(self, "_on_locale_changed"))
+
+
+func _on_locale_changed(_locale: String) -> void:
+	_refresh_title()
+	_refresh_attempt()
 
 
 func _find_level_root() -> Node:
@@ -71,8 +78,12 @@ func _on_form_changed(player_id: int, new_form: StringName) -> void:
 	_refresh_forms()
 
 
+func _refresh_title() -> void:
+	_title.text = LocalePack.tr_key("hud_level", [_level_index + 1])
+
+
 func _refresh_attempt() -> void:
-	_attempt.text = "Attempt %d" % _attempts
+	_attempt.text = LocalePack.tr_key("hud_attempt", [_attempts])
 
 
 func _refresh_forms() -> void:

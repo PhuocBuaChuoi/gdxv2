@@ -81,6 +81,7 @@ func record_result(index: int, time_taken: float, death_count: int) -> void:
 
 func save_progress() -> void:
 	var cfg := ConfigFile.new()
+	cfg.load(save_path)
 	cfg.set_value("progress", "unlocked", unlocked)
 	cfg.set_value("progress", "best", best)
 	cfg.save(save_path)

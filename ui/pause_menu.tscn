@@ -1,10 +1,35 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://ui/pause_menu.gd" id="1"]
 [ext_resource type="Theme" path="res://resources/cyber_theme.tres" id="2_theme"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui_btn_primary.png" id="3_pri"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui_btn_primary_hover.png" id="4_pri_h"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_pri"]
+texture = ExtResource("3_pri")
+texture_margin_left = 40.0
+texture_margin_top = 18.0
+texture_margin_right = 40.0
+texture_margin_bottom = 18.0
+content_margin_left = 30.0
+content_margin_top = 12.0
+content_margin_right = 30.0
+content_margin_bottom = 12.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_pri_h"]
+texture = ExtResource("4_pri_h")
+texture_margin_left = 40.0
+texture_margin_top = 18.0
+texture_margin_right = 40.0
+texture_margin_bottom = 18.0
+content_margin_left = 30.0
+content_margin_top = 12.0
+content_margin_right = 30.0
+content_margin_bottom = 12.0
 
 [node name="PauseMenu" type="Control"]
 process_mode = 3
+texture_filter = 1
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -20,7 +45,7 @@ layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-color = Color(0.01, 0.03, 0.08, 0.74)
+color = Color(0.01, 0.03, 0.08, 0.76)
 
 [node name="Card" type="Panel" parent="."]
 layout_mode = 1
@@ -29,10 +54,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -240.0
-offset_top = -225.0
-offset_right = 240.0
-offset_bottom = 225.0
+offset_left = -270.0
+offset_top = -245.0
+offset_right = 270.0
+offset_bottom = 245.0
 mouse_filter = 2
 
 [node name="MenuBox" type="VBoxContainer" parent="."]
@@ -42,21 +67,21 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -200.0
-offset_top = -195.0
-offset_right = 200.0
-offset_bottom = 195.0
+offset_left = -212.0
+offset_top = -196.0
+offset_right = 212.0
+offset_bottom = 196.0
 theme_override_constants/separation = 14
 
 [node name="Title" type="Label" parent="MenuBox"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.28, 0.95, 1, 1)
+theme_override_colors/font_color = Color(0.3, 0.95, 1, 1)
 theme_override_colors/font_outline_color = Color(0.03, 0.12, 0.24, 0.95)
 theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.85)
 theme_override_constants/outline_size = 5
 theme_override_constants/shadow_offset_x = 2
 theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 44
+theme_override_font_sizes/font_size = 42
 text = "TẠM DỪNG"
 horizontal_alignment = 1
 
@@ -66,27 +91,30 @@ layout_mode = 2
 color = Color(0.22, 0.85, 1, 0.45)
 
 [node name="ResumeBtn" type="Button" parent="MenuBox"]
-custom_minimum_size = Vector2(0, 52)
+custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxTexture_pri")
+theme_override_styles/hover = SubResource("StyleBoxTexture_pri_h")
+theme_override_styles/focus = SubResource("StyleBoxTexture_pri_h")
 text = "Tiếp Tục"
 
 [node name="CheckpointBtn" type="Button" parent="MenuBox"]
-custom_minimum_size = Vector2(0, 52)
+custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
-text = "Về Checkpoint  (R)"
+theme_override_font_sizes/font_size = 23
+text = "Về Checkpoint (R)"
 
 [node name="RestartBtn" type="Button" parent="MenuBox"]
-custom_minimum_size = Vector2(0, 52)
+custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 23
 text = "Chơi Lại Từ Đầu"
 
 [node name="SelectBtn" type="Button" parent="MenuBox"]
-custom_minimum_size = Vector2(0, 52)
+custom_minimum_size = Vector2(0, 54)
 layout_mode = 2
-theme_override_font_sizes/font_size = 24
+theme_override_font_sizes/font_size = 23
 text = "Về Chọn Màn"
 
 [connection signal="pressed" from="MenuBox/ResumeBtn" to="." method="_on_resume_pressed"]

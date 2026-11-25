@@ -1,15 +1,20 @@
 extends Control
 
-## T8.05 — Bảng tổng kết hoàn thành màn: thời gian, số chết, sao, Màn tiếp.
-## 3 sao khi chết < 3 lần (0–2 → 3★, 3–5 → 2★, còn lại 1★).
+## T8.05 — Bảng tổng kết hoàn thành màn: thời gian, số chết, sao, Màn tiếp + đa ngôn ngữ.
 
 const SELECT_SCENE := "res://ui/level_select.tscn"
 
 var manager: Node = null
+var _last_time: float = 0.0
+var _last_deaths: int = 0
 
+@onready var _title: Label = get_node_or_null("PanelBox/Title") as Label
 @onready var _time: Label = $PanelBox/TimeLabel
 @onready var _deaths: Label = $PanelBox/DeathsLabel
 @onready var _stars: Label = $PanelBox/StarsLabel
+@onready var _next_btn: Button = get_node_or_null("PanelBox/NextBtn") as Button
+@onready var _retry_btn: Button = get_node_or_null("PanelBox/RetryBtn") as Button
+@onready var _menu_btn: Button = get_node_or_null("PanelBox/MenuBtn") as Button
 
 
 func _ready() -> void:
@@ -18,11 +23,33 @@ func _ready() -> void:
 	visible = false
 	if not Events.level_completed.is_connected(_on_level_completed):
 		Events.level_completed.connect(_on_level_completed)
+	LocalePack.subscribe(Callable(self, "_on_locale_changed"))
+	_apply_locale()
 
 
 func _exit_tree() -> void:
 	if Events.level_completed.is_connected(_on_level_completed):
 		Events.level_completed.disconnect(_on_level_completed)
+	LocalePack.unsubscribe(Callable(self, "_on_locale_changed"))
+
+
+func _on_locale_changed(_locale: String) -> void:
+	_apply_locale()
+
+
+func _apply_locale() -> void:
+	if _title != null:
+		_title.text = LocalePack.tr_key("win_title")
+	if _next_btn != null:
+		_next_btn.text = LocalePack.tr_key("win_next")
+	if _retry_btn != null:
+		_retry_btn.text = LocalePack.tr_key("win_retry")
+	if _menu_btn != null:
+		_menu_btn.text = LocalePack.tr_key("win_menu")
+	if _time != null:
+		_time.text = LocalePack.tr_key("win_time", [fmt_time(_last_time)])
+	if _deaths != null:
+		_deaths.text = LocalePack.tr_key("win_deaths", [_last_deaths])
 
 
 func _on_level_completed(level_index: int, deaths: int, time_taken: float) -> void:
@@ -55,22 +82,22 @@ static func fmt_time(t: float) -> String:
 
 
 func show_result(time_taken: float, death_count: int) -> int:
+	_last_time = time_taken
+	_last_deaths = death_count
 	var stars := stars_for(death_count)
-	_time.text = "Thời gian: " + fmt_time(time_taken)
-	_deaths.text = "Số lần chết: %d" % death_count
+	_apply_locale()
 	_stars.text = "★".repeat(stars) + "☆".repeat(3 - stars)
 	visible = true
 	return stars
 
 
 func _on_next_pressed() -> bool:
+	AudioManager.play_sfx("click")
 	var mgr: Node = manager if manager != null else get_node_or_null("/root/LevelManager")
 	if mgr == null:
 		return false
 	if bool(mgr.call("load_next_level")):
 		return true
-	# Màn cuối: không có màn kế -> về chọn màn thay vì bấm chết.
-	# Chỉ fallback với manager thật đang chạy trong game (không đổi scene khi test).
 	var real: Node = get_node_or_null("/root/LevelManager")
 	if mgr == real and get_tree().current_scene != null:
 		return get_tree().change_scene_to_file(SELECT_SCENE) == OK
@@ -78,6 +105,7 @@ func _on_next_pressed() -> bool:
 
 
 func _on_retry_pressed() -> bool:
+	AudioManager.play_sfx("click")
 	var mgr: Node = manager if manager != null else get_node_or_null("/root/LevelManager")
 	if mgr == null:
 		return false
@@ -85,4 +113,5 @@ func _on_retry_pressed() -> bool:
 
 
 func _on_menu_pressed() -> bool:
+	AudioManager.play_sfx("click")
 	return get_tree().change_scene_to_file(SELECT_SCENE) == OK

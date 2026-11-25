@@ -55,6 +55,9 @@ func test_play_index_clamps_stale_save() -> void:
 
 
 func test_level_select_cards() -> void:
+	# LocalePack doc locale tu user://save_data.cfg nen test nay tung do khi lan
+	# chay truoc luu "en". Ep "vi" (khong persist) de test khong phu thuoc file save.
+	LocalePack.set_locale("vi", false)
 	var sel: Control = (load("res://ui/level_select.tscn") as PackedScene).instantiate() as Control
 	var mgr := _new_manager()
 	mgr.set("unlocked", 1)
@@ -168,3 +171,21 @@ func test_audio_manager() -> void:
 	am.call("set_volume", 99.0)
 	assert_near(float(am.get("volume_db")), 0.0, 0.001, "T8.06 volume kep tran")
 	_despawn(am)
+
+
+func test_locale_pack_switching() -> void:
+	var prev := LocalePack.get_locale()
+	LocalePack.set_locale("vi", false)
+	var menu: Control = (load("res://ui/main_menu.tscn") as PackedScene).instantiate() as Control
+	var mgr := _new_manager()
+	menu.set("manager", mgr)
+	host_root.add_child(menu)
+	assert_eq((menu.get_node("MenuBox/PlayBtn") as Button).text, "CHƠI NGAY", "Pack VI dich nut Play")
+	assert_true(menu.get_node_or_null("Subtitle") == null, "Da luoc bo chu vang duoi logo")
+	menu.call("_on_lang_pressed")
+	assert_eq(LocalePack.get_locale(), "en", "Doi ngon ngu sang EN")
+	assert_eq((menu.get_node("MenuBox/PlayBtn") as Button).text, "PLAY NOW", "Pack EN cap nhat live")
+	assert_eq((menu.get_node("SettingsPanel/SettingsBox/LangRow/LangBtn") as Button).text, "English", "Nut chon ngon ngu hien English")
+	LocalePack.set_locale(prev, true)
+	_despawn(menu)
+	_despawn(mgr)

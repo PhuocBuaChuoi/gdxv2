@@ -1,12 +1,39 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://ui/main_menu.gd" id="1"]
 [ext_resource type="PackedScene" path="res://levels/stage_background.tscn" id="2"]
 [ext_resource type="Theme" path="res://resources/cyber_theme.tres" id="3_theme"]
 [ext_resource type="Script" path="res://ui/menu_dancer.gd" id="4_dancer"]
 [ext_resource type="Texture2D" path="res://assets/sprites/mechanized_platform.png" id="5_plat"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui_logo_gdxv2.png" id="6_logo"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui_btn_primary.png" id="7_btn_pri"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ui_btn_primary_hover.png" id="8_btn_pri_h"]
+[ext_resource type="PackedScene" path="res://components/deco_prop.tscn" id="9_deco"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_primary"]
+texture = ExtResource("7_btn_pri")
+texture_margin_left = 40.0
+texture_margin_top = 18.0
+texture_margin_right = 40.0
+texture_margin_bottom = 18.0
+content_margin_left = 30.0
+content_margin_top = 12.0
+content_margin_right = 30.0
+content_margin_bottom = 12.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_primary_hover"]
+texture = ExtResource("8_btn_pri_h")
+texture_margin_left = 40.0
+texture_margin_top = 18.0
+texture_margin_right = 40.0
+texture_margin_bottom = 18.0
+content_margin_left = 30.0
+content_margin_top = 12.0
+content_margin_right = 30.0
+content_margin_bottom = 12.0
 
 [node name="MainMenu" type="Control"]
+texture_filter = 1
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -30,73 +57,56 @@ color = Color(0.02, 0.045, 0.11, 0.48)
 [node name="P1Pedestal" type="Sprite2D" parent="."]
 texture_filter = 1
 position = Vector2(340, 848)
-scale = Vector2(2.4, 2.0)
+scale = Vector2(2.6, 2.0)
 texture = ExtResource("5_plat")
 
 [node name="P2Pedestal" type="Sprite2D" parent="."]
 texture_filter = 1
 position = Vector2(1580, 848)
-scale = Vector2(2.4, 2.0)
+scale = Vector2(2.6, 2.0)
 texture = ExtResource("5_plat")
 
+[node name="DecoCrystalLeft" parent="." instance=ExtResource("9_deco")]
+position = Vector2(205, 824)
+scale = Vector2(1.4, 1.4)
+prop_type = 1
+
+[node name="DecoCrystalRight" parent="." instance=ExtResource("9_deco")]
+position = Vector2(1715, 824)
+scale = Vector2(1.4, 1.4)
+prop_type = 1
+flip_h = true
+
 [node name="DancerP1" type="Node2D" parent="."]
-position = Vector2(340, 800)
+position = Vector2(340, 792)
 script = ExtResource("4_dancer")
 dancer_color = Color(0, 0.9, 1, 1)
 phase = 0.0
 skin_name = "BIRD"
 
 [node name="DancerP2" type="Node2D" parent="."]
-position = Vector2(1580, 800)
+position = Vector2(1580, 792)
 script = ExtResource("4_dancer")
 dancer_color = Color(1, 0.55, 0.1, 1)
 phase = 1.6
 skin_name = "FROG"
 flip_facing = true
 
-[node name="Title" type="Label" parent="."]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_top = 64.0
-offset_bottom = 178.0
-theme_override_colors/font_color = Color(0.28, 0.95, 1, 1)
-theme_override_colors/font_outline_color = Color(0.03, 0.12, 0.24, 0.98)
-theme_override_colors/font_shadow_color = Color(0.02, 0.25, 0.48, 0.9)
-theme_override_constants/outline_size = 8
-theme_override_constants/shadow_offset_x = 3
-theme_override_constants/shadow_offset_y = 5
-theme_override_font_sizes/font_size = 96
-text = "GDXV2"
-horizontal_alignment = 1
-
-[node name="Subtitle" type="Label" parent="."]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_top = 182.0
-offset_bottom = 226.0
-theme_override_colors/font_color = Color(1, 0.75, 0.26, 0.98)
-theme_override_colors/font_outline_color = Color(0.05, 0.03, 0.01, 0.9)
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.85)
-theme_override_constants/outline_size = 3
-theme_override_constants/shadow_offset_x = 2
-theme_override_constants/shadow_offset_y = 2
-theme_override_font_sizes/font_size = 26
-text = "GEOMETRY DASH CO-OP  //  2-PLAYER CYBER SYNERGY"
-horizontal_alignment = 1
-
-[node name="HeaderRule" type="ColorRect" parent="."]
+[node name="TitleLogo" type="TextureRect" parent="."]
+texture_filter = 1
 layout_mode = 1
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_left = -220.0
-offset_top = 236.0
-offset_right = 220.0
-offset_bottom = 239.0
+offset_left = -330.0
+offset_top = 42.0
+offset_right = 330.0
+offset_bottom = 266.0
+grow_horizontal = 2
 mouse_filter = 2
-color = Color(0.22, 0.88, 1, 0.55)
+texture = ExtResource("6_logo")
+expand_mode = 1
+stretch_mode = 5
 
 [node name="MenuCard" type="Panel" parent="."]
 layout_mode = 1
@@ -105,10 +115,10 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -255.0
-offset_top = -155.0
-offset_right = 255.0
-offset_bottom = 185.0
+offset_left = -285.0
+offset_top = -190.0
+offset_right = 285.0
+offset_bottom = 195.0
 mouse_filter = 2
 
 [node name="MenuBox" type="VBoxContainer" parent="."]
@@ -118,35 +128,45 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -220.0
-offset_top = -128.0
-offset_right = 220.0
-offset_bottom = 160.0
+offset_left = -222.0
+offset_top = -148.0
+offset_right = 222.0
+offset_bottom = 158.0
 theme_override_constants/separation = 14
 
+[node name="ConsoleTag" type="Label" parent="MenuBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.42, 0.92, 1, 0.85)
+theme_override_font_sizes/font_size = 15
+text = "BẢNG ĐIỀU KHIỂN"
+horizontal_alignment = 1
+
 [node name="PlayBtn" type="Button" parent="MenuBox"]
-custom_minimum_size = Vector2(0, 58)
+custom_minimum_size = Vector2(0, 62)
 layout_mode = 2
 theme_override_font_sizes/font_size = 26
-text = "Chơi Ngay  (Play)"
+theme_override_styles/normal = SubResource("StyleBoxTexture_primary")
+theme_override_styles/hover = SubResource("StyleBoxTexture_primary_hover")
+theme_override_styles/focus = SubResource("StyleBoxTexture_primary_hover")
+text = "CHƠI NGAY"
 
 [node name="SelectBtn" type="Button" parent="MenuBox"]
-custom_minimum_size = Vector2(0, 58)
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
-theme_override_font_sizes/font_size = 26
-text = "Chọn Màn  (Level Select)"
+theme_override_font_sizes/font_size = 25
+text = "CHỌN MÀN"
 
 [node name="SettingsBtn" type="Button" parent="MenuBox"]
-custom_minimum_size = Vector2(0, 58)
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
-theme_override_font_sizes/font_size = 26
-text = "Cài Đặt  (Settings)"
+theme_override_font_sizes/font_size = 25
+text = "CÀI ĐẶT"
 
 [node name="QuitBtn" type="Button" parent="MenuBox"]
-custom_minimum_size = Vector2(0, 58)
+custom_minimum_size = Vector2(0, 60)
 layout_mode = 2
-theme_override_font_sizes/font_size = 26
-text = "Thoát  (Quit)"
+theme_override_font_sizes/font_size = 25
+text = "THOÁT"
 
 [node name="SettingsPanel" type="PanelContainer" parent="."]
 visible = false
@@ -156,22 +176,27 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -255.0
-offset_top = 202.0
-offset_right = 255.0
-offset_bottom = 290.0
+offset_left = -285.0
+offset_top = 208.0
+offset_right = 285.0
+offset_bottom = 368.0
 
-[node name="VolumeRow" type="HBoxContainer" parent="SettingsPanel"]
+[node name="SettingsBox" type="VBoxContainer" parent="SettingsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="VolumeRow" type="HBoxContainer" parent="SettingsPanel/SettingsBox"]
 layout_mode = 2
 theme_override_constants/separation = 16
 
-[node name="VolumeLabel" type="Label" parent="SettingsPanel/VolumeRow"]
+[node name="VolumeLabel" type="Label" parent="SettingsPanel/SettingsBox/VolumeRow"]
+custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
-theme_override_colors/font_color = Color(0.82, 0.96, 1, 1)
-theme_override_font_sizes/font_size = 22
+theme_override_colors/font_color = Color(0.84, 0.96, 1, 1)
+theme_override_font_sizes/font_size = 21
 text = "Âm lượng"
 
-[node name="VolumeSlider" type="HSlider" parent="SettingsPanel/VolumeRow"]
+[node name="VolumeSlider" type="HSlider" parent="SettingsPanel/SettingsBox/VolumeRow"]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 4
@@ -179,13 +204,31 @@ min_value = -24.0
 max_value = 0.0
 value = 0.0
 
-[node name="VolumeValue" type="Label" parent="SettingsPanel/VolumeRow"]
-custom_minimum_size = Vector2(68, 0)
+[node name="VolumeValue" type="Label" parent="SettingsPanel/SettingsBox/VolumeRow"]
+custom_minimum_size = Vector2(64, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.84, 0.3, 1)
 theme_override_font_sizes/font_size = 20
 text = "100%"
 horizontal_alignment = 2
+
+[node name="LangRow" type="HBoxContainer" parent="SettingsPanel/SettingsBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="LangLabel" type="Label" parent="SettingsPanel/SettingsBox/LangRow"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.84, 0.96, 1, 1)
+theme_override_font_sizes/font_size = 21
+text = "Ngôn ngữ"
+
+[node name="LangBtn" type="Button" parent="SettingsPanel/SettingsBox/LangRow"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 21
+text = "Tiếng Việt"
 
 [node name="ControlsStrip" type="PanelContainer" parent="."]
 layout_mode = 1
@@ -194,18 +237,18 @@ anchor_left = 0.5
 anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = -480.0
-offset_top = -92.0
-offset_right = 480.0
-offset_bottom = -28.0
+offset_left = -520.0
+offset_top = -102.0
+offset_right = 520.0
+offset_bottom = -20.0
 grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 2
 
 [node name="ControlsLabel" type="Label" parent="ControlsStrip"]
 layout_mode = 2
-theme_override_colors/font_color = Color(0.76, 0.92, 1, 0.95)
-theme_override_font_sizes/font_size = 19
+theme_override_colors/font_color = Color(0.82, 0.95, 1, 0.96)
+theme_override_font_sizes/font_size = 18
 text = "P1: A/D Di chuyển · W/Space Nhảy · S Action   |   P2: ←/→ Di chuyển · ↑ Nhảy · ↓ Action   |   R: Checkpoint"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -214,4 +257,5 @@ vertical_alignment = 1
 [connection signal="pressed" from="MenuBox/SelectBtn" to="." method="_on_select_pressed"]
 [connection signal="pressed" from="MenuBox/SettingsBtn" to="." method="_on_settings_pressed"]
 [connection signal="pressed" from="MenuBox/QuitBtn" to="." method="_on_quit_pressed"]
-[connection signal="value_changed" from="SettingsPanel/VolumeRow/VolumeSlider" to="." method="_on_volume_changed"]
+[connection signal="value_changed" from="SettingsPanel/SettingsBox/VolumeRow/VolumeSlider" to="." method="_on_volume_changed"]
+[connection signal="pressed" from="SettingsPanel/SettingsBox/LangRow/LangBtn" to="." method="_on_lang_pressed"]
