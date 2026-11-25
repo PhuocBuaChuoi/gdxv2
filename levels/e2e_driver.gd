@@ -102,7 +102,10 @@ func _run() -> void:
 	p1.global_position = Vector2(1850, 408)
 	p1.velocity = Vector2.ZERO
 	await _frames(3)
-	_check(not is_instance_valid(block), "breakable_dash_block vo khi Dash luot vao")
+	# Tuong vo khong con queue_free() (phai moc lai sau respawn): kiem tra da vo =
+	# an + tat collision, khong phai node bi xoa.
+	var block_col := block.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	_check(not bool(block.get("visible")) and bool(block.get("_shattered")) and (block_col == null or block_col.disabled), "breakable_dash_block vo khi Dash luot vao")
 
 	# 8. DashOrb hoi dash qua Area that
 	st.set("is_dashing", false)
