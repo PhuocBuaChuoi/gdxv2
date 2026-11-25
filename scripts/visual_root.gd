@@ -13,19 +13,19 @@ func switch_form(form: StringName) -> void:
 	
 	if form == "CUBE":
 		_set_shape("square_chamfered", fill_poly, outline_line)
-		_set_color(Color(0, 0.9, 1.0)) # Cyan P1 default
+		_set_color(GdxPalette.COLOR_FORM_CUBE)
 	
 	elif form == "SHIP":
 		_set_shape("ship_shape", fill_poly, outline_line)
-		_set_color(Color(0, 1.0, 0.9)) # Teal Ship
+		_set_color(GdxPalette.COLOR_FORM_SHIP)
 		
 	elif form == "UFO":
 		_set_shape("ufo_disc", fill_poly, outline_line)
-		_set_color(Color(1.0, 0.6, 0.0)) # Orange UFO
+		_set_color(GdxPalette.COLOR_FORM_UFO)
 		
 	elif form == "DASH":
 		_set_shape("dash_arrow", fill_poly, outline_line)
-		_set_color(Color(1.0, 0.0, 1.0)) # Magenta Dash
+		_set_color(GdxPalette.COLOR_FORM_DASH)
 
 
 func _set_shape(shape_fn: String, fill_poly: Polygon2D, outline_line: Line2D) -> void:
@@ -62,5 +62,7 @@ func show_transformation_effect() -> void:
 	"""Hiệu ứng chớp sáng khi đổi dạng (T4.08): scale từ 1.3 về 1.0 trong 0.15s."""
 	var dir: float = -1.0 if scale.x < 0.0 else 1.0
 	var tween = create_tween().set_trans(Tween.TRANS_ELASTIC)
-	tween.tween_property(self, "scale", Vector2(1.3 * dir, 1.3), 0.15)
-	tween.tween_callback(func(): scale = Vector2(dir, 1.0))
+	# T4.08: 1.3 -> 1.0 trong TỔNG 0.15s (0.075 lên + 0.075 xuống).
+	# Bản cũ tween lên 0.15s rồi gán thẳng về 1.0 nên bị giật.
+	tween.tween_property(self, "scale", Vector2(1.3 * dir, 1.3), 0.075)
+	tween.tween_property(self, "scale", Vector2(dir, 1.0), 0.075)

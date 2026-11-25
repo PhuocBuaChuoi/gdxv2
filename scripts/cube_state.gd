@@ -12,7 +12,7 @@ const CarrierScript = preload("res://components/carrier_platform.gd")
 const BASE_SPEED: float = 420.0
 const ACCEL: float = 4000.0
 const JUMP_VELOCITY: float = 650.0
-const ROTATION_SPEED: float = 500.0
+const ROTATION_SPEED: float = 420.0 # CHECKLIST T4.02: 420 độ/giây
 const SNAP_SPEED: float = 720.0
 
 
@@ -68,7 +68,6 @@ func update_visuals(delta: float) -> void:
 		var tween: Tween = player.create_tween().set_trans(Tween.TRANS_ELASTIC)
 		player.visual_root.scale = target_scale
 		tween.tween_property(player.visual_root, "scale", Vector2(dir, 1.0), 0.15)
-		tween.tween_callback(func(): pass) # Cleanup
 	
 	# Ground sparks đã handle trong player.gd
 
@@ -93,7 +92,7 @@ func _create_head_platform() -> AnimatableBody2D:
 	"""Tạo Head Platform nếu chưa tồn tại (cho Cube-on-Cube T4.03)."""
 	var platform := AnimatableBody2D.new()
 	platform.name = "HeadPlatform"
-	platform.sync_to_physics = false
+	platform.sync_to_physics = true
 	platform.set_script(CarrierScript)
 	platform.collision_layer = 1 << 8
 	platform.collision_mask = 1 << (2 if player.player_id == 1 else 1)

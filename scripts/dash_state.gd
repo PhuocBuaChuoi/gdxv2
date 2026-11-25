@@ -24,7 +24,8 @@ func enter(player_ref: GdxPlayer, prev: PlayerFormState) -> void:
 	super.enter(player_ref, prev)
 	is_dashing = false
 	dash_timer = 0.0
-	dash_ready = true
+	# Lấy lại lượt đã tiêu thụ từ player (xóa form rồi vào lại không được hồi miễn phí).
+	dash_ready = player.dash_charge_available
 	last_facing_dir = player.last_facing_dir if player.last_facing_dir != 0 else 1
 	if player.visual_root != null:
 		player.visual_root.rotation = 0.0
@@ -64,6 +65,7 @@ func activate_dash(facing_direction: int) -> void:
 	if not is_dashing and dash_ready:
 		is_dashing = true
 		dash_ready = false
+		player.dash_charge_available = false
 		dash_timer = DASH_DURATION
 		last_facing_dir = facing_direction if facing_direction != 0 else player.last_facing_dir
 		if last_facing_dir == 0:
@@ -110,6 +112,7 @@ func _update_dash_indicator() -> void:
 
 func recharge_dash() -> void:
 	dash_ready = true
+	player.dash_charge_available = true
 	_update_dash_indicator()
 
 

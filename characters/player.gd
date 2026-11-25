@@ -28,6 +28,9 @@ const FORM_NAMES: Array[StringName] = [&"CUBE", &"SHIP", &"UFO", &"DASH"]
 @export var enforce_vertical_bounds: bool = true
 var form: StringName = &"CUBE"
 var control_locked: bool = false
+## T4.07 — lượt Dash được lưu ở player, không ở state: đổi form qua portal rồi
+## đổi lại không được "free recharge" khi enter() tạo DashState mới.
+var dash_charge_available: bool = true
 var _last_push_targets: Array = [] # T6.09 - khoi dang day (de ngat luc khi roi)
 var _forced_push_target: RigidBody2D = null # T6.09 - target duoc gan luc truc tiep boi _push_box
 var _death_reported: bool = false
@@ -66,6 +69,19 @@ func _ready() -> void:
 	
 	switch_form(&"CUBE")
 	_setup_skin_visual()
+	_setup_vfx()
+
+
+## T2.05/T2.06 — MotionTrail nằm ở gốc level (top_level) nên to_local() mới ra
+## đúng quỹ đạo; GroundSparks chỉ bật khi Cube đang trượt trên mặt đất.
+func _setup_vfx() -> void:
+	if motion_trail != null:
+		motion_trail.top_level = true
+		motion_trail.global_position = Vector2.ZERO
+		motion_trail.setup(self, _get_color_for_form())
+		motion_trail.set_width_for_form(form)
+	if ground_sparks != null:
+		ground_sparks.set_active(false)
 
 
 func _setup_collision_layers() -> void:
@@ -231,6 +247,10 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	_push_blocks()
 	_enforce_vertical_bounds()
+	if motion_trail != null:
+		motion_trail.set_width_for_form(form)
+	if ground_sparks != null:
+		ground_sparks.set_active(form == &"CUBE" and is_on_floor() and absf(velocity.x) > 20.0)
 	_update_skin_animation()
 
 
@@ -489,22 +509,24 @@ func _update_form_visibility() -> void:
 func _get_color_for_form() -> Color:
 	var base_color: Color = Palette.COLOR_P1_CYAN if player_id == 1 else Palette.COLOR_P2_ORANGE
 	
+	# Ship/UFO/Dash lấy hue từ palette; Cube giữ màu theo player_id.
 	match form:
-		"CUBE":
-			return base_color
 		"SHIP":
-			return Color(base_color.r, 1.0, base_color.b) # Teal variant
+			return Palette.COLOR_FORM_SHIP
 		"UFO":
-			return Color(1.0, 0.6, 0.0) # Orange UFO
+			return Palette.COLOR_FORM_UFO
 		"DASH":
-			return Color(1.0, 0.0, 1.0) # Magenta Dash
+			return Palette.COLOR_FORM_DASH
 		_:
 			return base_color
 
 
 func show_transformation_effect() -> void:
-	"""T4.08 - Hiệu ứng chớp sáng khi đổi dạng."""
+	"""T4.08 - Hiệu ứng chớp sáng khi đổi dạng (ủy quyền cho VisualRoot)."""
+	if visual_controller != null and visual_controller.has_method("show_transformation_effect"):
+		visual_controller.call("show_transformation_effect")
+		return
 	var dir: float = float(last_facing_dir if last_facing_dir != 0 else 1)
 	var tween = create_tween().set_trans(Tween.TRANS_ELASTIC)
-	tween.tween_property(visual_root, "scale", Vector2(1.3 * dir, 1.3), 0.10)
-	tween.tween_callback(func(): visual_root.scale = Vector2(dir, 1.0))
+	tween.tween_property(visual_root, "scale", Vector2(1.3 * dir, 1.3), 0.075)
+	tween.tween_property(visual_root, "scale", Vector2(dir, 1.0), 0.075)

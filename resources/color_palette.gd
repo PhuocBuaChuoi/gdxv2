@@ -14,3 +14,9 @@ const COLOR_PORTAL_CUBE: Color = Color(0.2, 1.0, 0.4)
 const COLOR_PORTAL_SHIP: Color = Color(1.0, 0.3, 0.9)
 const COLOR_PORTAL_UFO: Color = Color(1.0, 0.9, 0.2)
 const COLOR_PORTAL_DASH: Color = Color(0.5, 0.4, 1.0)
+
+## Màu nhận diện 4 dạng (T1.09/T4.08) — đổi theme chỉ cần sửa ở đây.
+const COLOR_FORM_CUBE: Color = Color(0.0, 0.9, 1.0)
+const COLOR_FORM_SHIP: Color = Color(0.0, 1.0, 0.9)
+const COLOR_FORM_UFO: Color = Color(1.0, 0.6, 0.0)
+const COLOR_FORM_DASH: Color = Color(1.0, 0.0, 1.0)

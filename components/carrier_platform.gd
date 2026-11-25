@@ -25,9 +25,10 @@ func _physics_process(delta: float) -> void:
 			# Rider phai o phia "dau" cua platform theo trong luc cua ho.
 			if (body.global_position.y - global_position.y) * float(gd) >= 0.0:
 				continue
-			# CharacterBody2D tu dong keo rider theo AnimatableBody2D qua
-			# platform_velocity. Cong them velocity/motion o day se nhan doi
-			# carry va lam rider truot khoi dau (bug cu).
+			# sync_to_physics = true (mac dinh moi) de engine tu cong platform
+			# velocity. Chi cong thu cong cho platform legacy (sync = false).
+			if not sync_to_physics:
+				transfer_velocity(body as CharacterBody2D)
 			var dash := (body as CharacterBody2D).get("current_state") as DashState
 			if dash != null and dash.has_method("notify_rider_contact"):
 				dash.notify_rider_contact()
