@@ -58,7 +58,7 @@ Successfully implemented complete Finite State Machine (FSM) architecture for pl
   - **Only form** that can break DashBlocks via can_break_dash_blocks()
   
 ### ✅ Visual System (T4.08)
-- **[DONE]** `VisualRootController.gd` - Standalone visual switcher
+- **[DONE]** `scripts/visual_root.gd` (`VisualRootController`) - Standalone visual switcher
   - Shape switching: square→ship→disc→arrow polygons
   - Color mapping per-form (Cyan→Teal→Orange→Magenta)
   - Transform effect: scale tween 1.3→1.0 in 0.15s (elastic ease)
@@ -117,7 +117,7 @@ characters/player.tscn            # Added VisualController node, FormVisuals
 
 ### Test Suite (1 file)
 ```
-tests/test_phase4_state_machine.gd   # 8 comprehensive tests covering all contracts
+tests/test_phase4_state_machine.gd   # 16 comprehensive tests covering all contracts
 ```
 
 ### Claim Registry Updated
@@ -132,8 +132,8 @@ tests/test_phase4_state_machine.gd   # 8 comprehensive tests covering all contra
 **Headless test execution:** `godot --headless --path . -s res://tests/test_runner.gd`
 
 ```
-pass=823  fail=7  ← All Phase 4 tests PASSED ✓
-FAILures are only from test_phase7_levels.gd (levels not yet implemented)
+pass=1528 fail=0  ← Toàn bộ suite xanh (đã cập nhật sau các đợt fix audit) ✓
+Lần chạy gốc ghi nhận 823/7 khi Phase 7 chưa triển khai; hiện đã hoàn tất.
 
 Phase 4 specific passes:
 ✓ test_state_factories - All 4 states created correctly
@@ -206,14 +206,14 @@ match form:
 ## Known Limitations & TODOs
 
 ### Immediate (Must Fix)
-- [ ] **Gravity double-calculation risk**: Ensure no state overrides both physics_update AND applies gravity separately
-- [ ] **Dash timer race condition**: Timer reduced in physics_update but also checked in input handler
+- [x] **Gravity double-calculation risk**: base pipeline bỏ qua SHIP/UFO/Dash đang lướt; mỗi state tự quản lý 1 nguồn.
+- [ ] **Dash timer race condition**: đã chặn dash chồng + lưu lượt Dash ở `player.dash_charge_available` (không free recharge khi đổi form), nhưng timer vẫn được đọc ở 2 chỗ — giữ TODO.
 
 ### Nice to Have
-- [ ] **Visual polish**: Add squash/stretch for Cube jump, wave effect for UFO hop
-- [ ] **Sound effects**: Portal transition SFX, dash activation beep, tether hook sound
-- [ ] **Particle VFX**: Ship engine trails, UFO hover dust, Dash speed lines
-- [ ] **Camera adjustments**: Dynamic zoom based on player spread (separate Phase 5 feature)
+- [x] **Visual polish**: squash/stretch Cube + vòng sóng UFO đã có.
+- [ ] **Sound effects**: portal ✅ / dash beep ✅ / **tether hook ❌ chưa có SFX riêng**.
+- [ ] **Particle VFX**: Ship engine trail / UFO hover dust / Dash speed lines — vệt Dash đã chạy (`MotionTrail.setup()`), 3 hiệu ứng hạt vẫn là placeholder.
+- [x] **Camera adjustments**: `components/coop_camera.gd` đã có dynamic zoom (Phase 5).
 
 ### Future Enhancements
 - [ ] **Custom forms**: Plugin system for modders to add new states

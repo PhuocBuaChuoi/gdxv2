@@ -52,23 +52,22 @@ cd gdxv2
 `
 gdxv2/
 ├── project.godot          # File cấu hình Godot (KHÔNG xóa/sửa tùy tiện)
+├── CHECKLIST.txt          # WBS gốc T1–T9
 ├── README.md              # File này
-├── .gitignore             # Bỏ qua file Godot cache
-├── .gitattributes         # Xử lý line endings
 │
-├── scenes/                # Tất cả Scene (.tscn)
-│   ├── main/              # Scene chính
-│   ├── ui/                # UI scenes
-│   └── levels/            # Level scenes
-│
-├── scripts/               # GDScript (.gd) độc lập
-├── assets/                # Tài nguyên (ảnh, âm thanh, font)
-│   ├── sprites/
-│   ├── audio/
-│   └── fonts/
-│
-├── autoloads/             # Singleton / Autoload scripts
-└── addons/                # Plugin Godot
+├── autoloads/             # Events / LevelManager / AudioManager
+├── characters/            # player.gd/.tscn (FSM dùng chung P1/P2)
+├── components/            # Portal, hazard, button, checkpoint, camera...
+├── levels/                # base_level + level_01..06 + E2E scenes
+├── ui/                    # Menu, HUD, pause, popup, menu_dancer
+├── resources/             # Palette, tileset, theme, skin, provenance
+├── scripts/               # 4 form state + FSM + visual_root + shapes
+├── vfx/                   # Explosion / trail / sparks
+├── tests/                 # 14 suite headless + runner + base class
+├── tools/                 # run_tests, tileset, screenshot, asset pipeline
+├── scenes/main/           # Main.tscn (entry point)
+├── assets/sprites/        # Pixel-art AI + procedural
+└── addons/godot_mcp/      # Plugin editor MCP (hạ tầng công cụ)
 `
 
 ---
@@ -223,7 +222,7 @@ var health: int = 100
 
 ---
 
-*Cập nhật lần cuối: 2026-10-15*
+*Cập nhật lần cuối: 2026-11-25*
 
 
 ---
