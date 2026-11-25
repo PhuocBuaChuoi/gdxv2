@@ -19,21 +19,25 @@
 [ext_resource type="PackedScene" path="res://components/mechanized_platform.tscn" id="17_platform"]
 [ext_resource type="PackedScene" path="res://components/jump_pad.tscn" id="18_pad"]
 [ext_resource type="PackedScene" path="res://components/jump_orb.tscn" id="19_orb"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ai_bg_neon_synth.png" id="20_bg_tex"]
 
 [node name="LevelRoot" type="Node2D"]
 script = ExtResource("1")
 level_index = 2
 background = "FOREST"
-ascii_map = PackedStringArray("================================================", "================================================", "                                                ", "    .       .       .       .       .       .   ", "                                                ", "=======-======================             =====", "                                                ", "                                                ", "                                                ", "================================================", "################################################", "################################################")
+ascii_map = PackedStringArray("================================================", "================================================", "                          ==                    ", "    .       .       .     ==.       .       .   ", "                                                ", "=======-======================             =====", "                          ==                    ", "                          ==                    ", "                                                ", "================================================", "################################################", "################################################")
 
 [node name="ControlSign" type="Label" parent="."]
-offset_left = 120.0
-offset_top = 260.0
-offset_right = 780.0
-offset_bottom = 330.0
+offset_left = 72.0
+offset_top = 300.0
+offset_right = 760.0
+offset_bottom = 368.0
 mouse_filter = 2
 z_index = 1
-theme_override_colors/font_color = Color(0.35, 0.93, 1, 0.78)
+theme_override_colors/font_color = Color(0.35, 0.93, 1, 0.85)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.85)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
 theme_override_font_sizes/font_size = 15
 text = "P1: TRONG LUC NGUOC (DI TRAN) + UFO (NHAP NHA W DE NAY)\nP1 & P2: DONG THOI GIAM NUT TREN & DUOI DE MO VACH NGAN!"
 
@@ -41,7 +45,8 @@ text = "P1: TRONG LUC NGUOC (DI TRAN) + UFO (NHAP NHA W DE NAY)\nP1 & P2: DONG T
 
 [node name="StageBackground" parent="." instance=ExtResource("7_bg")]
 background = "FOREST"
-dim = 0.5
+custom_texture = ExtResource("20_bg_tex")
+dim = 0.55
 
 [node name="BackgroundGrid" type="ParallaxBackground" parent="."]
 
@@ -87,10 +92,16 @@ allowed_player = "P1_ONLY"
 position = Vector2(1680, 150)
 target_direction = 1
 
+[node name="CubeFinalPortal" parent="Portals" instance=ExtResource("12_portal")]
+position = Vector2(1900, 380)
+target_form = "CUBE"
+allowed_player = "BOTH"
+
 [node name="Mechanisms" type="Node2D" parent="."]
 
 [node name="ButtonTop" parent="Mechanisms" instance=ExtResource("16_button")]
-position = Vector2(1040, 110)
+position = Vector2(1040, 108)
+rotation = 3.14159
 mode = 2
 activator = 1
 paired_button = NodePath("../ButtonBottom")
@@ -102,9 +113,15 @@ activator = 2
 paired_button = NodePath("../ButtonTop")
 
 [node name="MiddleWall" parent="Mechanisms" instance=ExtResource("17_platform")]
-position = Vector2(1300, 264)
+position = Vector2(1296, 216)
 linked_triggers = [NodePath("../ButtonTop"), NodePath("../ButtonBottom")]
-move_offset = Vector2(0, -144)
+move_offset = Vector2(0, -96)
+require_all = true
+
+[node name="LowerWall" parent="Mechanisms" instance=ExtResource("17_platform")]
+position = Vector2(1296, 408)
+linked_triggers = [NodePath("../ButtonTop"), NodePath("../ButtonBottom")]
+move_offset = Vector2(0, -96)
 require_all = true
 
 [node name="JumpPad" parent="Mechanisms" instance=ExtResource("18_pad")]

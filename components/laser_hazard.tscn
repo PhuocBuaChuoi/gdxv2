@@ -15,8 +15,8 @@ script = ExtResource("1_laser")
 shape = SubResource("Rectangle_laser_beam")
 
 [node name="Beam" type="Polygon2D" parent="."]
-polygon = PackedVector2Array(-12, -60, 12, -60, 12, 60, -12, 60)
-color = Color(1, 0.3, 0.3, 0.95)
+polygon = PackedVector2Array(-10, -60, 10, -60, 10, 60, -10, 60)
+color = Color(1, 0.3, 0.3, 0.5)
 
 [node name="CoreLine" type="Line2D" parent="."]
 points = PackedVector2Array(0, -60, 0, 60)
@@ -26,18 +26,20 @@ default_color = Color(1, 1, 1, 0.95)
 [node name="PostTop" type="Polygon2D" parent="."]
 position = Vector2(0, -64)
 polygon = PackedVector2Array(-16, -6, 16, -6, 16, 6, -16, 6)
-color = Color(0.35, 0.38, 0.45, 1)
+color = Color(0.35, 0.38, 0.45, 0)
 
 [node name="EmitterTop" type="Sprite2D" parent="PostTop"]
 texture_filter = 1
+position = Vector2(0, 6)
 rotation = 3.14159
 texture = ExtResource("2_emitter_tex")
 
 [node name="PostBottom" type="Polygon2D" parent="."]
 position = Vector2(0, 64)
 polygon = PackedVector2Array(-16, -6, 16, -6, 16, 6, -16, 6)
-color = Color(0.35, 0.38, 0.45, 1)
+color = Color(0.35, 0.38, 0.45, 0)
 
 [node name="EmitterBottom" type="Sprite2D" parent="PostBottom"]
 texture_filter = 1
+position = Vector2(0, -6)
 texture = ExtResource("2_emitter_tex")

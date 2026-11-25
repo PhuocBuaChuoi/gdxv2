@@ -131,7 +131,156 @@ def process_box():
     print("[+] Created AI coop_box.png (40x40)")
 
 
+def process_breakable_wall():
+    raw_path = os.path.join(SPRITES_DIR, "ai_breakable_wall.png")
+    if not os.path.exists(raw_path):
+        print("[!] ai_breakable_wall.png not found")
+        return
+    img = Image.open(raw_path).convert("RGBA").resize((48, 48), Image.Resampling.NEAREST)
+    img.save(os.path.join(SPRITES_DIR, "breakable_dash_wall.png"))
+    print("[+] Created AI breakable_dash_wall.png (48x48)")
+
+
+def process_mech_platform():
+    raw_path = os.path.join(SPRITES_DIR, "ai_mech_platform.png")
+    if not os.path.exists(raw_path):
+        print("[!] ai_mech_platform.png not found")
+        return
+    img = Image.open(raw_path).convert("RGBA")
+    bbox = img.getbbox()
+    cropped = img.crop(bbox) if bbox else img
+    scaled = cropped.resize((96, 24), Image.Resampling.NEAREST)
+    scaled.save(os.path.join(SPRITES_DIR, "mechanized_platform.png"))
+    print("[+] Created AI mechanized_platform.png (96x24)")
+
+
+def process_checkpoints():
+    raw_path = os.path.join(SPRITES_DIR, "ai_checkpoint_crystal.png")
+    if not os.path.exists(raw_path):
+        print("[!] ai_checkpoint_crystal.png not found")
+        return
+    img = Image.open(raw_path).convert("RGBA")
+    bbox = img.getbbox()
+    cropped = img.crop(bbox) if bbox else img
+    # Fit inside 44x44 centered on 48x48 canvas
+    scaled = cropped.resize((42, 42), Image.Resampling.NEAREST)
+    canvas = Image.new("RGBA", (48, 48), (0, 0, 0, 0))
+    canvas.paste(scaled, (3, 3), scaled)
+    canvas.save(os.path.join(SPRITES_DIR, "restore_point.png"))
+    active = tint_image(canvas, (55, 255, 110))
+    active.save(os.path.join(SPRITES_DIR, "restore_point_active.png"))
+    print("[+] Created AI restore_point.png + restore_point_active.png (48x48)")
+
+
+def process_button_and_emitter():
+    # Build strictly horizontal 2D side-view pressure switch from AI metallic deck (tinted emerald neon)
+    btn_src = os.path.join(SPRITES_DIR, "ai_mech_platform.png")
+    if os.path.exists(btn_src):
+        img = Image.open(btn_src).convert("RGBA")
+        bbox = img.getbbox()
+        cropped = img.crop(bbox) if bbox else img
+        base_pad = cropped.resize((72, 18), Image.Resampling.NEAREST)
+        normal = tint_image(base_pad, (55, 235, 130))
+        normal_canvas = Image.new("RGBA", (72, 20), (0, 0, 0, 0))
+        normal_canvas.paste(normal, (0, 1), normal)
+        normal_canvas.save(os.path.join(SPRITES_DIR, "pressure_button.png"))
+
+        pressed_pad = tint_image(cropped.resize((72, 14), Image.Resampling.NEAREST), (140, 255, 110))
+        pressed_canvas = Image.new("RGBA", (72, 20), (0, 0, 0, 0))
+        pressed_canvas.paste(pressed_pad, (0, 6), pressed_pad)
+        pressed_canvas.save(os.path.join(SPRITES_DIR, "pressure_button_pressed.png"))
+        print("[+] Created AI horizontal pressure_button.png + pressure_button_pressed.png (72x20)")
+
+    em_path = os.path.join(SPRITES_DIR, "ai_laser_emitter_flat.png")
+    if not os.path.exists(em_path):
+        em_path = os.path.join(SPRITES_DIR, "ai_laser_emitter.png")
+    if os.path.exists(em_path):
+        img = Image.open(em_path).convert("RGBA")
+        bbox = img.getbbox()
+        cropped = img.crop(bbox) if bbox else img
+        emitter = cropped.resize((32, 20), Image.Resampling.NEAREST)
+        emitter.save(os.path.join(SPRITES_DIR, "laser_emitter.png"))
+        print("[+] Created AI laser_emitter.png (32x20)")
+
+
+def process_tileset_atlas():
+    """Composite AI cyberpunk block texture into neon_tiles_atlas.png preserving exact autotile borders & physics."""
+    tile_src_path = os.path.join(SPRITES_DIR, "ai_tile_cyber_block.png")
+    atlas_path = "resources/neon_tiles_atlas.png"
+    if not os.path.exists(tile_src_path) or not os.path.exists(atlas_path):
+        print("[!] Missing tile or atlas source for tileset upgrade")
+        return
+
+    base_tile = Image.open(tile_src_path).convert("RGBA").resize((48, 48), Image.Resampling.NEAREST)
+    # Darken interior tile (~58%) so gameplay foreground objects pop cleanly!
+    dark_tile = ImageEnhance.Brightness(base_tile).enhance(0.58)
+    atlas = Image.open(atlas_path).convert("RGBA")
+    TILE = 48
+    COLS = 4
+
+    NEON_HOT = (232, 252, 255, 255)
+    NEON = (47, 224, 255, 255)
+    NEON_SOFT = (27, 174, 204, 255)
+    NEON_DIM = (14, 95, 115, 255)
+
+    def paint_cell(tx, ty, mask):
+        ox, oy = tx * TILE, ty * TILE
+        atlas.paste(dark_tile, (ox, oy))
+        px = atlas.load()
+        # Redraw seamless neon border edges according to autotile mask (N=1, E=2, S=4, W=8)
+        if mask & 8:  # W
+            for y in range(oy, oy + TILE):
+                px[ox, y] = NEON_SOFT
+                px[ox + 1, y] = NEON_SOFT
+                px[ox + 2, y] = NEON
+                px[ox + 3, y] = NEON_DIM
+        if mask & 2:  # E
+            for y in range(oy, oy + TILE):
+                px[ox + TILE - 1, y] = NEON_SOFT
+                px[ox + TILE - 2, y] = NEON_SOFT
+                px[ox + TILE - 3, y] = NEON
+                px[ox + TILE - 4, y] = NEON_DIM
+        if mask & 1:  # N (runway top)
+            for x in range(ox, ox + TILE):
+                px[x, oy] = NEON_HOT
+                px[x, oy + 1] = NEON
+                px[x, oy + 2] = NEON
+                px[x, oy + 3] = NEON_SOFT
+                px[x, oy + 4] = NEON_DIM
+        if mask & 4:  # S (ceiling bottom)
+            for x in range(ox, ox + TILE):
+                px[x, oy + TILE - 1] = NEON_SOFT
+                px[x, oy + TILE - 2] = NEON_SOFT
+                px[x, oy + TILE - 3] = NEON_DIM
+
+    paint_cell(0, 0, 0)
+    paint_cell(1, 0, 0xF)
+    for mask in range(1, 16):
+        paint_cell(mask % COLS, 1 + (mask >> 2), mask)
+
+    # Upgrade (3, 0) deco cell using AI cyber arrow at subtle opacity
+    arrow_path = os.path.join(SPRITES_DIR, "ai_cyber_arrow.png")
+    if os.path.exists(arrow_path):
+        arrow = Image.open(arrow_path).convert("RGBA").resize((36, 36), Image.Resampling.NEAREST)
+        r, g, b, a = arrow.split()
+        a = a.point(lambda v: int(v * 0.45))
+        arrow = Image.merge("RGBA", (r, g, b, a))
+        # Clear (3, 0)
+        for y in range(TILE):
+            for x in range(3 * TILE, 4 * TILE):
+                atlas.putpixel((x, y), (0, 0, 0, 0))
+        atlas.paste(arrow, (3 * TILE + 6, 6), arrow)
+
+    atlas.save(atlas_path)
+    print("[+] Upgraded resources/neon_tiles_atlas.png with AI cyberpunk tiles")
+
+
 if __name__ == "__main__":
     process_spikes()
     process_portals()
     process_box()
+    process_breakable_wall()
+    process_mech_platform()
+    process_checkpoints()
+    process_button_and_emitter()
+    process_tileset_atlas()

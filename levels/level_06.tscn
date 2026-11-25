@@ -21,21 +21,25 @@
 [ext_resource type="PackedScene" path="res://components/breakable_dash_block.tscn" id="19_dash_block"]
 [ext_resource type="PackedScene" path="res://components/coop_box.tscn" id="20_box"]
 [ext_resource type="PackedScene" path="res://components/jump_pad.tscn" id="21_pad"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ai_bg_cyber_reactor.png" id="22_bg_tex"]
 
 [node name="LevelRoot" type="Node2D"]
 script = ExtResource("1")
 level_index = 5
 background = "BRIGHT"
-ascii_map = PackedStringArray("================================================", "================================================", "                                                ", "    .       .       .       .       .       .   ", "                                                ", "========-=====================             =====", "                                                ", "                                                ", "                                                ", "================================================", "################################################", "################################################")
+ascii_map = PackedStringArray("================================================", "================================================", "                            ==                  ", "    .       .       .       ==      .       .   ", "                                                ", "========-=====================       ===   =====", "                            ==                  ", "                            ==                  ", "                                                ", "================================================", "################################################", "################################################")
 
 [node name="ControlSign" type="Label" parent="."]
-offset_left = 120.0
-offset_top = 260.0
+offset_left = 72.0
+offset_top = 300.0
 offset_right = 820.0
-offset_bottom = 330.0
+offset_bottom = 370.0
 mouse_filter = 2
 z_index = 1
-theme_override_colors/font_color = Color(0.35, 0.93, 1, 0.78)
+theme_override_colors/font_color = Color(0.35, 0.93, 1, 0.85)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.85)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
 theme_override_font_sizes/font_size = 15
 text = "LEVEL 6: KHONG GIAN DAO CHIEU & LASER CHOP TAT\nP1: TRONG LUC TRAN + UFO QUA LASER   |   P2: CUBE SAN DAY HOP\nGIAM CAP NUT DONG THOI VA DASH PHA TUONG MO DICH!"
 
@@ -43,7 +47,8 @@ text = "LEVEL 6: KHONG GIAN DAO CHIEU & LASER CHOP TAT\nP1: TRONG LUC TRAN + UFO
 
 [node name="StageBackground" parent="." instance=ExtResource("7_bg")]
 background = "BRIGHT"
-dim = 0.5
+custom_texture = ExtResource("22_bg_tex")
+dim = 0.55
 
 [node name="BackgroundGrid" type="ParallaxBackground" parent="."]
 
@@ -61,7 +66,7 @@ period = 1.8
 duty = 0.5
 
 [node name="SpikeTop" parent="Hazards" instance=ExtResource("15_spike")]
-position = Vector2(864, 108)
+position = Vector2(1008, 108)
 rotation = 3.14159
 hazard_type = 0
 
@@ -90,6 +95,16 @@ position = Vector2(1700, 380)
 target_form = "DASH"
 allowed_player = "P2_ONLY"
 
+[node name="P1CubePortal" parent="Portals" instance=ExtResource("12_portal")]
+position = Vector2(1600, 380)
+target_form = "CUBE"
+allowed_player = "P1_ONLY"
+
+[node name="CubeFinalPortal" parent="Portals" instance=ExtResource("12_portal")]
+position = Vector2(2000, 380)
+target_form = "CUBE"
+allowed_player = "BOTH"
+
 [node name="Mechanisms" type="Node2D" parent="."]
 
 [node name="CoopBox" parent="Mechanisms" instance=ExtResource("20_box")]
@@ -106,7 +121,8 @@ linked_triggers = [NodePath("../ButtonFloor")]
 move_offset = Vector2(0, -60)
 
 [node name="ButtonTopSync" parent="Mechanisms" instance=ExtResource("17_button")]
-position = Vector2(1250, 110)
+position = Vector2(1250, 108)
+rotation = 3.14159
 mode = 2
 activator = 1
 paired_button = NodePath("../ButtonBottomSync")
@@ -118,13 +134,19 @@ activator = 2
 paired_button = NodePath("../ButtonTopSync")
 
 [node name="MiddleWall" parent="Mechanisms" instance=ExtResource("18_platform")]
-position = Vector2(1380, 264)
+position = Vector2(1392, 216)
 linked_triggers = [NodePath("../ButtonTopSync"), NodePath("../ButtonBottomSync")]
-move_offset = Vector2(0, -144)
+move_offset = Vector2(0, -96)
+require_all = true
+
+[node name="LowerWall" parent="Mechanisms" instance=ExtResource("18_platform")]
+position = Vector2(1392, 408)
+linked_triggers = [NodePath("../ButtonTopSync"), NodePath("../ButtonBottomSync")]
+move_offset = Vector2(0, -96)
 require_all = true
 
 [node name="BreakableDashWall" parent="Mechanisms" instance=ExtResource("19_dash_block")]
-position = Vector2(1850, 380)
+position = Vector2(1848, 360)
 
 [node name="DualExitGate" parent="Mechanisms" instance=ExtResource("14_gate")]
 position = Vector2(2180, 377)

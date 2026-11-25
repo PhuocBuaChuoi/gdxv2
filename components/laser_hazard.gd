@@ -31,13 +31,18 @@ func _process(delta: float) -> void:
 		is_on = want
 		monitoring = is_on
 		_update_visual()
+	if is_on:
+		var beam := get_node_or_null("Beam") as Polygon2D
+		if beam != null:
+			beam.color.a = 0.42 + 0.16 * sin(_phase * 22.0)
 
 
 func _apply_layer_and_color() -> void:
 	collision_layer = 1 << (int(SpikeHazard.HAZARD_LAYERS.get(hazard_type, 4)) - 1)
 	var beam := get_node_or_null("Beam") as Polygon2D
 	if beam != null:
-		beam.color = SpikeHazard.HAZARD_COLORS.get(hazard_type, Color.WHITE)
+		var c: Color = SpikeHazard.HAZARD_COLORS.get(hazard_type, Color.WHITE)
+		beam.color = Color(c.r, c.g, c.b, 0.48)
 
 
 func _update_visual() -> void:

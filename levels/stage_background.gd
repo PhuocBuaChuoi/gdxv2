@@ -7,6 +7,7 @@ extends Parallax2D
 const Catalog = preload("res://resources/potential_assets.gd")
 
 @export_enum("FOREST", "BRIGHT") var background: String = "FOREST"
+@export var custom_texture: Texture2D = null
 ## Độ sáng nền (1.0 chuẩn, <1.0 cho màn đêm/cave để neon gameplay nổi).
 @export_range(0.4, 1.0) var dim: float = 1.0
 ## Toc do troi ngang tu dong (px/s, 0 = tat) — background song + muot hon
@@ -35,17 +36,21 @@ func _process(delta: float) -> void:
 
 
 func apply_background() -> void:
-	var path: String = Catalog.BACKGROUND_FOREST if background == "FOREST" else Catalog.BACKGROUND_BRIGHT
-	var tex: Texture2D = load(path) as Texture2D
+	var tex: Texture2D = custom_texture
+	if tex == null:
+		var path: String = Catalog.BACKGROUND_FOREST if background == "FOREST" else Catalog.BACKGROUND_BRIGHT
+		tex = load(path) as Texture2D
 	if tex == null or tex.get_width() <= 0:
 		return
 	_sprite.texture = tex
+	_sprite.texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST if custom_texture != null else CanvasItem.TEXTURE_FILTER_PARENT_NODE
 	var vw: float = float(ProjectSettings.get_setting("display/window/size/viewport_width", 1920))
 	var vh: float = float(ProjectSettings.get_setting("display/window/size/viewport_height", 1080))
-	# Phu cuc lon cho moi man: phong to 1.8x de phu vuot ca tran va vuc sau, khong bao gio lo vien den
-	var s: float = maxf(vw / tex.get_width(), vh / tex.get_height()) * 1.8
+	# Phu cuc lon cho moi man: neu la AI pixel art 16:9 thi scale 1.25x cho sac net va can doi
+	var mult: float = 1.25 if custom_texture != null else 1.8
+	var s: float = maxf(vw / tex.get_width(), vh / tex.get_height()) * mult
 	_sprite.scale = Vector2(s, s)
-	_sprite.position = Vector2(0.0, 360.0)
+	_sprite.position = Vector2(0.0, 280.0 if custom_texture != null else 360.0)
 	_sprite.modulate = Color(dim, dim, dim)
 	_layer.motion_scale = Vector2(0.12, 0.04)
 	_layer.motion_mirroring = Vector2(tex.get_width() * s, 0.0)
@@ -54,6 +59,7 @@ func apply_background() -> void:
 	# nen tile lap lai khong lo duong noi. repeat_size = ca cap (2x).
 	_ensure_mirror()
 	_mirror.texture = tex
+	_mirror.texture_filter = _sprite.texture_filter
 	_mirror.scale = Vector2(-s, s)
 	_mirror.position = _sprite.position + Vector2(span, 0.0)
 	_mirror.modulate = _sprite.modulate

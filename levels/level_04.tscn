@@ -20,21 +20,25 @@
 [ext_resource type="PackedScene" path="res://components/laser_hazard.tscn" id="18_laser"]
 [ext_resource type="PackedScene" path="res://components/pressure_button.tscn" id="19_button"]
 [ext_resource type="PackedScene" path="res://components/mechanized_platform.tscn" id="20_platform"]
+[ext_resource type="Texture2D" path="res://assets/sprites/ai_bg_cyber_city.png" id="21_bg_tex"]
 
 [node name="LevelRoot" type="Node2D"]
 script = ExtResource("1")
 level_index = 3
 background = "FOREST"
-ascii_map = PackedStringArray("================================================", "================================================", "                                                ", "                  ----                          ", "                                                ", "        ====      ====                ==========", "                                                ", "                                                ", "                                                ", "=========       =================    ===========", "#########       #################    ###########", "################################################")
+ascii_map = PackedStringArray("================================================", "================================================", "                                   ==           ", "                  ----             ==           ", "                                   ==           ", "        ====      ========         == ==========", "                                   ==           ", "                                                ", "                                                ", "=========    == ================================", "#########    ## ################################", "################################################")
 
 [node name="ControlSign" type="Label" parent="."]
-offset_left = 120.0
-offset_top = 220.0
-offset_right = 800.0
-offset_bottom = 290.0
+offset_left = 72.0
+offset_top = 152.0
+offset_right = 780.0
+offset_bottom = 220.0
 mouse_filter = 2
 z_index = 1
-theme_override_colors/font_color = Color(0.35, 0.93, 1, 0.78)
+theme_override_colors/font_color = Color(0.35, 0.93, 1, 0.85)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.85)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
 theme_override_font_sizes/font_size = 15
 text = "GRAND FINALE: TO HOP 4 DANG (CUBE -> DASH -> SHIP -> UFO)\nDASH PHA TUONG & HOI ORB, SHIP CO-OP, UFO MO CUA THOAT!"
 
@@ -42,7 +46,8 @@ text = "GRAND FINALE: TO HOP 4 DANG (CUBE -> DASH -> SHIP -> UFO)\nDASH PHA TUON
 
 [node name="StageBackground" parent="." instance=ExtResource("7_bg")]
 background = "FOREST"
-dim = 0.5
+custom_texture = ExtResource("21_bg_tex")
+dim = 0.55
 
 [node name="BackgroundGrid" type="ParallaxBackground" parent="."]
 
@@ -55,7 +60,7 @@ tile_set = ExtResource("3")
 [node name="Hazards" type="Node2D" parent="."]
 
 [node name="LaserGate" parent="Hazards" instance=ExtResource("18_laser")]
-position = Vector2(1150, 340)
+position = Vector2(1150, 360)
 period = 1.6
 duty = 0.5
 
@@ -64,7 +69,11 @@ position = Vector2(1250, 420)
 hazard_type = 0
 
 [node name="SpikeGap" parent="Hazards" instance=ExtResource("17_spike")]
-position = Vector2(528, 468)
+position = Vector2(480, 468)
+hazard_type = 0
+
+[node name="SpikeGap2" parent="Hazards" instance=ExtResource("17_spike")]
+position = Vector2(576, 468)
 hazard_type = 0
 
 [node name="Portals" type="Node2D" parent="."]
@@ -85,27 +94,28 @@ target_form = "UFO"
 allowed_player = "P1_ONLY"
 
 [node name="CubeFinalPortal" parent="Portals" instance=ExtResource("12_portal")]
-position = Vector2(1780, 380)
+position = Vector2(1872, 380)
 target_form = "CUBE"
 allowed_player = "BOTH"
 
 [node name="Mechanisms" type="Node2D" parent="."]
 
 [node name="BreakableDashWall" parent="Mechanisms" instance=ExtResource("14_dash_block")]
-position = Vector2(480, 380)
+position = Vector2(480, 360)
 
 [node name="DashOrb" parent="Mechanisms" instance=ExtResource("13_dash_orb")]
-position = Vector2(680, 340)
+position = Vector2(576, 336)
 
 [node name="CeilingButton" parent="Mechanisms" instance=ExtResource("19_button")]
-position = Vector2(1600, 110)
+position = Vector2(1600, 108)
+rotation = 3.14159
 mode = 1
 activator = 0
 
 [node name="ExitPlatformDoor" parent="Mechanisms" instance=ExtResource("20_platform")]
-position = Vector2(1700, 360)
+position = Vector2(1728, 384)
 linked_triggers = [NodePath("../CeilingButton")]
-move_offset = Vector2(0, -120)
+move_offset = Vector2(0, -96)
 
 [node name="DualExitGate" parent="Mechanisms" instance=ExtResource("16_gate")]
 position = Vector2(2150, 377)
