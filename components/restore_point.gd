@@ -12,6 +12,7 @@ const TEX_ACTIVE = preload("res://assets/sprites/restore_point_active_anim.png")
 var is_active: bool = false
 var _touched_players: Dictionary = {}
 var _anim_time: float = 0.0
+var _tween: Tween
 
 func _ready() -> void:
 	add_to_group("restore_points")
@@ -54,6 +55,7 @@ func activate(player_id: int) -> bool:
 	tween.tween_property(self, "rotation", rotation + TAU, 0.35)
 	tween.tween_property(self, "scale", Vector2(1.2, 1.2), 0.12)
 	tween.chain().tween_property(self, "scale", Vector2.ONE, 0.12)
+	_tween = tween
 	_spawn_activation_particles()
 	AudioManager.play_sfx("checkpoint")
 	activated.emit(self, player_id)
@@ -75,6 +77,14 @@ func _spawn_position(player_id: int) -> Vector2:
 func reset_activation() -> void:
 	is_active = false
 	_touched_players.clear()
+	# Tween kích hoạt (rotation +TAU, scale 1.2) có thể còn chạy dở: dừng nó rồi
+	# trả transform về tư thế nghỉ, nếu không crystal bị xoay/phóng vĩnh viễn
+	# sau khi reset giữa tween.
+	if _tween != null and _tween.is_valid():
+		_tween.kill()
+	_tween = null
+	rotation = 0.0
+	scale = Vector2.ONE
 	var particles := get_node_or_null("ActivationParticles") as GPUParticles2D
 	if particles != null:
 		particles.emitting = false

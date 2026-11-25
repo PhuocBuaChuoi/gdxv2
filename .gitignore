@@ -60,3 +60,9 @@ artifacts/
 .godot-mcp/generated/
 .godot-mcp/config.json
 .godot-mcp/addon-backups/
+
+# MCP live-play screenshots/logs
+.tmp/
+
+# scratch probes (khong commit)
+scratch/

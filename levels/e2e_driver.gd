@@ -157,5 +157,28 @@ func _run() -> void:
 	_check(bool(p1.get("control_locked")) and bool(p2.get("control_locked")), "khoa input sau thang")
 	_check(FileAccess.file_exists("user://save_data.cfg"), "save_data.cfg duoc ghi")
 
+	# 12. Hoi quy bug do live MCP chi ra (level_04): dung san trong tia luc TAT,
+	# tia BAT lai thi phai chet. Truoc fix: chi doi monitoring/monitorable/layer
+	# nen Godot khong dung lai cap area -> khong chet. Dat o cuoi de cu hoi sinh
+	# khong de len cac buoc kiem tra phia tren.
+	p1.call("set_control_locked", false)
+	p2.call("set_control_locked", false)
+	p1.call("reset_death_state")
+	var laser := g.get_node("Hazards/LaserGate")
+	laser.set("_phase", 1.2)
+	laser.set("is_on", false)
+	laser.call("_set_active", false)
+	p1.call("switch_form", &"CUBE")
+	p1.call("set_gravity_direction", 1)
+	p1.global_position = Vector2(2720, 408)
+	p1.velocity = Vector2.ZERO
+	await _frames(4)
+	var attempts_before_laser: int = int(coord.get("attempt_count"))
+	laser.set("_phase", 0.0)
+	laser.set("is_on", true)
+	laser.call("_set_active", true)
+	await _frames(40)
+	_check(int(coord.get("attempt_count")) > attempts_before_laser, "dung trong tia chet khi tia bat lai (before=%d, after=%d)" % [attempts_before_laser, int(coord.get("attempt_count"))])
+
 	print("E2E-DONE fail=", failures.size())
 	get_tree().quit(0 if failures.is_empty() else 1)

@@ -1,0 +1,43 @@
+{
+  "session": "gdx-live",
+  "calls": [
+    {
+      "tool": "run_project",
+      "args": {
+        "projectPath": "${REPO}",
+        "scene": "res://levels/level_01.tscn",
+        "engineArgs": ["--resolution", "960x540"],
+        "options": { "quiet": true, "session": "gdx-live" }
+      }
+    },
+    { "tool": "wait_for", "args": { "condition": { "frames": 60 }, "session": "gdx-live" } },
+    {
+      "tool": "take_screenshot",
+      "args": { "path": ".tmp/mcp/01_spawn.png", "responseMode": "path_only", "session": "gdx-live" }
+    },
+    {
+      "tool": "simulate_action",
+      "args": { "action": "p1_right", "options": { "mode": "press" }, "session": "gdx-live" }
+    },
+    { "tool": "wait_for", "args": { "condition": { "frames": 45 }, "session": "gdx-live" } },
+    {
+      "tool": "take_screenshot",
+      "args": { "path": ".tmp/mcp/02_run.png", "responseMode": "path_only", "session": "gdx-live" }
+    },
+    {
+      "tool": "simulate_action",
+      "args": { "action": "p1_jump", "options": { "mode": "tap" }, "session": "gdx-live" }
+    },
+    { "tool": "wait_for", "args": { "condition": { "frames": 10 }, "session": "gdx-live" } },
+    {
+      "tool": "take_screenshot",
+      "args": { "path": ".tmp/mcp/03_jump.png", "responseMode": "path_only", "session": "gdx-live" }
+    },
+    {
+      "tool": "simulate_action",
+      "args": { "action": "p1_right", "options": { "mode": "release" }, "session": "gdx-live" }
+    },
+    { "tool": "get_debug_output", "args": { "limit": 40, "session": "gdx-live" } },
+    { "tool": "get_errors", "args": { "session": "gdx-live" } }
+  ]
+}

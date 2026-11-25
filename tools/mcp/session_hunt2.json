@@ -1,0 +1,150 @@
+{
+  "session": "gdx-hunt2",
+  "calls": [
+    {
+      "tool": "run_project",
+      "args": {
+        "projectPath": "${REPO}",
+        "scene": "res://levels/level_04.tscn",
+        "engineArgs": ["--resolution", "960x540"],
+        "options": { "quiet": true, "session": "gdx-hunt2" }
+      }
+    },
+    { "tool": "wait_for", "args": { "condition": { "frames": 40 }, "session": "gdx-hunt2" } },
+
+    {
+      "tool": "simulate_action",
+      "args": { "action": "p1_jump", "options": { "mode": "tap" }, "session": "gdx-hunt2" }
+    },
+    {
+      "tool": "call_method",
+      "args": {
+        "node": "/root/LevelRoot/Players/PlayerP1",
+        "method": "switch_form",
+        "args": ["UFO"],
+        "session": "gdx-hunt2"
+      }
+    },
+    {
+      "tool": "inspect_node",
+      "args": {
+        "node": "/root/LevelRoot/Players/PlayerP1",
+        "properties": ["form", "velocity", "global_position"],
+        "session": "gdx-hunt2"
+      }
+    },
+    {
+      "tool": "take_screenshot",
+      "args": { "path": ".tmp/mcp/h2_jump_switch.png", "responseMode": "path_only", "session": "gdx-hunt2" }
+    },
+
+    {
+      "tool": "set_property",
+      "args": {
+        "node": "/root/LevelRoot/Players/PlayerP1",
+        "property": "global_position",
+        "value": { "x": 1150, "y": 300 },
+        "session": "gdx-hunt2"
+      }
+    },
+    {
+      "tool": "call_method",
+      "args": {
+        "node": "/root/LevelRoot/Players/PlayerP1",
+        "method": "switch_form",
+        "args": ["CUBE"],
+        "session": "gdx-hunt2"
+      }
+    },
+    { "tool": "wait_for", "args": { "condition": { "frames": 25 }, "session": "gdx-hunt2" } },
+    {
+      "tool": "take_screenshot",
+      "args": { "path": ".tmp/mcp/h2_at_laser.png", "responseMode": "path_only", "session": "gdx-hunt2" }
+    },
+    {
+      "tool": "inspect_node",
+      "args": {
+        "node": "/root/LevelRoot/Hazards/LaserGate",
+        "properties": ["is_on", "collision_layer", "monitoring", "monitorable"],
+        "session": "gdx-hunt2"
+      }
+    },
+    { "tool": "wait_for", "args": { "condition": { "frames": 45 }, "session": "gdx-hunt2" } },
+    {
+      "tool": "take_screenshot",
+      "args": { "path": ".tmp/mcp/h2_laser_after.png", "responseMode": "path_only", "session": "gdx-hunt2" }
+    },
+    {
+      "tool": "inspect_node",
+      "args": {
+        "node": "/root/LevelRoot/RespawnCoordinator",
+        "properties": ["attempt_count"],
+        "session": "gdx-hunt2"
+      }
+    },
+    {
+      "tool": "inspect_node",
+      "args": {
+        "node": "/root/LevelRoot/Players/PlayerP1",
+        "properties": ["form", "global_position", "control_locked", "visible"],
+        "session": "gdx-hunt2"
+      }
+    },
+
+    {
+      "tool": "simulate_action",
+      "args": { "action": "p1_jump", "options": { "mode": "tap" }, "session": "gdx-hunt2" }
+    },
+    {
+      "tool": "simulate_action",
+      "args": { "action": "p1_action", "options": { "mode": "tap" }, "session": "gdx-hunt2" }
+    },
+    {
+      "tool": "simulate_action",
+      "args": { "action": "p1_right", "options": { "mode": "press" }, "session": "gdx-hunt2" }
+    },
+    {
+      "tool": "simulate_action",
+      "args": { "action": "p1_left", "options": { "mode": "press" }, "session": "gdx-hunt2" }
+    },
+    {
+      "tool": "simulate_action",
+      "args": { "action": "p1_right", "options": { "mode": "release" }, "session": "gdx-hunt2" }
+    },
+    {
+      "tool": "simulate_action",
+      "args": { "action": "p1_left", "options": { "mode": "release" }, "session": "gdx-hunt2" }
+    },
+    { "tool": "wait_for", "args": { "condition": { "frames": 40 }, "session": "gdx-hunt2" } },
+    {
+      "tool": "take_screenshot",
+      "args": { "path": ".tmp/mcp/h2_after_respawn.png", "responseMode": "path_only", "session": "gdx-hunt2" }
+    },
+    {
+      "tool": "inspect_node",
+      "args": {
+        "node": "/root/LevelRoot/RespawnCoordinator",
+        "properties": ["attempt_count"],
+        "session": "gdx-hunt2"
+      }
+    },
+    {
+      "tool": "inspect_node",
+      "args": {
+        "node": "/root/LevelRoot/Players/PlayerP1",
+        "properties": ["form", "gravity_direction", "global_position", "visible", "control_locked"],
+        "session": "gdx-hunt2"
+      }
+    },
+    {
+      "tool": "inspect_node",
+      "args": {
+        "node": "/root/LevelRoot/Players/PlayerP1/VisualRoot",
+        "properties": ["visible", "scale", "rotation"],
+        "session": "gdx-hunt2"
+      }
+    },
+    { "tool": "get_errors", "args": { "session": "gdx-hunt2" } },
+    { "tool": "get_debug_output", "args": { "limit": 60, "session": "gdx-hunt2" } }
+  ]
+}

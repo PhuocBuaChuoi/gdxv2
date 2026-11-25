@@ -212,6 +212,13 @@ func _physics_process(delta: float) -> void:
 		velocity = Vector2.ZERO
 		ground_sparks.set_active(false)
 		return
+	# Hazard đang trùng sẵn không phát lại `area_entered`: tia laser bật lại lúc
+	# player đứng trong tia (hoặc hazard vừa được bật bằng code) sẽ không giết ai
+	# nếu chỉ trông vào signal. Quét lại vùng trùng mỗi frame; `_death_reported`
+	# chặn việc báo chết lặp.
+	for overlapped in hazard_detector.get_overlapping_areas():
+		_on_hazard_area_entered(overlapped as Area2D)
+		break
 	# Coyote Time & Jump Buffer (T3.05)
 	if is_on_floor():
 		_coyote_timer = COYOTE_TIME

@@ -38,10 +38,12 @@ func _process(delta: float) -> void:
 
 
 ## Bật/tắt hazard THẬT. `monitoring` chỉ điều khiển việc laser tự quét body; còn
-## HazardDetector của player phát hiện area qua `monitorable` + layer. Bản cũ chỉ
-## tắt `monitoring` nên tia đang TẮT vẫn giết người đi qua.
-## Layer 0 khi tắt để chắc chắn cặp va chạm bị gỡ, bật lại thì detector nhận
-## `area_entered` như lần đầu (kể cả khi player đang đứng sẵn trong tia).
+## HazardDetector của player phát hiện area qua layer + `monitorable`.
+## Tia LUÔN ở layer hazard + `monitorable`, chỉ SHAPE bị gỡ khi TẮT. Đổi
+## layer/monitorable không làm Godot dựng lại cặp area đang trùng sẵn: đo live
+## (MCP, level_04) player đứng trong tia lúc bật lại vẫn sống, `get_overlapping_areas()`
+## của HazardDetector rỗng dù tia BẬT/layer 8/monitorable true. Gỡ rồi ráp lại
+## shape thì cặp va chạm mới được tạo lại và `area_entered` mới bắn ra.
 ## duty = 0 nghia la 0% thoi gian BAT -> phai luon TAT, duty = 1 -> luon BAT.
 ## Cong thuc cu so sanh thang voi start_on nen duty=0 + start_on=false dao
 ## nguoc va cho ra tia BAT vinh vien (duty=0 lai nguy hiem nhat).
@@ -56,9 +58,19 @@ func _want_on_at(phase: float) -> bool:
 
 
 func _set_active(on: bool) -> void:
-	monitoring = on
-	monitorable = on
-	collision_layer = _hazard_layer() if on else 0
+	monitoring = true
+	monitorable = true
+	collision_layer = _hazard_layer()
+	for shape in _beam_shapes():
+		shape.disabled = not on
+
+
+func _beam_shapes() -> Array[CollisionShape2D]:
+	var out: Array[CollisionShape2D] = []
+	for child in get_children():
+		if child is CollisionShape2D:
+			out.append(child)
+	return out
 
 
 func _hazard_layer() -> int:
@@ -66,7 +78,7 @@ func _hazard_layer() -> int:
 
 
 func _apply_layer_and_color() -> void:
-	collision_layer = _hazard_layer() if is_on else 0
+	collision_layer = _hazard_layer()
 	var beam := get_node_or_null("Beam") as Polygon2D
 	if beam != null:
 		var c: Color = SpikeHazard.HAZARD_COLORS.get(hazard_type, Color.WHITE)

@@ -1,0 +1,93 @@
+{
+  "session": "gdx-laser3",
+  "calls": [
+    {
+      "tool": "run_project",
+      "args": {
+        "projectPath": "${REPO}",
+        "scene": "res://levels/level_04.tscn",
+        "engineArgs": ["--resolution", "960x540"],
+        "options": { "quiet": true, "session": "gdx-laser3" }
+      }
+    },
+    { "tool": "wait_for", "args": { "condition": { "frames": 30 }, "session": "gdx-laser3" } },
+    {
+      "tool": "inspect_node",
+      "args": {
+        "node": "/root/LevelRoot/Players/PlayerP1/HazardDetector",
+        "properties": ["monitoring", "monitorable", "collision_mask", "collision_layer"],
+        "session": "gdx-laser3"
+      }
+    },
+    {
+      "tool": "wait_for",
+      "args": {
+        "condition": { "node": "/root/LevelRoot/Hazards/LaserGate", "property": "is_on", "equals": false },
+        "timeoutMs": 6000,
+        "session": "gdx-laser3"
+      }
+    },
+    {
+      "tool": "inspect_node",
+      "args": {
+        "node": "/root/LevelRoot/Hazards/LaserGate",
+        "properties": ["is_on", "monitoring", "monitorable", "collision_layer", "duty", "period", "_phase"],
+        "session": "gdx-laser3"
+      }
+    },
+    {
+      "tool": "set_property",
+      "args": {
+        "node": "/root/LevelRoot/Players/PlayerP1",
+        "property": "global_position",
+        "value": { "x": 1150, "y": 405 },
+        "session": "gdx-laser3"
+      }
+    },
+    { "tool": "wait_for", "args": { "condition": { "frames": 4 }, "session": "gdx-laser3" } },
+    {
+      "tool": "call_method",
+      "args": {
+        "node": "/root/LevelRoot/Players/PlayerP1/HazardDetector",
+        "method": "get_overlapping_areas",
+        "args": [],
+        "session": "gdx-laser3"
+      }
+    },
+    {
+      "tool": "wait_for",
+      "args": {
+        "condition": { "node": "/root/LevelRoot/Hazards/LaserGate", "property": "is_on", "equals": true },
+        "timeoutMs": 6000,
+        "session": "gdx-laser3"
+      }
+    },
+    { "tool": "wait_for", "args": { "condition": { "frames": 4 }, "session": "gdx-laser3" } },
+    {
+      "tool": "inspect_node",
+      "args": {
+        "node": "/root/LevelRoot/Hazards/LaserGate",
+        "properties": ["is_on", "monitoring", "monitorable", "collision_layer", "_phase"],
+        "session": "gdx-laser3"
+      }
+    },
+    {
+      "tool": "call_method",
+      "args": {
+        "node": "/root/LevelRoot/Players/PlayerP1/HazardDetector",
+        "method": "get_overlapping_areas",
+        "args": [],
+        "session": "gdx-laser3"
+      }
+    },
+    {
+      "tool": "inspect_node",
+      "args": {
+        "node": "/root/LevelRoot/Players/PlayerP1",
+        "properties": ["form", "global_position", "control_locked", "hazard_detector"],
+        "session": "gdx-laser3"
+      }
+    },
+    { "tool": "get_errors", "args": { "session": "gdx-laser3" } }
+  ]
+}

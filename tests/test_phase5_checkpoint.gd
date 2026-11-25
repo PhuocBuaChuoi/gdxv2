@@ -113,6 +113,23 @@ func test_restore_point_order_require_both_and_spawn_event() -> void:
 	Events.checkpoint_activated.disconnect(callback)
 	_cleanup([parent])
 
+# reset_activation() rơi vào giữa tween kích hoạt (rotation +TAU, scale 1.2) phải
+# dừng tween và trả node về tư thế nghỉ, nếu không crystal bị xoay/phóng mãi mãi
+# sau khi hồi sinh.
+func test_restore_point_reset_mid_tween_restores_resting_transform() -> void:
+	var parent := Node2D.new()
+	host_root.add_child(parent)
+	var cp := RestoreScene.instantiate() as RestorePoint
+	parent.add_child(cp)
+	assert_true(cp.activate(1), "T5.01 setup: checkpoint kich hoat")
+	# Đúng trạng thái giữa tween: xoay dở và phóng to dở.
+	cp.rotation = 1.37
+	cp.scale = Vector2(1.18, 1.18)
+	cp.reset_activation()
+	assert_near(cp.rotation, 0.0, 0.0001, "T5.01 reset giua tween tra rotation ve 0")
+	assert_eq(cp.scale, Vector2.ONE, "T5.01 reset giua tween tra scale ve 1")
+	_cleanup([parent])
+
 func test_coop_camera_midpoint_and_zoom() -> void:
 	var p1 := Node2D.new()
 	var p2 := Node2D.new()

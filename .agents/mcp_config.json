@@ -19,6 +19,14 @@
         "--tool-profile",
         "full"
       ]
+    },
+    "godot-live": {
+      "command": "C:\\Users\\Doan Nhat Phuoc\\AppData\\Local\\godot-mcp\\godot-mcp.exe",
+      "args": [],
+      "env": {
+        "GODOT_PROJECT_PATH": "C:\\Users\\Doan Nhat Phuoc\\Downloads\\gdxv2",
+        "GODOT_PATH": "C:\\Users\\Doan Nhat Phuoc\\Downloads\\gdxv2\\godot_engine\\Godot_v4.7.2-stable_win64_console.exe"
+      }
     }
   }
 }

@@ -105,7 +105,7 @@ func test_laser_duty_extremes() -> void:
 	laser.set("duty", 0.0)
 	laser.call("_process", 0.1)
 	assert_true(not bool(laser.get("is_on")), "T6.05 duty=0 -> luon TAT")
-	assert_true(not (laser as Area2D).monitoring, "T6.05 duty=0 tat monitoring")
+	assert_true(_laser_beam_disabled(laser), "T6.05 duty=0 go shape cua tia")
 	laser.set("duty", 1.0)
 	laser.call("_process", 0.1)
 	assert_true(bool(laser.get("is_on")), "T6.05 duty=1 -> luon BAT")
@@ -310,16 +310,46 @@ func test_laser_hazard_blinks() -> void:
 	assert_true(bool(laser.get("is_on")), "T6.05 giua chu ky van BAT")
 	laser.call("_process", 1.0)
 	assert_true(not bool(laser.get("is_on")), "T6.05 het duty -> TAT")
-	assert_true(not (laser as Area2D).monitoring, "T6.05 tat monitoring khi TAT (di qua an toan)")
-	assert_true(not (laser as Area2D).monitorable, "T6.05 tat monitorable khi TAT (HazardDetector khong thay tia)")
-	assert_eq(int((laser as Area2D).collision_layer), 0, "T6.05 layer 0 khi TAT")
+	assert_true(_laser_beam_disabled(laser), "T6.05 TAT: go shape tia (di qua an toan)")
+	assert_true((laser as Area2D).monitoring, "T6.05 van monitoring khi TAT (chi shape bi go)")
+	assert_eq(int((laser as Area2D).collision_layer), 8, "T6.05 layer hazard giu nguyen khi TAT")
 	laser.call("_process", 1.0)
 	assert_true(bool(laser.get("is_on")), "T6.05 chu ky moi -> BAT lai")
-	assert_true((laser as Area2D).monitorable, "T6.05 BAT lai monitorable")
+	assert_true(not _laser_beam_disabled(laser), "T6.05 BAT lai: rap shape de detector thay tia")
 	assert_eq(int((laser as Area2D).collision_layer), 8, "T6.05 BAT lai layer NEUTRAL")
 	laser.set("hazard_type", 1)
 	assert_eq(int(laser.collision_layer), 16, "T6.05 laser cung bang layer")
 	_despawn(laser)
+
+
+# Bug do live MCP chỉ ra (level_04): đứng sẵn trong tia lúc TẮT, tia bật lại thì
+# KHÔNG chết. Nguyên nhân: tắt `monitoring`/`monitorable`/layer thì Godot gỡ cặp
+# area nhưng không dựng lại khi bật lại (đo live: `get_overlapping_areas()` rỗng
+# dù tia BẬT, layer 8). Fix: giữ tia luôn discoverable, gỡ/ráp SHAPE mới làm cặp
+# được tạo lại. Test fail nếu ai đó bỏ việc gỡ shape (tia TẮT vẫn nằm trong
+# physics) hoặc bỏ việc ráp shape (tia BẬT vô hình với detector).
+func test_laser_reactivation_stays_discoverable() -> void:
+	var laser := _spawn("res://components/laser_hazard.tscn")
+	laser.set("duty", 1.0)
+	laser.call("_process", 0.1)
+	laser.call("_set_active", false)
+	laser.set("is_on", false)
+	assert_true(_laser_beam_disabled(laser), "T6.05 tia TAT: shape phai bi go")
+	assert_true((laser as Area2D).monitorable and (laser as Area2D).monitoring, "T6.05 tia TAT van discoverable (chi shape tat)")
+	assert_eq(int(laser.collision_layer), 8, "T6.05 tia TAT van o layer hazard")
+	laser.set("is_on", true)
+	laser.call("_set_active", true)
+	assert_true(not _laser_beam_disabled(laser), "T6.05 bat lai: rap lai shape")
+	assert_true((laser as Area2D).monitorable and (laser as Area2D).monitoring, "T6.05 bat lai: monitoring + monitorable")
+	assert_eq(int(laser.collision_layer), 8, "T6.05 bat lai: layer NEUTRAL de detector dung lai cap")
+	_despawn(laser)
+
+
+func _laser_beam_disabled(laser: Node) -> bool:
+	for child in laser.get_children():
+		if child is CollisionShape2D:
+			return (child as CollisionShape2D).disabled
+	return false
 
 
 func test_portal_toggle_and_debounce() -> void:
@@ -461,6 +491,41 @@ func test_modular_spike_and_blocks() -> void:
 	block.position = Vector2(100.0, 140.0)
 	block.snap_to_grid(48.0)
 	assert_eq(block.position, Vector2(96.0, 144.0), "dash block snap vao luoi 48px")
+	_despawn(block)
+
+
+# --- Hồi quy 3 defect audit (đóng trong vòng live MCP) ---
+
+# gravity_portal: body bị apply_to() từ chối (không đổi được trọng lực) không được
+# tiêu one_shot / không được set debounce.
+func test_gravity_portal_one_shot_not_consumed_on_reject() -> void:
+	var portal := _spawn("res://components/gravity_portal.tscn")
+	portal.set("one_shot", true)
+	var rejected := Node2D.new()
+	host_root.add_child(rejected)
+	portal.call("_on_body_entered", rejected)
+	assert_true((portal.get("_used_bodies") as Dictionary).is_empty(), "T6.02 body bi tu choi khong tieu one_shot")
+	assert_true((portal.get("_last_used") as Dictionary).is_empty(), "T6.02 body bi tu choi khong set debounce")
+	var p1 := _player(1)
+	p1.set("gravity_direction", 1)
+	portal.call("_on_body_entered", p1)
+	assert_eq(int(p1.get("gravity_direction")), -1, "T6.02 body hop le van duoc ap dung sau lan bi tu choi")
+	assert_true((portal.get("_used_bodies") as Dictionary).has(p1.get_instance_id()), "T6.02 body hop le moi tieu one_shot")
+	_despawn(p1)
+	_despawn(rejected)
+	_despawn(portal)
+
+
+# breakable_dash_block: đổi block_size runtime phải thay sprite ngay, không để
+# queue_free() xoá cuối frame rồi chồng sprite cũ + mới.
+func test_breakable_block_rebuild_has_no_duplicate_sprites() -> void:
+	var block := _spawn("res://components/breakable_dash_block.tscn") as BreakableDashBlock
+	var sprites := block.get_node("Sprites")
+	assert_eq(sprites.get_child_count(), 3, "T6.08 1x3 o -> 3 sprite")
+	block.block_size = Vector2i(2, 2)
+	assert_eq(sprites.get_child_count(), 4, "T6.08 doi block_size khong con sprite cu trung lai")
+	block.block_size = Vector2i(1, 3)
+	assert_eq(sprites.get_child_count(), 3, "T6.08 doi lai 1x3 -> dung 3 sprite")
 	_despawn(block)
 
 

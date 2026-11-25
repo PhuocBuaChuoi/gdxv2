@@ -49,26 +49,33 @@ func _on_body_entered(body: Node2D) -> void:
 	var last: float = float(_last_used.get(body.get_instance_id(), -10.0))
 	if now - last < retrigger_delay:
 		return
+	if not apply_to(body):
+		# Không có hiệu lực (body không đổi được trọng lực): KHÔNG tiêu one_shot,
+		# KHÔNG set debounce. Nếu không, một body lạ đi qua làm cổng one_shot câm
+		# vĩnh viễn cho mọi body về sau.
+		return
 	_last_used[body.get_instance_id()] = now
-	apply_to(body)
 	_used_bodies[body.get_instance_id()] = true
 
-func apply_to(body: Node2D) -> void:
+
+## Trả về true nếu trọng lực của `body` thực sự được đổi.
+func apply_to(body: Node2D) -> bool:
 	var direction := 1 if target_direction >= 0 else -1
 	if direction_mode == 1 or toggle_mode:
 		var cur := _current_gravity_dir(body)
 		if cur == 0:
-			return
+			return false
 		direction = -cur
 	if body.has_method("set_gravity_direction"):
 		body.call("set_gravity_direction", direction)
 	elif body is RigidBody2D:
 		(body as RigidBody2D).gravity_scale = -1.0 if direction < 0 else 1.0
 	else:
-		return
+		return false
 	Events.portal_activated.emit(direction)
 	AudioManager.play_sfx("portal")
 	_flash()
+	return true
 
 
 func _current_gravity_dir(body: Node2D) -> int:

@@ -1,0 +1,75 @@
+{
+  "session": "gdx-diag",
+  "calls": [
+    {
+      "tool": "run_project",
+      "args": {
+        "projectPath": "${REPO}",
+        "scene": "res://levels/level_04.tscn",
+        "engineArgs": ["--resolution", "960x540"],
+        "options": { "quiet": true, "session": "gdx-diag" }
+      }
+    },
+    { "tool": "wait_for", "args": { "condition": { "frames": 30 }, "session": "gdx-diag" } },
+    {
+      "tool": "inspect_node",
+      "args": {
+        "node": "/root/LevelRoot",
+        "properties": ["level_time", "deaths", "running", "level_index"],
+        "session": "gdx-diag"
+      }
+    },
+    {
+      "tool": "inspect_node",
+      "args": {
+        "node": "/root/LevelRoot/Players/PlayerP1",
+        "properties": ["form", "global_position", "velocity", "control_locked"],
+        "session": "gdx-diag"
+      }
+    },
+    {
+      "tool": "simulate_action",
+      "args": { "action": "p1_right", "options": { "mode": "press" }, "session": "gdx-diag" }
+    },
+    { "tool": "wait_for", "args": { "condition": { "frames": 40 }, "session": "gdx-diag" } },
+    {
+      "tool": "inspect_node",
+      "args": {
+        "node": "/root/LevelRoot/Players/PlayerP1",
+        "properties": ["form", "global_position", "velocity"],
+        "session": "gdx-diag"
+      }
+    },
+    { "tool": "wait_for", "args": { "condition": { "frames": 40 }, "session": "gdx-diag" } },
+    {
+      "tool": "inspect_node",
+      "args": {
+        "node": "/root/LevelRoot/Players/PlayerP1",
+        "properties": ["form", "global_position", "velocity"],
+        "session": "gdx-diag"
+      }
+    },
+    { "tool": "wait_for", "args": { "condition": { "frames": 40 }, "session": "gdx-diag" } },
+    {
+      "tool": "inspect_node",
+      "args": {
+        "node": "/root/LevelRoot/Players/PlayerP1",
+        "properties": ["form", "global_position", "velocity"],
+        "session": "gdx-diag"
+      }
+    },
+    {
+      "tool": "inspect_node",
+      "args": {
+        "node": "/root/LevelRoot",
+        "properties": ["level_time", "deaths"],
+        "session": "gdx-diag"
+      }
+    },
+    {
+      "tool": "take_screenshot",
+      "args": { "path": ".tmp/mcp/diag_run.png", "responseMode": "path_only", "session": "gdx-diag" }
+    },
+    { "tool": "get_errors", "args": { "session": "gdx-diag" } }
+  ]
+}

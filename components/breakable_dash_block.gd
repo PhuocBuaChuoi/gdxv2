@@ -82,8 +82,11 @@ func _rebuild_geometry() -> void:
 
 	var spr_container := get_node_or_null("Sprites") as Node2D
 	if spr_container != null:
+		# Phải gỡ NGAY: queue_free() chỉ xoá ở cuối frame nên _rebuild_geometry()
+		# gọi 2 lần trong cùng frame (đổi block_size runtime) sẽ chồng sprite cũ/mới.
 		for c in spr_container.get_children():
-			c.queue_free()
+			spr_container.remove_child(c)
+			c.free()
 		for x in range(block_size.x):
 			for y in range(block_size.y):
 				var spr := Sprite2D.new()
