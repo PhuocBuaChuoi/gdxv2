@@ -26,7 +26,7 @@
 script = ExtResource("1")
 level_index = 4
 background = "FOREST"
-ascii_map = PackedStringArray("                                                ", "    .       .       .       .       .       .   ", "                           ==                   ", "                  =====    ==                   ", "                  =====    ==                   ", "                --         ==                   ", "                           ==       --          ", "                 --                             ", "                                                ", "=========       =============       ============", "#########       #############       ############", "################################################")
+ascii_map = PackedStringArray("                                                ", "    .       .       .       .       .       .   ", "                                                ", "                  =====                         ", "                  =====                         ", "                --                              ", "                                                ", "                 --                             ", "                                                ", "=========       =============       ============", "#########       #############       ############", "################################################")
 
 [node name="ControlSign" type="Label" parent="."]
 offset_left = 64.0
@@ -180,7 +180,7 @@ activator = 0
 [node name="Lift" parent="Mechanisms" instance=ExtResource("16_platform")]
 position = Vector2(1536, 420)
 linked_triggers = [NodePath("../ButtonHigh")]
-move_offset = Vector2(0, -120)
+move_offset = Vector2(0, -60)
 
 [node name="DualExitGate" parent="Mechanisms" instance=ExtResource("13_gate")]
 position = Vector2(2200, 377)
@@ -192,7 +192,7 @@ position = Vector2(960, 380)
 checkpoint_order = 1
 
 [node name="Checkpoint2" parent="Checkpoints" instance=ExtResource("8_checkpoint")]
-position = Vector2(1296, 380)
+position = Vector2(1800, 380)
 checkpoint_order = 2
 
 [node name="SpawnP1" type="Marker2D" parent="."]

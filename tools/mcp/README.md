@@ -61,6 +61,9 @@ node tools/mcp/godot_mcp_client.mjs --schema take_screenshot
 | `session_laser3.json` | chẩn đoán: in `get_overlapping_areas()` của `HazardDetector` |
 | `session_fuzz_gallery.json` | 500 input ngẫu nhiên trên gallery, đọc lỗi |
 | `session_laser_reactivate.json` | bản đầu của phép thử laser (giữ làm lịch sử) |
+| `session_gate_blocked.json` | level_03: P1 đi trên trần đâm vào vách ngăn (trước fix: kẹt `x=1225.9`) |
+| `session_gate_open.json` | level_03: bấm cả 2 nút đồng thời rồi đi qua cửa (sau fix: `x=1908`) |
+| `session_gate_open_06.json` | level_06: bản tương tự (sau fix: `x=1801.9`) |
 
 Mẫu một bước trong `--script`:
 
@@ -82,3 +85,12 @@ làm cặp va chạm được tạo lại; player quét lại hazard đang trùn
 
 Hồi quy: `tests/test_phase6_tools.gd::test_laser_reactivation_stays_discoverable`
 (unit) và bước cuối của `levels/e2e_driver.gd` (physics thật).
+
+**Vách ngăn màn 3/6 chôn trong cột đá tĩnh (màn không thể hoàn thành)**. Cả
+`level_03` và `level_06` có một cột đá 2x6 nằm đúng chỗ `MiddleWall`/
+`LowerWall`, chắn ngang làn trần. Đo live: bấm đủ 2 nút (cả hai `is_on = true`,
+cửa đã trượt lên) nhưng P1 đảo trọng lực vẫn kẹt ở `x=1225.9` (level_03) —
+cột tĩnh dày 96px chặn đường tới `ExitGravityPortal`. Fix: bỏ cột tĩnh khỏi
+`ascii_map`, đặt `MiddleWall` ở `y=118` để nó đóng đúng làn trần và rút hẳn vào
+trần khi mở. Hồi quy: `tests/test_phase7_levels.gd::test_gate_is_not_walled_off`
++ 3 session ở bảng trên.

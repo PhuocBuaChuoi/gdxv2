@@ -25,7 +25,7 @@
 script = ExtResource("1")
 level_index = 2
 background = "FOREST"
-ascii_map = PackedStringArray("================================================", "================================================", "                          ==                    ", "    .       .       .     ==.       .       .   ", "                                                ", "=======-======================             =====", "                          ==                    ", "                          ==                    ", "                                                ", "================================================", "################################################", "################################################")
+ascii_map = PackedStringArray("================================================", "================================================", "                                                ", "    .       .       .       .       .       .   ", "                                                ", "=======-======================             =====", "                                                ", "                                                ", "                                                ", "================================================", "################################################", "################################################")
 
 [node name="ControlSign" type="Label" parent="."]
 offset_left = 72.0
@@ -144,7 +144,7 @@ activator = 2
 paired_button = NodePath("../ButtonTop")
 
 [node name="MiddleWall" parent="Mechanisms" instance=ExtResource("17_platform")]
-position = Vector2(1296, 216)
+position = Vector2(1296, 118)
 linked_triggers = [NodePath("../ButtonTop"), NodePath("../ButtonBottom")]
 move_offset = Vector2(0, -96)
 require_all = true

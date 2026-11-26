@@ -1,0 +1,81 @@
+{
+  "session": "gdx-gateopen",
+  "calls": [
+    {
+      "tool": "run_project",
+      "args": {
+        "projectPath": "${REPO}",
+        "scene": "res://levels/level_03.tscn",
+        "engineArgs": ["--resolution", "960x540"],
+        "options": { "quiet": true, "session": "gdx-gateopen" }
+      }
+    },
+    { "tool": "wait_for", "args": { "condition": { "frames": 30 }, "session": "gdx-gateopen" } },
+    {
+      "tool": "set_property",
+      "args": {
+        "node": "/root/LevelRoot/Players/PlayerP1",
+        "property": "gravity_direction",
+        "value": -1,
+        "session": "gdx-gateopen"
+      }
+    },
+    {
+      "tool": "set_property",
+      "args": {
+        "node": "/root/LevelRoot/Players/PlayerP1",
+        "property": "global_position",
+        "value": { "x": 1040, "y": 118 },
+        "session": "gdx-gateopen"
+      }
+    },
+    {
+      "tool": "set_property",
+      "args": {
+        "node": "/root/LevelRoot/Players/PlayerP2",
+        "property": "global_position",
+        "value": { "x": 1040, "y": 410 },
+        "session": "gdx-gateopen"
+      }
+    },
+    { "tool": "wait_for", "args": { "condition": { "frames": 25 }, "session": "gdx-gateopen" } },
+    {
+      "tool": "inspect_node",
+      "args": {
+        "node": "/root/LevelRoot/Mechanisms/MiddleWall",
+        "properties": ["global_position", "move_offset"],
+        "session": "gdx-gateopen"
+      }
+    },
+    {
+      "tool": "inspect_node",
+      "args": {
+        "node": "/root/LevelRoot/Mechanisms/ButtonTop",
+        "properties": ["is_on"],
+        "session": "gdx-gateopen"
+      }
+    },
+    {
+      "tool": "inspect_node",
+      "args": {
+        "node": "/root/LevelRoot/Mechanisms/ButtonBottom",
+        "properties": ["is_on"],
+        "session": "gdx-gateopen"
+      }
+    },
+    { "tool": "take_screenshot", "args": { "path": ".tmp/mcp/gate_opened_before.png", "responseMode": "path_only", "session": "gdx-gateopen" } },
+    { "tool": "simulate_action", "args": { "action": "p1_right", "options": { "mode": "press" }, "session": "gdx-gateopen" } },
+    { "tool": "wait_for", "args": { "condition": { "frames": 120 }, "session": "gdx-gateopen" } },
+    { "tool": "simulate_action", "args": { "action": "p1_right", "options": { "mode": "release" }, "session": "gdx-gateopen" } },
+    { "tool": "wait_for", "args": { "condition": { "frames": 15 }, "session": "gdx-gateopen" } },
+    {
+      "tool": "inspect_node",
+      "args": {
+        "node": "/root/LevelRoot/Players/PlayerP1",
+        "properties": ["global_position", "gravity_direction"],
+        "session": "gdx-gateopen"
+      }
+    },
+    { "tool": "get_errors", "args": { "session": "gdx-gateopen" } }
+  ]
+}

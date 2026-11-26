@@ -27,7 +27,7 @@
 script = ExtResource("1")
 level_index = 5
 background = "BRIGHT"
-ascii_map = PackedStringArray("================================================", "================================================", "                            ==                  ", "    .       .       .       ==      .       .   ", "                                                ", "========-=====================       ===   =====", "                            ==                  ", "                            ==                  ", "                                                ", "================================================", "################################################", "################################################")
+ascii_map = PackedStringArray("================================================", "================================================", "                                                ", "    .       .       .               .       .   ", "                                                ", "========-=====================                  ", "                                                ", "                                                ", "                                                ", "================================================", "################################################", "################################################")
 
 [node name="ControlSign" type="Label" parent="."]
 offset_left = 72.0
@@ -164,7 +164,7 @@ activator = 2
 paired_button = NodePath("../ButtonTopSync")
 
 [node name="MiddleWall" parent="Mechanisms" instance=ExtResource("18_platform")]
-position = Vector2(1392, 216)
+position = Vector2(1392, 118)
 linked_triggers = [NodePath("../ButtonTopSync"), NodePath("../ButtonBottomSync")]
 move_offset = Vector2(0, -96)
 require_all = true
@@ -184,11 +184,11 @@ position = Vector2(2180, 377)
 [node name="Checkpoints" type="Node2D" parent="."]
 
 [node name="Checkpoint1" parent="Checkpoints" instance=ExtResource("8_checkpoint")]
-position = Vector2(1100, 420)
+position = Vector2(1100, 380)
 checkpoint_order = 1
 
 [node name="Checkpoint2" parent="Checkpoints" instance=ExtResource("8_checkpoint")]
-position = Vector2(1600, 420)
+position = Vector2(1480, 380)
 checkpoint_order = 2
 
 [node name="SpawnP1" type="Marker2D" parent="."]

@@ -633,6 +633,121 @@ func test_all_level_spawns_have_ground() -> void:
 		lvl.free()
 
 
+## ---------------------------------------------------------------------------
+## Level-design guards: man phai di duoc that, khong co tuong tinh chan ngang
+## cua dang mo, khong co checkpoint chong len cong/co che, map dung luoi 48.
+## ---------------------------------------------------------------------------
+
+func test_level_maps_are_rectangular() -> void:
+	for n in ["level_01", "level_02", "level_03", "level_04", "level_05", "level_06"]:
+		var lvl: Node = (load("res://levels/%s.tscn" % n) as PackedScene).instantiate()
+		var rows: PackedStringArray = lvl.get("ascii_map")
+		assert_eq(rows.size(), 12, "%s co 12 hang tile" % n)
+		for y in range(rows.size()):
+			assert_eq(rows[y].length(), 48, "%s hang %d dung 48 cot" % [n, y])
+		lvl.free()
+
+
+func test_gate_is_not_walled_off() -> void:
+	# Level 03/06 tung co cot da 2x6 dung ngay cho MiddleWall: bam nut xong cua
+	# van bi cot tinh chan (live: P1 ket o x=1225.9). Cua phai la vat the duy nhat
+	# trong lan, va khi mo phai rut han vao tran.
+	for n in ["level_03", "level_06"]:
+		var lvl: Node = (load("res://levels/%s.tscn" % n) as PackedScene).instantiate()
+		host_root.add_child(lvl)
+		var layer: TileMapLayer = lvl.get_node("TerrainLayer") as TileMapLayer
+		var wall := lvl.get_node("Mechanisms/MiddleWall") as MechanizedPlatform
+		var cols: Array = [
+			floori((wall.global_position.x - 24.0) / 48.0),
+			floori((wall.global_position.x + 24.0) / 48.0),
+		]
+		for x in cols:
+			for y in [2, 3, 4, 6, 7, 8]:
+				assert_true(not _cell_blocks(layer, Vector2i(x, y)),
+					"%s: cot %d hang %d phai trong de cua mo duoc" % [n, x, y])
+		assert_true(wall.global_position.y - 12.0 <= 140.0 and wall.global_position.y + 12.0 >= 96.0,
+			"%s: cua dong phai chan lan tran (player 44px sat tran y=96)" % n)
+		var opened: Vector2 = wall.global_position + wall.move_offset
+		assert_true(opened.y + 12.0 <= 96.0, "%s: cua mo phai rut han vao tran" % n)
+		host_root.remove_child(lvl)
+		lvl.free()
+
+
+func test_level_05_wall_and_lift_keep_the_pit_crossable() -> void:
+	var lvl: Node = (load("res://levels/level_05.tscn") as PackedScene).instantiate()
+	host_root.add_child(lvl)
+	var layer: TileMapLayer = lvl.get_node("TerrainLayer") as TileMapLayer
+	# Cot da 2x6 tung chiem dung cho MidGate, chi chua khe 48px cho player 44px.
+	for x in [27, 28]:
+		for y in range(2, 9):
+			assert_true(not _cell_blocks(layer, Vector2i(x, y)),
+				"level_05: cot %d hang %d phai trong (khong con khe 48px)" % [x, y])
+	var gate := lvl.get_node("Mechanisms/MidGate") as MechanizedPlatform
+	var gate_cell := Vector2i(
+		floori(gate.global_position.x / 48.0),
+		floori((gate.global_position.y - 12.0) / 48.0))
+	assert_true(not _cell_blocks(layer, gate_cell), "level_05: MidGate khong bi chon trong tile")
+	# Thang may: ca luc nghi lan luc nang deu phai voi toi tu mep ho, neu khong
+	# bam ButtonHigh xong la ket (truoc day nang 120px = sat tam nhay).
+	var lift := lvl.get_node("Mechanisms/Lift") as MechanizedPlatform
+	var floor_y := 432.0
+	var lip_x := 1392.0
+	var jump_height := GdxPlayer.JUMP_VELOCITY * GdxPlayer.JUMP_VELOCITY / (2.0 * GdxPlayer.BASE_GRAVITY)
+	for state in [lift.global_position, lift.global_position + lift.move_offset]:
+		var deck_top: float = state.y - 12.0
+		var deck_left: float = state.x - 48.0
+		assert_true(floor_y - deck_top <= jump_height - 10.0,
+			"level_05: san thang may cao %.0fpx > tam nhay %.0fpx" % [floor_y - deck_top, jump_height])
+		assert_true(deck_left - lip_x <= 120.0,
+			"level_05: thang may cach mep ho %.0fpx (qua xa de nhay toi)" % [deck_left - lip_x])
+	host_root.remove_child(lvl)
+	lvl.free()
+
+
+func test_checkpoints_do_not_overlap_interactables() -> void:
+	for n in ["level_01", "level_02", "level_03", "level_04", "level_05", "level_06"]:
+		var lvl: Node = (load("res://levels/%s.tscn" % n) as PackedScene).instantiate()
+		host_root.add_child(lvl)
+		for cp in lvl.get_node("Checkpoints").get_children():
+			var cp_rect := _collision_rect(cp as Node2D).grow(-2.0)
+			for container in ["Portals", "Mechanisms"]:
+				for other in lvl.get_node(container).get_children():
+					var rect := _collision_rect(other as Node2D)
+					if rect.size == Vector2.ZERO:
+						continue
+					assert_true(not cp_rect.intersects(rect.grow(-2.0)),
+						"%s: %s chong len %s" % [n, (cp as Node).name, (other as Node).name])
+		host_root.remove_child(lvl)
+		lvl.free()
+
+
+func _cell_blocks(layer: TileMapLayer, cell: Vector2i) -> bool:
+	if layer.get_cell_source_id(cell) == -1:
+		return false
+	# (3,0) la tile trang tri, khong co collision.
+	return layer.get_cell_atlas_coords(cell) != Vector2i(3, 0)
+
+
+func _collision_rect(n: Node2D) -> Rect2:
+	if n == null:
+		return Rect2()
+	var cs := n.get_node_or_null("CollisionShape2D") as CollisionShape2D
+	if cs == null or cs.shape == null:
+		return Rect2()
+	var size := Vector2.ZERO
+	if cs.shape is RectangleShape2D:
+		size = (cs.shape as RectangleShape2D).size
+	elif cs.shape is CircleShape2D:
+		size = Vector2.ONE * (cs.shape as CircleShape2D).radius * 2.0
+	elif cs.shape is CapsuleShape2D:
+		var cap := cs.shape as CapsuleShape2D
+		size = Vector2(cap.radius * 2.0, cap.height)
+	if size == Vector2.ZERO:
+		return Rect2()
+	var center: Vector2 = n.global_position + cs.position
+	return Rect2(center - size * 0.5, size)
+
+
 func _ground_below(layer: TileMapLayer, world_pos: Vector2) -> bool:
 	var cell: Vector2i = layer.local_to_map(layer.to_local(world_pos))
 	for dy in range(0, 3):
