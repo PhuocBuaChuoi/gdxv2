@@ -1,7 +1,7 @@
 extends Node
 
-## T8.06 — SFX sinh bằng code (bleeps 8-bit), không cần file ngoài.
-## Nhạc nền nhịp nhanh để sau (cần sequencer riêng) — API giữ chỗ: play_music().
+## T8.06 — SFX + nhạc nền chiptune sinh bằng code, không cần file ngoài.
+## play_music() được gọi từ menu/level_select/level_controller (idempotent).
 
 const RATE := 22050
 
@@ -41,6 +41,9 @@ func play_sfx(sfx_name: String) -> bool:
 
 func set_volume(db: float) -> void:
 	volume_db = clampf(db, -24.0, 0.0)
+	# Slider cài đặt phải ảnh hưởng ngay tới nhạc đang phát, không chỉ SFX sau này.
+	if _music_player != null and is_instance_valid(_music_player):
+		_music_player.volume_db = volume_db - 12.0
 
 
 func _exit_tree() -> void:
@@ -61,6 +64,8 @@ func _exit_tree() -> void:
 func play_music() -> bool:
 	if DisplayServer.get_name() == "headless":
 		return true
+	if is_music_playing():
+		return true # menu -> level -> level kế tiếp không restart track
 	if _music_stream == null:
 		return false
 	stop_music()
@@ -85,6 +90,10 @@ func has_music() -> bool:
 	return _music_stream != null
 
 
+func is_music_playing() -> bool:
+	return _music_player != null and is_instance_valid(_music_player) and _music_player.playing
+
+
 func _build_all() -> void:
 	_sfx["click"] = _tone(1200.0, 1200.0, 0.05, 0.5)
 	_sfx["jump"] = _tone(660.0, 990.0, 0.12, 0.5)
@@ -93,6 +102,7 @@ func _build_all() -> void:
 	_sfx["portal"] = _tone(880.0, 220.0, 0.25, 0.5)
 	_sfx["win"] = _tone_seq([523.25, 659.25, 783.99, 1046.5], 0.09, 0.5)
 	_sfx["door"] = _tone(320.0, 720.0, 0.16, 0.45)
+	_sfx["tether"] = _tone(180.0, 640.0, 0.18, 0.35)
 	_music_stream = _chiptune_loop()
 
 

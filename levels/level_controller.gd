@@ -8,7 +8,12 @@ extends Node2D
 @export var level_index: int = 0
 @export var start_form_p1: StringName = &"CUBE"
 @export var start_form_p2: StringName = &"CUBE"
-@export_enum("FOREST", "BRIGHT") var background: String = "FOREST"
+@export_enum("FOREST", "BRIGHT") var background: String = "FOREST":
+	set(value):
+		background = value
+		# Đổi nền từ Inspector/code phải áp dụng ngay (bug cũ: chỉ _ready áp dụng).
+		if is_inside_tree() and is_node_ready():
+			_apply_background()
 
 ## Terrain vẽ bằng text ('#' đặc, '=' viền, '-' 1 chiều, '.' trang trí).
 ## Review diff dễ, không cần mở editor. Xem levels/AUTHORING.md.
@@ -61,6 +66,10 @@ func _ready() -> void:
 	if enforce_vertical_bounds and coop_camera.has_method("set_vertical_limits"):
 		coop_camera.set_vertical_limits(ceiling_y, floor_kill_y)
 	_on_attempt_changed(respawn_coordinator.attempt_count)
+	# T8.06: nhạc nền chạy xuyên suốt menu -> chọn màn -> gameplay (play_music idempotent).
+	var audio: Node = get_node_or_null("/root/AudioManager")
+	if audio != null:
+		audio.call("play_music")
 	if not Events.level_completed.is_connected(_on_level_completed):
 		Events.level_completed.connect(_on_level_completed)
 	_apply_background()

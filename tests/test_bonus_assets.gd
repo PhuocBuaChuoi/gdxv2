@@ -188,10 +188,10 @@ func test_stage_background() -> void:
 	assert_true(layer.motion_scale.x <= 1.0, "nen khong troi nhanh hon camera (1.0 = khoa skybox, drift tu tao chuyen dong)")
 	var spr: Sprite2D = layer.get_node_or_null("Sprite2D") as Sprite2D
 	assert_true(spr.texture != null, "_ready gan texture mac dinh")
-	assert_eq(spr.texture.get_width(), 1199, "mac dinh la nen rung")
+	assert_eq(spr.texture.get_width(), 2398, "mac dinh la nen rung (texture tileable = 2x anh goc)")
 	bg.set("background", "BRIGHT")
 	bg.call("apply_background")
-	assert_eq(spr.texture.get_width(), 735, "doi sang nen sang")
+	assert_eq(spr.texture.get_width(), 1470, "doi sang nen sang (texture tileable = 2x anh goc)")
 	bg.set("dim", 0.5)
 	bg.call("apply_background")
 	assert_near(spr.modulate.r, 0.5, 0.001, "dim ha sang nen dem")

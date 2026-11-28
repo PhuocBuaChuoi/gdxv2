@@ -106,6 +106,7 @@ func test_audio_has_music_and_door_sfx() -> void:
 	if audio == null:
 		return
 	assert_true(bool(audio.call("has_sfx", "door")), "AUDIT06 co SFX mo cua")
+	assert_true(bool(audio.call("has_sfx", "tether")), "AUDIT06 co SFX tether hook")
 	assert_true(bool(audio.call("has_music")), "AUDIT06 co nhac nen chiptune sinh boi code")
 	assert_true(bool(audio.call("play_music")), "AUDIT06 play_music khong crash (headless)")
 	audio.call("stop_music")

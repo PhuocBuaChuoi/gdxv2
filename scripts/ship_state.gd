@@ -19,6 +19,8 @@ const TETHER_LIFT_SPEED: float = 260.0
 const TETHER_PULL_RATE: float = 1200.0
 const TETHER_RIGID_FORCE: float = 2400.0
 
+var _tether_was_active: bool = false
+
 
 func enter(player_ref: GdxPlayer, prev: PlayerFormState) -> void:
 	super.enter(player_ref, prev)
@@ -27,6 +29,7 @@ func enter(player_ref: GdxPlayer, prev: PlayerFormState) -> void:
 
 
 func exit() -> void:
+	_tether_was_active = false
 	# Tether là sensor gameplay của riêng dạng tàu: rời dạng phải tắt + ẩn tia,
 	# nếu không tia kéo còn nguyên trên màn hình và sensor vẫn quét khi là Cube/UFO.
 	var tether := player.get_node_or_null("TetherBeam") as Area2D
@@ -124,6 +127,10 @@ func _create_tether_beam() -> Area2D:
 func _update_tether(delta: float) -> void:
 	var tether := get_tether_beam()
 	var active := player.is_action_pressed()
+	# Known limitation cũ: tether hook chưa có SFX. Phát 1 lần khi bật tia.
+	if active and not _tether_was_active:
+		AudioManager.play_sfx("tether")
+	_tether_was_active = active
 	var gd: float = float(player.gravity_direction)
 	if not tether.monitoring:
 		tether.monitoring = true

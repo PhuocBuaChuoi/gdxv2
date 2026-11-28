@@ -293,12 +293,12 @@ func test_level_background_select() -> void:
 	var spr_before: Sprite2D = lvl.get_node_or_null("StageBackground/FarLayer/Sprite2D") as Sprite2D
 	assert_true(spr_before != null, "background sprite ton tai ban dau")
 	if spr_before != null:
-		assert_near(float(spr_before.texture.get_width()), 1199.0, 1.0, "nen mac dinh la forest")
+		assert_near(float(spr_before.texture.get_width()), 2398.0, 1.0, "nen mac dinh la forest (tileable 2x)")
 	lvl.set("background", "BRIGHT")
 	var spr_after: Sprite2D = lvl.get_node_or_null("StageBackground/FarLayer/Sprite2D") as Sprite2D
 	assert_true(spr_after != null, "background sprite van ton sau khi doi")
 	if spr_after != null:
-		assert_near(float(spr_after.texture.get_width()), 1199.0, 1.0, "doi nen sang theo cau hinh man")
+		assert_near(float(spr_after.texture.get_width()), 1470.0, 1.0, "doi nen sang theo cau hinh man (tileable 2x)")
 	host_root.remove_child(lvl)
 	lvl.free()
 
@@ -321,7 +321,7 @@ func test_level_02_loads_and_paints() -> void:
 
 	var button := lvl.get_node_or_null("Mechanisms/PressureButton")
 	var box := lvl.get_node_or_null("Mechanisms/CoopBox")
-	var door := lvl.get_node_or_null("Mechanisms/DoorPlatform") as MechanizedPlatform
+	var door := lvl.get_node_or_null("Mechanisms/DoorPlatform") as EnergyGate
 	var gate := lvl.get_node_or_null("Mechanisms/DualExitGate")
 	assert_true(button != null, "level_02 co PressureButton")
 	assert_true(box != null, "level_02 co CoopBox de Ship dung tether keo")
@@ -359,9 +359,9 @@ func test_level_02_coop_design_guarantees() -> void:
 	assert_eq(portal.allowed_player, "P1_ONLY", "portal chi cho P1")
 	var btn := lvl.get_node("Mechanisms/PressureButton") as PressureButton
 	var box := lvl.get_node("Mechanisms/CoopBox") as RigidBody2D
-	var door := lvl.get_node("Mechanisms/DoorPlatform") as MechanizedPlatform
+	var door := lvl.get_node("Mechanisms/DoorPlatform") as EnergyGate
 	assert_true(btn != null and box != null and door != null, "level_02 co du Button, CoopBox va DoorPlatform")
-	assert_true(door.move_offset != Vector2.ZERO, "door platform co hanh trinh nang/ha")
+	assert_eq(door.gate_size.y, 3, "DoorPlatform cao 3 o (khong nhay qua duoc)")
 	host_root.remove_child(lvl)
 	lvl.free()
 
@@ -382,7 +382,7 @@ func test_level_03_loads_and_paints() -> void:
 
 	var btn_top := lvl.get_node_or_null("Mechanisms/ButtonTop") as PressureButton
 	var btn_bot := lvl.get_node_or_null("Mechanisms/ButtonBottom") as PressureButton
-	var wall := lvl.get_node_or_null("Mechanisms/MiddleWall") as MechanizedPlatform
+	var wall := lvl.get_node_or_null("Mechanisms/MiddleWall") as EnergyGate
 	assert_true(btn_top != null and btn_bot != null, "level_03 co cap nut bam doi")
 	assert_eq(btn_top.mode, 2, "ButtonTop la mode SIMULTANEOUS")
 	assert_eq(btn_bot.mode, 2, "ButtonBottom la mode SIMULTANEOUS")
@@ -414,7 +414,7 @@ func test_level_03_coop_design_guarantees() -> void:
 	assert_eq(ufo.target_form, "UFO", "ufo portal chuyen thanh UFO")
 	var btn_top := lvl.get_node("Mechanisms/ButtonTop") as PressureButton
 	var btn_bot := lvl.get_node("Mechanisms/ButtonBottom") as PressureButton
-	var wall := lvl.get_node("Mechanisms/MiddleWall") as MechanizedPlatform
+	var wall := lvl.get_node("Mechanisms/MiddleWall") as EnergyGate
 	assert_eq(btn_top.mode, 2, "btn_top la simultaneous")
 	assert_eq(btn_bot.mode, 2, "btn_bot la simultaneous")
 	assert_eq(btn_top.paired_button, NodePath("../ButtonBottom"), "btn_top cap voi btn_bot")
@@ -442,7 +442,7 @@ func test_level_04_loads_and_paints() -> void:
 	var wall := lvl.get_node_or_null("Mechanisms/BreakableDashWall")
 	var orb := lvl.get_node_or_null("Mechanisms/DashOrb")
 	var btn := lvl.get_node_or_null("Mechanisms/CeilingButton")
-	var door := lvl.get_node_or_null("Mechanisms/ExitPlatformDoor") as MechanizedPlatform
+	var door := lvl.get_node_or_null("Mechanisms/ExitPlatformDoor") as EnergyGate
 	var gate := lvl.get_node_or_null("Mechanisms/DualExitGate")
 	assert_true(wall != null, "level_04 co BreakableDashWall cho Dash tong vo")
 	assert_true(orb != null, "level_04 co DashOrb de hoi luot")
@@ -471,7 +471,7 @@ func test_level_04_coop_design_guarantees() -> void:
 	var orb := lvl.get_node("Mechanisms/DashOrb") as DashOrb
 	var laser := lvl.get_node("Hazards/LaserGate") as LaserHazard
 	var btn := lvl.get_node("Mechanisms/CeilingButton") as PressureButton
-	var door := lvl.get_node("Mechanisms/ExitPlatformDoor") as MechanizedPlatform
+	var door := lvl.get_node("Mechanisms/ExitPlatformDoor") as EnergyGate
 	assert_true(wall != null and orb != null and laser != null and btn != null and door != null, "level_04 co du cac co che")
 	assert_true(door.linked_triggers.has(NodePath("../CeilingButton")), "door platform noi day voi ceiling button")
 	host_root.remove_child(lvl)
@@ -491,7 +491,7 @@ func test_level_05_loads_and_paints() -> void:
 	var bridge_a := lvl.get_node_or_null("Mechanisms/BridgeA") as MechanizedPlatform
 	var btn_cyan := lvl.get_node_or_null("Mechanisms/ButtonCyan") as PressureButton
 	var btn_orange := lvl.get_node_or_null("Mechanisms/ButtonOrange") as PressureButton
-	var mid_gate := lvl.get_node_or_null("Mechanisms/MidGate") as MechanizedPlatform
+	var mid_gate := lvl.get_node_or_null("Mechanisms/MidGate") as EnergyGate
 	var btn_high := lvl.get_node_or_null("Mechanisms/ButtonHigh") as PressureButton
 	var lift := lvl.get_node_or_null("Mechanisms/Lift") as MechanizedPlatform
 	var gate := lvl.get_node_or_null("Mechanisms/DualExitGate")
@@ -517,7 +517,7 @@ func test_level_05_coop_design_guarantees() -> void:
 	var btn_orange := lvl.get_node("Mechanisms/ButtonOrange") as PressureButton
 	assert_eq(btn_cyan.activator, 1, "ButtonCyan chi P1 bam")
 	assert_eq(btn_orange.activator, 2, "ButtonOrange chi P2 bam")
-	var mid_gate := lvl.get_node("Mechanisms/MidGate") as MechanizedPlatform
+	var mid_gate := lvl.get_node("Mechanisms/MidGate") as EnergyGate
 	assert_true(mid_gate.require_all, "MidGate yeu cau ca 2 nut Cyan va Orange")
 	var lift := lvl.get_node("Mechanisms/Lift") as MechanizedPlatform
 	assert_true(lift.move_offset.y < 0.0, "Lift di chuyen thang dung huong len")
@@ -540,7 +540,7 @@ func test_level_06_loads_and_paints() -> void:
 	var laser := lvl.get_node_or_null("Hazards/LaserTop") as LaserHazard
 	var btn_top := lvl.get_node_or_null("Mechanisms/ButtonTopSync") as PressureButton
 	var btn_bot := lvl.get_node_or_null("Mechanisms/ButtonBottomSync") as PressureButton
-	var wall := lvl.get_node_or_null("Mechanisms/MiddleWall") as MechanizedPlatform
+	var wall := lvl.get_node_or_null("Mechanisms/MiddleWall") as EnergyGate
 	var dash_block := lvl.get_node_or_null("Mechanisms/BreakableDashWall") as BreakableDashBlock
 	var gate := lvl.get_node_or_null("Mechanisms/DualExitGate")
 
@@ -569,7 +569,7 @@ func test_level_06_coop_design_guarantees() -> void:
 	assert_eq(btn_top.mode, 2, "btn_top la simultaneous")
 	assert_eq(btn_bot.mode, 2, "btn_bot la simultaneous")
 	assert_eq(btn_top.paired_button, NodePath("../ButtonBottomSync"), "btn_top cap voi btn_bot")
-	var wall := lvl.get_node("Mechanisms/MiddleWall") as MechanizedPlatform
+	var wall := lvl.get_node("Mechanisms/MiddleWall") as EnergyGate
 	assert_true(wall.require_all, "MiddleWall yeu cau ca hai nut duoc kich hoat")
 	var dash_p := lvl.get_node("Portals/P2DashPortal") as FormPortal
 	assert_eq(dash_p.target_form, "DASH", "P2 duoc bien thanh DASH")
@@ -656,7 +656,7 @@ func test_gate_is_not_walled_off() -> void:
 		var lvl: Node = (load("res://levels/%s.tscn" % n) as PackedScene).instantiate()
 		host_root.add_child(lvl)
 		var layer: TileMapLayer = lvl.get_node("TerrainLayer") as TileMapLayer
-		var wall := lvl.get_node("Mechanisms/MiddleWall") as MechanizedPlatform
+		var wall := lvl.get_node("Mechanisms/MiddleWall") as EnergyGate
 		var cols: Array = [
 			floori((wall.global_position.x - 24.0) / 48.0),
 			floori((wall.global_position.x + 24.0) / 48.0),
@@ -665,10 +665,43 @@ func test_gate_is_not_walled_off() -> void:
 			for y in [2, 3, 4, 6, 7, 8]:
 				assert_true(not _cell_blocks(layer, Vector2i(x, y)),
 					"%s: cot %d hang %d phai trong de cua mo duoc" % [n, x, y])
-		assert_true(wall.global_position.y - 12.0 <= 140.0 and wall.global_position.y + 12.0 >= 96.0,
-			"%s: cua dong phai chan lan tran (player 44px sat tran y=96)" % n)
-		var opened: Vector2 = wall.global_position + wall.move_offset
-		assert_true(opened.y + 12.0 <= 96.0, "%s: cua mo phai rut han vao tran" % n)
+		var gate_top: float = wall.global_position.y - 72.0
+		var gate_bottom: float = wall.global_position.y + 72.0
+		assert_eq(wall.gate_size.y, 3, "%s: cua cao 3 o" % n)
+		assert_true(gate_top <= 97.0 and gate_bottom >= 239.0,
+			"%s: cua phai kin lan tran 96..240 (khong con khe de chui)" % n)
+		host_root.remove_child(lvl)
+		lvl.free()
+
+
+## Cua phai cao >= 3 o (144px > tam nhay 120px) de khong nhay qua duoc, va van
+## phai mo/dong dung theo trigger + checkpoint reset.
+func test_every_gate_is_three_tiles_and_opens() -> void:
+	for n in ["level_02", "level_03", "level_04", "level_05", "level_06"]:
+		var lvl: Node = (load("res://levels/%s.tscn" % n) as PackedScene).instantiate()
+		host_root.add_child(lvl)
+		var gates := 0
+		for child in lvl.get_node("Mechanisms").get_children():
+			if not (child is EnergyGate):
+				continue
+			gates += 1
+			var gate := child as EnergyGate
+			assert_eq(gate.gate_size.y, 3, "%s/%s: cua cao 3 o" % [n, gate.name])
+			assert_true(gate.linked_triggers.size() > 0, "%s/%s: cua co trigger" % [n, gate.name])
+			var top: float = gate.global_position.y - 72.0
+			var bottom: float = gate.global_position.y + 72.0
+			assert_true(bottom >= 431.0 or (top <= 97.0 and bottom >= 239.0),
+				"%s/%s: cua phai kin lan (top=%.0f bottom=%.0f)" % [n, gate.name, top, bottom])
+			for path in gate.linked_triggers:
+				var trigger := gate.get_node_or_null(path)
+				assert_true(trigger != null, "%s/%s: trigger %s ton tai" % [n, gate.name, str(path)])
+				if trigger != null:
+					trigger.set("is_on", true)
+			gate.call("_physics_process", 1.0 / 120.0)
+			assert_true(gate.is_open, "%s/%s: cua phai mo khi du trigger" % [n, gate.name])
+			gate.call("reset_to_checkpoint", null)
+			assert_true(not gate.is_open, "%s/%s: checkpoint reset phai dong cua" % [n, gate.name])
+		assert_true(gates >= 1, "%s co it nhat 1 cua nang luong" % n)
 		host_root.remove_child(lvl)
 		lvl.free()
 
@@ -682,7 +715,7 @@ func test_level_05_wall_and_lift_keep_the_pit_crossable() -> void:
 		for y in range(2, 9):
 			assert_true(not _cell_blocks(layer, Vector2i(x, y)),
 				"level_05: cot %d hang %d phai trong (khong con khe 48px)" % [x, y])
-	var gate := lvl.get_node("Mechanisms/MidGate") as MechanizedPlatform
+	var gate := lvl.get_node("Mechanisms/MidGate") as EnergyGate
 	var gate_cell := Vector2i(
 		floori(gate.global_position.x / 48.0),
 		floori((gate.global_position.y - 12.0) / 48.0))
