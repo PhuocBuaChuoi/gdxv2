@@ -163,6 +163,10 @@ func test_custom_levels_hub_meta_import_and_texture_filter() -> void:
 	var legacy_data := {"grid_width": 32, "grid_height": 16, "objects": [], "background": "CYBER"}
 	var legacy_meta: String = str(hub.call("_format_meta", "", legacy_data))
 	assert_true(legacy_meta.contains("32x16"), "_format_meta van fallback grid_width x grid_height (32x16)")
+	var null_meta_data := {"grid_cols": null, "grid_rows": null, "background": null, "ascii_map": ["==========", "=========="]}
+	var null_meta: String = str(hub.call("_format_meta", "", null_meta_data))
+	assert_true(not null_meta.contains("<null>"), "_format_meta khong hien <null> khi field JSON bi null")
+	assert_true(null_meta.contains("10x2"), "_format_meta fallback kich thuoc tu ascii_map khi thieu grid_cols/grid_rows")
 
 	# 2. Import JSON string qua UI khong duoc luu trung lap _2.gdx.json
 	var unique_name := "HubImportNoDup_%d" % Time.get_ticks_msec()
@@ -200,11 +204,38 @@ func test_custom_levels_hub_meta_import_and_texture_filter() -> void:
 	assert_eq(created_files.size(), 1, "Chi co duy nhat 1 file moi duoc tao")
 	if created_files.size() == 1:
 		assert_true(created_files[0].ends_with("/%s.gdx.json" % slug), "Ten file luu dung slug goc, khong bi _2.gdx.json")
+	var levels_list := hub.get_node("SafeMargin/MainVBox/BodyPanel/BodyVBox/ScrollContainer/LevelsList") as VBoxContainer
+	var found_rendered_row := false
+	for row_node in levels_list.get_children():
+		var row_labels: Array[Node] = row_node.find_children("*", "Label", true, false)
+		var has_name := false
+		var has_meta := false
+		for lbl_node in row_labels:
+			var t := (lbl_node as Label).text
+			if t == unique_name:
+				has_name = true
+			if t.contains("%s.gdx.json" % slug) and t.contains("36x12"):
+				has_meta = true
+		if has_name and has_meta:
+			found_rendered_row = true
+			break
+	assert_true(found_rendered_row, "Row render trong LevelsList hien dung ten va metadata 36x12 sau khi import")
 
-	for cf in created_files:
-		CustomLevelStore.delete_file(cf)
+	# Duplicate & Delete qua hub methods
+	if created_files.size() == 1:
+		hub.call("_on_duplicate_entry", created_files[0])
+		var after_dup := CustomLevelStore.list_level_files()
+		assert_eq(after_dup.size(), after_files.size() + 1, "Duplicate qua hub tao them dung 1 ban sao")
+		for f in after_dup:
+			if not before_files.has(f):
+				hub.call("_on_delete_entry", f)
+		var after_del := CustomLevelStore.list_level_files()
+		assert_eq(after_del.size(), before_files.size(), "Delete qua hub xoa sach file vua tao")
+	else:
+		for cf in created_files:
+			CustomLevelStore.delete_file(cf)
 
-	# 3. Import tu file path (.gdx.json) -> cung chi luu dung 1 file moi
+	# 3. Import tu file path (.gdx.json) voi single quotes -> cung chi luu dung 1 file moi
 	var tmp_src := OS.get_temp_dir().path_join("%s_src.gdx.json" % slug)
 	var f_src := FileAccess.open(tmp_src, FileAccess.WRITE)
 	assert_true(f_src != null, "Tao file nguon tam thanh cong")
@@ -213,7 +244,7 @@ func test_custom_levels_hub_meta_import_and_texture_filter() -> void:
 		f_src.close()
 	var before_file_imp := CustomLevelStore.list_level_files()
 	hub.call("_open_import_dialog")
-	import_input.text = "\"" + tmp_src + "\""
+	import_input.text = "'" + tmp_src + "'"
 	hub.call("_on_confirm_import_pressed")
 	var after_file_imp := CustomLevelStore.list_level_files()
 	assert_eq(after_file_imp.size(), before_file_imp.size() + 1, "Import tu file path chi luu dung 1 file moi")

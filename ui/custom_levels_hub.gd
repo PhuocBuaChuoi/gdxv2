@@ -158,8 +158,8 @@ func _normalize_entry(raw_item: Variant) -> Dictionary:
 
 	if raw_item is Dictionary:
 		var item_dict: Dictionary = raw_item
-		path = str(item_dict.get("path", item_dict.get("file_path", "")))
-		display_name = str(item_dict.get("name", item_dict.get("title", "")))
+		path = _safe_str(item_dict.get("path", item_dict.get("file_path", "")))
+		display_name = _safe_str(item_dict.get("name", item_dict.get("title", "")))
 		if item_dict.get("data") is Dictionary:
 			data = (item_dict["data"] as Dictionary).duplicate(true)
 		elif item_dict.get("level_data") is Dictionary:
@@ -179,9 +179,9 @@ func _normalize_entry(raw_item: Variant) -> Dictionary:
 				data = parsed_json
 
 	if display_name == "" and not data.is_empty():
-		display_name = str(data.get("name", data.get("title", data.get("level_name", ""))))
+		display_name = _safe_str(data.get("name", data.get("title", data.get("level_name", ""))))
 		if display_name == "" and data.get("meta") is Dictionary:
-			display_name = str((data["meta"] as Dictionary).get("name", ""))
+			display_name = _safe_str((data["meta"] as Dictionary).get("name", ""))
 	if display_name == "" and path != "":
 		display_name = path.get_file().trim_suffix(".gdx.json")
 	if display_name == "":
@@ -289,18 +289,47 @@ func _make_row_button(label_text: String, tint: Color, min_w: int) -> Button:
 	return btn
 
 
+func _safe_str(val: Variant, fallback: String = "") -> String:
+	if val == null:
+		return fallback
+	return str(val)
+
+
+func _pick_positive_int(data: Dictionary, keys: Array[String]) -> int:
+	for k in keys:
+		if not data.has(k):
+			continue
+		var v: Variant = data[k]
+		if v is int or v is float:
+			var iv: int = int(v)
+			if iv > 0:
+				return iv
+		elif v is String and (v as String).is_valid_int():
+			var iv: int = int(v)
+			if iv > 0:
+				return iv
+	return 0
+
+
 func _format_meta(path: String, data: Dictionary) -> String:
 	var parts: PackedStringArray = []
 	if path != "":
 		parts.append(path.get_file())
-	var w: int = int(data.get("grid_cols", data.get("grid_width", data.get("width", 0))))
-	var h: int = int(data.get("grid_rows", data.get("grid_height", data.get("height", 0))))
+	var w: int = _pick_positive_int(data, ["grid_cols", "grid_width", "width"])
+	var h: int = _pick_positive_int(data, ["grid_rows", "grid_height", "height"])
+	if w <= 0 or h <= 0:
+		var amap: Variant = data.get("ascii_map", null)
+		if amap is Array and not (amap as Array).is_empty():
+			if h <= 0:
+				h = (amap as Array).size()
+			if w <= 0:
+				w = str((amap as Array)[0]).length()
 	if w > 0 and h > 0:
 		parts.append("%dx%d" % [w, h])
 	var objs: Variant = data.get("objects", null)
 	if objs is Array:
 		parts.append("%d obj" % (objs as Array).size())
-	var bg: String = str(data.get("background", ""))
+	var bg: String = _safe_str(data.get("background", ""))
 	if bg != "":
 		parts.append(bg)
 	return "  ·  ".join(parts)
@@ -408,7 +437,7 @@ func _on_confirm_import_pressed() -> void:
 	if imported.get("data") is Dictionary and not imported.has("objects") and not imported.has("ascii_map") and not imported.has("tiles"):
 		level_data = imported["data"]
 
-	var already_saved_path: String = str(imported.get("path", ""))
+	var already_saved_path: String = _safe_str(imported.get("path", ""))
 	var already_saved: bool = (imported.has("ok") and bool(imported["ok"])) or not already_saved_path.is_empty()
 	if not already_saved:
 		if not _save_imported_level(level_data):
