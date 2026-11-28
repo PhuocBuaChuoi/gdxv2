@@ -1,0 +1,34 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://components/jump_orb.gd" id="1_orb"]
+[ext_resource type="Texture2D" path="res://assets/sprites/jump_orb_yellow.png" id="2_orb_tex"]
+
+[sub_resource type="CircleShape2D" id="Circle_jump_orb"]
+radius = 18.0
+
+[node name="JumpOrb" type="Area2D"]
+collision_layer = 64
+collision_mask = 6
+script = ExtResource("1_orb")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Circle_jump_orb")
+
+[node name="Orb" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, -22, 17, 0, 0, 22, -17, 0)
+color = Color(1, 0.85, 0, 0.05)
+
+[node name="Glow" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, -30, 23, 0, 0, 30, -23, 0)
+color = Color(1, 0.85, 0, 0.18)
+z_index = -1
+
+[node name="Ring" type="Line2D" parent="."]
+points = PackedVector2Array(19, -11, 27, 0, 19, 11, -19, 11, -27, 0, -19, -11, 19, -11)
+width = 2.0
+default_color = Color(1, 1, 1, 0.3)
+
+[node name="Sprite" type="Sprite2D" parent="."]
+texture_filter = 1
+scale = Vector2(0.48, 0.48)
+texture = ExtResource("2_orb_tex")

@@ -1,0 +1,108 @@
+[gd_scene load_steps=11 format=3]
+
+[ext_resource type="Script" path="res://characters/player.gd" id="1_player"]
+[ext_resource type="Script" path="res://vfx/ground_sparks.gd" id="2_sparks"]
+[ext_resource type="Script" path="res://vfx/motion_trail.gd" id="3_trail"]
+[ext_resource type="Script" path="res://components/carrier_platform.gd" id="4_carrier"]
+[ext_resource type="Script" path="res://scripts/visual_root.gd" id="5_controller"]
+
+[sub_resource type="RectangleShape2D" id="Rectangle_player"]
+size = Vector2(44, 44)
+
+[sub_resource type="RectangleShape2D" id="Rectangle_detector"]
+size = Vector2(48, 48)
+
+[sub_resource type="RectangleShape2D" id="Rectangle_head"]
+size = Vector2(40, 8)
+
+[sub_resource type="Gradient" id="Gradient_fade"]
+offsets = PackedFloat32Array(0, 1)
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_fade"]
+gradient = SubResource("Gradient_fade")
+
+[sub_resource type="ParticleProcessMaterial" id="PPM_sparks"]
+direction = Vector3(0, -1, 0)
+spread = 50.0
+gravity = Vector3(0, 400, 0)
+initial_velocity_min = 80.0
+initial_velocity_max = 160.0
+color_ramp = SubResource("GradientTexture1D_fade")
+
+[node name="Player" type="CharacterBody2D"]
+script = ExtResource("1_player")
+
+[node name="BodyCollision" type="CollisionShape2D" parent="."]
+shape = SubResource("Rectangle_player")
+
+[node name="HazardDetector" type="Area2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HazardDetector"]
+shape = SubResource("Rectangle_detector")
+
+[node name="HeadPlatform" type="AnimatableBody2D" parent="."]
+position = Vector2(0, -25)
+collision_layer = 0
+collision_mask = 6
+sync_to_physics = false
+script = ExtResource("4_carrier")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HeadPlatform"]
+shape = SubResource("Rectangle_head")
+one_way_collision = true
+
+[node name="RiderDetector" type="Area2D" parent="HeadPlatform"]
+collision_layer = 0
+collision_mask = 6
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HeadPlatform/RiderDetector"]
+position = Vector2(0, -5)
+shape = SubResource("Rectangle_head")
+
+[node name="StateMachine" type="Node" parent="."]
+
+[node name="VisualController" type="Node2D" parent="."]
+script = ExtResource("5_controller")
+
+[node name="VisualRoot" type="Node2D" parent="."]
+script = ExtResource("5_controller")
+
+[node name="FormVisuals" type="Node2D" parent="VisualRoot"]
+
+[node name="CubeVisual" type="Node2D" parent="VisualRoot/FormVisuals"]
+
+[node name="ShipVisual" type="Node2D" parent="VisualRoot/FormVisuals"]
+visible = false
+
+[node name="UfoVisual" type="Node2D" parent="VisualRoot/FormVisuals"]
+visible = false
+
+[node name="DashVisual" type="Node2D" parent="VisualRoot/FormVisuals"]
+visible = false
+
+[node name="DashIndicator" type="Polygon2D" parent="VisualRoot"]
+polygon = PackedVector2Array(-4, -4, 4, -4, 4, 4, -4, 4)
+color = Color(1, 1, 1, 1)
+
+[node name="FillPolygon" type="Polygon2D" parent="VisualRoot"]
+polygon = PackedVector2Array(-14, -24, 14, -24, 24, -14, 24, 14, 14, 24, -14, 24, -24, 14, -24, -14)
+color = Color(0, 0.9, 1, 0.7)
+
+[node name="OutlineLine" type="Line2D" parent="VisualRoot"]
+points = PackedVector2Array(-14, -24, 14, -24, 24, -14, 24, 14, 14, 24, -14, 24, -24, 14, -24, -14, -14, -24)
+width = 3.0
+default_color = Color(0, 0.9, 1, 1)
+closed = true
+
+[node name="MotionTrail" type="Line2D" parent="."]
+width = 4.0
+script = ExtResource("3_trail")
+
+[node name="GroundSparks" type="GPUParticles2D" parent="."]
+emitting = false
+amount = 16
+lifetime = 0.35
+local_coords = false
+process_material = SubResource("PPM_sparks")
+script = ExtResource("2_sparks")

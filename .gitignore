@@ -1,7 +1,11 @@
-﻿# Godot 4 - Generated files
+# Godot 4 - Generated files
 .godot/
 *.translation
 *.import
+*.uid
+*.crdownload
+*_tmp.*
+.freebuff/
 
 # Exported projects (ignore platform binaries)
 android/
@@ -44,5 +48,15 @@ desktop.ini
 # Godot downloaded ZIP (not part of repo)
 godot_*.zip
 
+# Python caches
+__pycache__/
+*.pyc
+
 # Godot Engine binary folder (local only, not committed)
 godot_engine/
+artifacts/
+.godot-mcp/runtime/
+.godot-mcp/sessions/
+.godot-mcp/generated/
+.godot-mcp/config.json
+.godot-mcp/addon-backups/

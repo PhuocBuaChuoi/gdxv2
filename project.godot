@@ -1,4 +1,4 @@
-﻿; Engine configuration file.
+; Engine configuration file.
 ; It's best edited using the editor UI and not directly,
 ; since the parameters that go here are not all obvious.
 ;
@@ -17,6 +17,13 @@ run/main_scene="res://scenes/main/Main.tscn"
 config/features=PackedStringArray("4.7", "GL Compatibility")
 config/icon="res://assets/sprites/icon.svg"
 
+[autoload]
+
+Events="*res://autoloads/events.gd"
+LevelManager="*res://autoloads/level_manager.gd"
+AudioManager="*res://autoloads/audio_manager.gd"
+GodotMcpRuntime="*res://addons/godot_mcp/runtime/runtime_agent.gd"
+
 [display]
 
 window/size/viewport_width=1920
@@ -24,29 +31,9 @@ window/size/viewport_height=1080
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
-[physics]
+[editor_plugins]
 
-common/physics_ticks_per_second=120
-
-[rendering]
-
-renderer/rendering_method="gl_compatibility"
-renderer/rendering_method.mobile="gl_compatibility"
-
-[layer_names]
-
-2d_physics/layer_1="World_Terrain"
-2d_physics/layer_2="Player_1"
-2d_physics/layer_3="Player_2"
-2d_physics/layer_4="Hazard_Neutral"
-2d_physics/layer_5="Hazard_P1_Safe"
-2d_physics/layer_6="Hazard_P2_Safe"
-2d_physics/layer_7="Interactables"
-2d_physics/layer_8="Pushable_Blocks"
-
-[autoload]
-
-Events="*res://autoloads/events.gd"
+enabled=PackedStringArray("res://addons/godot_mcp/plugin.cfg")
 
 [input]
 
@@ -101,3 +88,25 @@ game_pause={
 "events": [Object(InputEventKey,"resource_local_to_scene":false,"resource_name":"","device":-1,"window_id":0,"alt_pressed":false,"shift_pressed":false,"ctrl_pressed":false,"meta_pressed":false,"pressed":false,"keycode":0,"physical_keycode":4194305,"key_label":0,"unicode":0,"location":0,"echo":false,"script":null)
 ]
 }
+
+[layer_names]
+
+2d_physics/layer_1="World_Terrain"
+2d_physics/layer_2="Player_1"
+2d_physics/layer_3="Player_2"
+2d_physics/layer_4="Hazard_Neutral"
+2d_physics/layer_5="Hazard_P1_Safe"
+2d_physics/layer_6="Hazard_P2_Safe"
+2d_physics/layer_7="Interactables"
+2d_physics/layer_8="Pushable_Blocks"
+2d_physics/layer_9="HeadPlatforms"
+
+[physics]
+
+common/physics_ticks_per_second=120
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+environment/defaults/default_clear_color=Color(0.05, 0.06, 0.1, 1)

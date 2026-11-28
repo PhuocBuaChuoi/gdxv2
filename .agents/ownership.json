@@ -27,13 +27,13 @@
                        "paths":  [
                                      "tests/gdx_test.gd",
                                      "tests/test_runner.gd",
-                                     "tools/",
+                                     "tools/claim.ps1",
                                      "README.md",
                                      ".agents/ownership.json",
                                      ".agents/COLLAB.md"
                                  ],
-                       "status":  "active",
-                       "updated":  "2026-10-15"
+                       "status":  "done",
+                       "updated":  "2026-10-23"
                    },
                    {
                        "id":  "phase2-vfx",
@@ -44,8 +44,8 @@
                                      "scripts/procedural_shapes.gd",
                                      "levels/default_world_environment.tscn"
                                  ],
-                       "status":  "active",
-                       "updated":  "2026-10-15"
+                       "status":  "done",
+                       "updated":  "2026-10-23"
                    },
                    {
                        "id":  "harden-tests",
@@ -56,8 +56,126 @@
                                      "tests/test_phase2_vfx.gd",
                                      "tests/test_collab_registry.gd"
                                  ],
+                       "status":  "done",
+                       "updated":  "2026-10-23"
+                   },
+                   {
+                       "id":  "support-t3",
+                       "owner":  "opencode",
+                       "branch":  "feature/support-t3",
+                       "paths":  [
+                                     "tests/test_phase3_player.gd"
+                                 ],
+                       "status":  "done",
+                       "updated":  "2026-10-23"
+                   },
+                   {
+                       "id":  "phase4-state-machine",
+                       "owner":  "opencode",
+                       "branch":  "feature/phase4-state-machine",
+                       "paths":  [
+                                     "scripts/player_form_state.gd",
+                                     "scripts/cube_state.gd",
+                                     "scripts/ship_state.gd",
+                                     "scripts/ufo_state.gd",
+                                     "scripts/dash_state.gd",
+                                     "scripts/state_machine.gd",
+                                     "scripts/visual_root.gd",
+                                     "characters/player.gd",
+                                     "characters/player.tscn",
+                                     "tests/test_phase4_state_machine.gd"
+                                 ],
+                       "status":  "done",
+                       "updated":  "2026-10-16"
+                   },
+                   {
+                       "id":  "phase7-levels",
+                       "owner":  "opencode",
+                       "branch":  "feature/phase7-levels",
+                       "paths":  [
+                                     "levels/level_controller.gd",
+                                     "levels/level_01.tscn",
+                                     "levels/AUTHORING.md",
+                                     "autoloads/level_manager.gd",
+                                     "project.godot",
+                                     "resources/gd_neon_tileset.tres",
+                                     "resources/neon_tiles_atlas.png",
+                                     "tools/gen_neon_tileset.gd",
+                                     "tools/build_tileset.ps1",
+                                     "tools/run_tests.ps1",
+                                     "tests/test_phase7_levels.gd",
+                                     "ui/main_menu.tscn",
+                                     "ui/main_menu.gd",
+                                     "ui/level_select.tscn",
+                                     "ui/level_select.gd",
+                                     "ui/level_hud.tscn",
+                                     "ui/level_hud.gd",
+                                     "ui/pause_menu.tscn",
+                                     "ui/pause_menu.gd",
+                                     "ui/level_complete_popup.tscn",
+                                     "ui/level_complete_popup.gd",
+                                     "autoloads/audio_manager.gd",
+                                     "tests/test_phase8_ui.gd",
+                                     "components/dual_exit_gate.gd",
+                                     "components/dual_exit_gate.tscn",
+                                     "components/gravity_portal.gd",
+                                     "components/dash_orb.gd",
+                                     "tests/test_join_level_components.gd",
+                                     "autoloads/events.gd",
+                                     "components/form_portal.gd",
+                                     "components/form_portal.tscn",
+                                     "components/jump_pad.gd",
+                                     "components/jump_pad.tscn",
+                                     "components/jump_orb.gd",
+                                     "components/jump_orb.tscn",
+                                     "components/pressure_button.gd",
+                                     "components/pressure_button.tscn",
+                                     "components/mechanized_platform.gd",
+                                     "components/mechanized_platform.tscn",
+                                     "components/breakable_dash_block.gd",
+                                     "components/breakable_dash_block.tscn",
+                                     "tests/test_phase6_tools.gd",
+                                     "characters/player.gd",
+                                     "components/spike_hazard.gd",
+                                     "components/spike_hazard.tscn",
+                                     "components/laser_hazard.gd",
+                                     "components/laser_hazard.tscn",
+                                     "components/respawn_coordinator.gd",
+                                     "components/restore_point.gd",
+                                     "components/coop_box.tscn",
+                                     "levels/e2e_gallery.tscn",
+                                     "levels/e2e_runner.tscn",
+                                     "levels/e2e_driver.gd",
+                                     "scripts/ufo_state.gd",
+                                     "components/dash_orb.tscn",
+                                     "components/gravity_portal.tscn",
+                                     "characters/player.tscn",
+                                     "components/carrier_platform.gd",
+                                     "scripts/cube_state.gd",
+                                     "scripts/ship_state.gd",
+                                     "scripts/visual_root.gd",
+                                     "levels/level_02.tscn",
+                                     "tests/test_phase4_state_machine.gd"
+                                 ],
                        "status":  "active",
-                       "updated":  "2026-10-15"
+                       "updated":  "2026-10-22"
+                   },
+                   {
+                       "id":  "assets-integration",
+                       "owner":  "opencode",
+                       "branch":  "feature/phase7-levels",
+                       "paths":  [
+                                     "resources/asset_frames.gd",
+                                     "resources/ASSET_PROVENANCE.md",
+                                     "resources/SPRITE_CASTING.md",
+                                     "resources/character_skins.gd",
+                                     "levels/stage_background.tscn",
+                                     "levels/stage_background.gd",
+                                     "levels/base_level.tscn",
+                                     "tests/test_bonus_assets.gd"
+                                 ],
+                       "status":  "active",
+                       "updated":  "2026-10-16"
                    }
                ]
 }

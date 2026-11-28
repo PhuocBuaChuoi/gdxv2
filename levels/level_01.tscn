@@ -1,0 +1,236 @@
+[gd_scene load_steps=22 format=3]
+
+[ext_resource type="Script" path="res://levels/level_controller.gd" id="1"]
+[ext_resource type="PackedScene" path="res://levels/default_world_environment.tscn" id="2"]
+[ext_resource type="TileSet" path="res://resources/gd_neon_tileset.tres" id="3"]
+[ext_resource type="PackedScene" path="res://characters/player.tscn" id="4_player"]
+[ext_resource type="Script" path="res://components/respawn_coordinator.gd" id="5_respawn"]
+[ext_resource type="PackedScene" path="res://components/coop_camera.tscn" id="6_camera"]
+[ext_resource type="PackedScene" path="res://levels/stage_background.tscn" id="7_bg"]
+[ext_resource type="PackedScene" path="res://components/restore_point.tscn" id="8_checkpoint"]
+[ext_resource type="PackedScene" path="res://ui/level_hud.tscn" id="9_hud"]
+[ext_resource type="PackedScene" path="res://ui/pause_menu.tscn" id="10_pause"]
+[ext_resource type="PackedScene" path="res://ui/level_complete_popup.tscn" id="11_popup"]
+[ext_resource type="PackedScene" path="res://components/gravity_portal.tscn" id="12_portal"]
+[ext_resource type="PackedScene" path="res://components/jump_pad.tscn" id="13_pad"]
+[ext_resource type="PackedScene" path="res://components/jump_orb.tscn" id="14_orb"]
+[ext_resource type="PackedScene" path="res://components/spike_hazard.tscn" id="15_spike"]
+[ext_resource type="PackedScene" path="res://components/pressure_button.tscn" id="16_button"]
+[ext_resource type="PackedScene" path="res://components/mechanized_platform.tscn" id="17_platform"]
+[ext_resource type="PackedScene" path="res://components/dual_exit_gate.tscn" id="18_gate"]
+[ext_resource type="PackedScene" path="res://components/dash_orb.tscn" id="19_dashorb"]
+[ext_resource type="PackedScene" path="res://components/coop_box.tscn" id="20_box"]
+[ext_resource type="PackedScene" path="res://components/balanced_float_pair.tscn" id="21_pair"]
+
+[node name="LevelRoot" type="Node2D"]
+script = ExtResource("1")
+level_index = 0
+background = "FOREST"
+ascii_map = PackedStringArray("#############                                   ", "#############       .      .        .       .   ", "                                                ", "  .           .       .           .             ", "                                                ", "                                                ", "                                    --  ########", "                                        ########", "                                        ########", "=========       =======       ========  ========", "################################################", "################################################")
+
+[node name="ControlSign" type="Label" parent="."]
+offset_left = 120.0
+offset_top = 236.0
+offset_right = 620.0
+offset_bottom = 300.0
+mouse_filter = 2
+z_index = 1
+theme_override_colors/font_color = Color(0.35, 0.93, 1, 0.78)
+theme_override_font_sizes/font_size = 15
+text = "P1: A/D + W   |   P2: LEFT/RIGHT + UP\nCUOI LEN DAU DONG DOI DE LEO CAO"
+
+[node name="DefaultWorldEnvironment" parent="." instance=ExtResource("2")]
+
+[node name="StageBackground" parent="." instance=ExtResource("7_bg")]
+dim = 0.6
+
+[node name="BackgroundGrid" type="ParallaxBackground" parent="."]
+
+[node name="GridLayer" type="ParallaxLayer" parent="BackgroundGrid"]
+motion_scale = Vector2(0.3, 0.3)
+
+[node name="TerrainLayer" type="TileMapLayer" parent="."]
+tile_set = ExtResource("3")
+
+[node name="Hazards" type="Node2D" parent="."]
+
+[node name="SpikeCyan1" parent="Hazards" instance=ExtResource("15_spike")]
+position = Vector2(480, 468)
+hazard_type = 1
+tile_count = 2
+
+[node name="SpikeCyan2" parent="Hazards" instance=ExtResource("15_spike")]
+position = Vector2(576, 468)
+hazard_type = 1
+tile_count = 2
+
+[node name="SpikeCyan3" parent="Hazards" instance=ExtResource("15_spike")]
+position = Vector2(672, 468)
+hazard_type = 1
+tile_count = 2
+
+[node name="SpikeCyan4" parent="Hazards" instance=ExtResource("15_spike")]
+position = Vector2(744, 468)
+hazard_type = 1
+tile_count = 1
+
+[node name="SpikeOrange1" parent="Hazards" instance=ExtResource("15_spike")]
+position = Vector2(1152, 468)
+hazard_type = 2
+tile_count = 2
+
+[node name="SpikeOrange2" parent="Hazards" instance=ExtResource("15_spike")]
+position = Vector2(1248, 468)
+hazard_type = 2
+tile_count = 2
+
+[node name="SpikeOrange3" parent="Hazards" instance=ExtResource("15_spike")]
+position = Vector2(1344, 468)
+hazard_type = 2
+tile_count = 2
+
+[node name="SpikeOrange4" parent="Hazards" instance=ExtResource("15_spike")]
+position = Vector2(1416, 468)
+hazard_type = 2
+tile_count = 1
+
+[node name="Portals" type="Node2D" parent="."]
+
+[node name="GravityPortal" parent="Portals" instance=ExtResource("12_portal")]
+position = Vector2(-1000, -1000)
+
+[node name="Mechanisms" type="Node2D" parent="."]
+
+[node name="JumpPadStart" parent="Mechanisms" instance=ExtResource("13_pad")]
+position = Vector2(72, 416)
+pad_type = 0
+
+[node name="GravityJumpOrb" parent="Mechanisms" instance=ExtResource("14_orb")]
+position = Vector2(72, 170)
+orb_type = 1
+
+[node name="DashOrb" parent="Mechanisms" instance=ExtResource("19_dashorb")]
+position = Vector2(-1000, -1000)
+
+[node name="CoopBox" parent="Mechanisms" instance=ExtResource("20_box")]
+position = Vector2(-1000, -1000)
+
+[node name="FloatPair" parent="Mechanisms" instance=ExtResource("21_pair")]
+position = Vector2(-1000, -1000)
+
+[node name="ButtonA" parent="Mechanisms" instance=ExtResource("16_button")]
+position = Vector2(1008, 420)
+mode = 1
+activator = 1
+
+[node name="ButtonB" parent="Mechanisms" instance=ExtResource("16_button")]
+position = Vector2(1584, 420)
+mode = 1
+activator = 2
+
+[node name="ButtonC" parent="Mechanisms" instance=ExtResource("16_button")]
+position = Vector2(2016, 276)
+
+[node name="WalkwayCyan1" parent="Mechanisms" instance=ExtResource("17_platform")]
+position = Vector2(432, 240)
+linked_triggers = [NodePath("../ButtonA")]
+move_offset = Vector2(0, 120)
+
+[node name="WalkwayCyan2" parent="Mechanisms" instance=ExtResource("17_platform")]
+position = Vector2(528, 240)
+linked_triggers = [NodePath("../ButtonA")]
+move_offset = Vector2(0, 120)
+
+[node name="WalkwayCyan3" parent="Mechanisms" instance=ExtResource("17_platform")]
+position = Vector2(624, 240)
+linked_triggers = [NodePath("../ButtonA")]
+move_offset = Vector2(0, 120)
+
+[node name="WalkwayCyan4" parent="Mechanisms" instance=ExtResource("17_platform")]
+position = Vector2(720, 240)
+linked_triggers = [NodePath("../ButtonA")]
+move_offset = Vector2(0, 120)
+
+[node name="WalkwayCyan5" parent="Mechanisms" instance=ExtResource("17_platform")]
+position = Vector2(816, 240)
+linked_triggers = [NodePath("../ButtonA")]
+move_offset = Vector2(0, 120)
+
+[node name="WalkwayOrange1" parent="Mechanisms" instance=ExtResource("17_platform")]
+position = Vector2(1104, 240)
+linked_triggers = [NodePath("../ButtonB")]
+move_offset = Vector2(0, 120)
+
+[node name="WalkwayOrange2" parent="Mechanisms" instance=ExtResource("17_platform")]
+position = Vector2(1200, 240)
+linked_triggers = [NodePath("../ButtonB")]
+move_offset = Vector2(0, 120)
+
+[node name="WalkwayOrange3" parent="Mechanisms" instance=ExtResource("17_platform")]
+position = Vector2(1296, 240)
+linked_triggers = [NodePath("../ButtonB")]
+move_offset = Vector2(0, 120)
+
+[node name="WalkwayOrange4" parent="Mechanisms" instance=ExtResource("17_platform")]
+position = Vector2(1392, 240)
+linked_triggers = [NodePath("../ButtonB")]
+move_offset = Vector2(0, 120)
+
+[node name="WalkwayOrange5" parent="Mechanisms" instance=ExtResource("17_platform")]
+position = Vector2(1488, 240)
+linked_triggers = [NodePath("../ButtonB")]
+move_offset = Vector2(0, 120)
+
+[node name="Lift" parent="Mechanisms" instance=ExtResource("17_platform")]
+position = Vector2(1872, 444)
+linked_triggers = [NodePath("../ButtonC")]
+move_offset = Vector2(0, -144)
+
+[node name="DualExitGate" parent="Mechanisms" instance=ExtResource("18_gate")]
+position = Vector2(2220, 232)
+
+[node name="Checkpoints" type="Node2D" parent="."]
+
+[node name="Checkpoint1" parent="Checkpoints" instance=ExtResource("8_checkpoint")]
+position = Vector2(888, 380)
+checkpoint_order = 1
+
+[node name="Checkpoint2" parent="Checkpoints" instance=ExtResource("8_checkpoint")]
+position = Vector2(1704, 380)
+checkpoint_order = 2
+
+[node name="SpawnP1" type="Marker2D" parent="."]
+position = Vector2(168, 336)
+
+[node name="SpawnP2" type="Marker2D" parent="."]
+position = Vector2(216, 336)
+
+[node name="Players" type="Node2D" parent="."]
+
+[node name="PlayerP1" parent="Players" instance=ExtResource("4_player")]
+player_id = 1
+skin = "BIRD"
+
+[node name="PlayerP2" parent="Players" instance=ExtResource("4_player")]
+player_id = 2
+skin = "FROG"
+
+[node name="RespawnCoordinator" type="Node" parent="."]
+script = ExtResource("5_respawn")
+
+[node name="CoopCamera" parent="." instance=ExtResource("6_camera")]
+position_smoothing_enabled = true
+
+[node name="LevelHUD" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="AttemptLabel" type="Label" parent="LevelHUD"]
+text = "Attempt #1"
+position = Vector2(120, 40)
+visible = false
+
+[node name="HUD" parent="LevelHUD" instance=ExtResource("9_hud")]
+
+[node name="PauseMenu" parent="LevelHUD" instance=ExtResource("10_pause")]
+
+[node name="CompletePopup" parent="LevelHUD" instance=ExtResource("11_popup")]

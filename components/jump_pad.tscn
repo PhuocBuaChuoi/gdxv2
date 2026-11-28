@@ -1,0 +1,39 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://components/jump_pad.gd" id="1_pad"]
+[ext_resource type="Texture2D" path="res://assets/sprites/jump_pad_yellow.png" id="2_pad_tex"]
+
+[sub_resource type="RectangleShape2D" id="Rectangle_jump_pad"]
+size = Vector2(64, 24)
+
+[node name="JumpPad" type="Area2D"]
+collision_layer = 64
+collision_mask = 6
+script = ExtResource("1_pad")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Rectangle_jump_pad")
+
+[node name="Pad" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-32, 12, 32, 12, 24, -12, -24, -12)
+color = Color(1, 0.85, 0, 0.1)
+
+[node name="Glow" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-38, 17, 38, 17, 29, -17, -29, -17)
+color = Color(1, 0.85, 0, 0.28)
+z_index = -1
+
+[node name="NeonEdge" type="Line2D" parent="."]
+points = PackedVector2Array(-32, 12, 32, 12, 24, -12, -24, -12, -32, 12)
+width = 1.5
+default_color = Color(1, 1, 1, 0.4)
+
+[node name="Base" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-34, 12, 34, 12, 34, 18, -34, 18)
+color = Color(0.35, 0.38, 0.45, 0.25)
+
+[node name="Sprite" type="Sprite2D" parent="."]
+texture_filter = 1
+position = Vector2(0, -6)
+scale = Vector2(0.55, 0.55)
+texture = ExtResource("2_pad_tex")

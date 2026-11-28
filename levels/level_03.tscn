@@ -1,0 +1,161 @@
+[gd_scene load_steps=20 format=3]
+
+[ext_resource type="Script" path="res://levels/level_controller.gd" id="1"]
+[ext_resource type="PackedScene" path="res://levels/default_world_environment.tscn" id="2"]
+[ext_resource type="TileSet" path="res://resources/gd_neon_tileset.tres" id="3"]
+[ext_resource type="PackedScene" path="res://characters/player.tscn" id="4_player"]
+[ext_resource type="Script" path="res://components/respawn_coordinator.gd" id="5_respawn"]
+[ext_resource type="PackedScene" path="res://components/coop_camera.tscn" id="6_camera"]
+[ext_resource type="PackedScene" path="res://levels/stage_background.tscn" id="7_bg"]
+[ext_resource type="PackedScene" path="res://components/restore_point.tscn" id="8_checkpoint"]
+[ext_resource type="PackedScene" path="res://ui/level_hud.tscn" id="9_hud"]
+[ext_resource type="PackedScene" path="res://ui/pause_menu.tscn" id="10_pause"]
+[ext_resource type="PackedScene" path="res://ui/level_complete_popup.tscn" id="11_popup"]
+[ext_resource type="PackedScene" path="res://components/form_portal.tscn" id="12_portal"]
+[ext_resource type="PackedScene" path="res://components/gravity_portal.tscn" id="13_gravity"]
+[ext_resource type="PackedScene" path="res://components/dual_exit_gate.tscn" id="14_gate"]
+[ext_resource type="PackedScene" path="res://components/spike_hazard.tscn" id="15_spike"]
+[ext_resource type="PackedScene" path="res://components/pressure_button.tscn" id="16_button"]
+[ext_resource type="PackedScene" path="res://components/mechanized_platform.tscn" id="17_platform"]
+[ext_resource type="PackedScene" path="res://components/jump_pad.tscn" id="18_pad"]
+[ext_resource type="PackedScene" path="res://components/jump_orb.tscn" id="19_orb"]
+
+[node name="LevelRoot" type="Node2D"]
+script = ExtResource("1")
+level_index = 2
+background = "FOREST"
+ascii_map = PackedStringArray("================================================", "================================================", "                                                ", "    .       .       .       .       .       .   ", "                                                ", "=======-======================             =====", "                                                ", "                                                ", "                                                ", "================================================", "################################################", "################################################")
+
+[node name="ControlSign" type="Label" parent="."]
+offset_left = 120.0
+offset_top = 260.0
+offset_right = 780.0
+offset_bottom = 330.0
+mouse_filter = 2
+z_index = 1
+theme_override_colors/font_color = Color(0.35, 0.93, 1, 0.78)
+theme_override_font_sizes/font_size = 15
+text = "P1: TRONG LUC NGUOC (DI TRAN) + UFO (NHAP NHA W DE NAY)\nP1 & P2: DONG THOI GIAM NUT TREN & DUOI DE MO VACH NGAN!"
+
+[node name="DefaultWorldEnvironment" parent="." instance=ExtResource("2")]
+
+[node name="StageBackground" parent="." instance=ExtResource("7_bg")]
+background = "FOREST"
+dim = 0.5
+
+[node name="BackgroundGrid" type="ParallaxBackground" parent="."]
+
+[node name="GridLayer" type="ParallaxLayer" parent="BackgroundGrid"]
+motion_scale = Vector2(0.3, 0.3)
+
+[node name="TerrainLayer" type="TileMapLayer" parent="."]
+tile_set = ExtResource("3")
+
+[node name="Hazards" type="Node2D" parent="."]
+
+[node name="SpikeTop" parent="Hazards" instance=ExtResource("15_spike")]
+position = Vector2(680, 110)
+rotation = 3.14159
+hazard_type = 0
+
+[node name="SpikeBottom" parent="Hazards" instance=ExtResource("15_spike")]
+position = Vector2(680, 420)
+hazard_type = 0
+
+[node name="SpikeCyan" parent="Hazards" instance=ExtResource("15_spike")]
+position = Vector2(860, 110)
+rotation = 3.14159
+hazard_type = 1
+
+[node name="SpikeOrange" parent="Hazards" instance=ExtResource("15_spike")]
+position = Vector2(860, 420)
+hazard_type = 2
+
+[node name="Portals" type="Node2D" parent="."]
+
+[node name="P1GravityPortal" parent="Portals" instance=ExtResource("13_gravity")]
+position = Vector2(280, 370)
+target_direction = -1
+allowed_player = "P1_ONLY"
+
+[node name="UfoPortal" parent="Portals" instance=ExtResource("12_portal")]
+position = Vector2(440, 150)
+target_form = "UFO"
+allowed_player = "P1_ONLY"
+
+[node name="ExitGravityPortal" parent="Portals" instance=ExtResource("13_gravity")]
+position = Vector2(1680, 150)
+target_direction = 1
+
+[node name="Mechanisms" type="Node2D" parent="."]
+
+[node name="ButtonTop" parent="Mechanisms" instance=ExtResource("16_button")]
+position = Vector2(1040, 110)
+mode = 2
+activator = 1
+paired_button = NodePath("../ButtonBottom")
+
+[node name="ButtonBottom" parent="Mechanisms" instance=ExtResource("16_button")]
+position = Vector2(1040, 420)
+mode = 2
+activator = 2
+paired_button = NodePath("../ButtonTop")
+
+[node name="MiddleWall" parent="Mechanisms" instance=ExtResource("17_platform")]
+position = Vector2(1300, 264)
+linked_triggers = [NodePath("../ButtonTop"), NodePath("../ButtonBottom")]
+move_offset = Vector2(0, -144)
+require_all = true
+
+[node name="JumpPad" parent="Mechanisms" instance=ExtResource("18_pad")]
+position = Vector2(1440, 416)
+pad_type = 0
+
+[node name="DualExitGate" parent="Mechanisms" instance=ExtResource("14_gate")]
+position = Vector2(2180, 377)
+
+[node name="Checkpoints" type="Node2D" parent="."]
+
+[node name="Checkpoint1" parent="Checkpoints" instance=ExtResource("8_checkpoint")]
+position = Vector2(520, 420)
+checkpoint_order = 1
+
+[node name="Checkpoint2" parent="Checkpoints" instance=ExtResource("8_checkpoint")]
+position = Vector2(1540, 420)
+checkpoint_order = 2
+
+[node name="SpawnP1" type="Marker2D" parent="."]
+position = Vector2(120, 380)
+
+[node name="SpawnP2" type="Marker2D" parent="."]
+position = Vector2(180, 380)
+
+[node name="Players" type="Node2D" parent="."]
+
+[node name="PlayerP1" parent="Players" instance=ExtResource("4_player")]
+player_id = 1
+skin = "BIRD"
+
+[node name="PlayerP2" parent="Players" instance=ExtResource("4_player")]
+player_id = 2
+skin = "FROG"
+
+[node name="RespawnCoordinator" type="Node" parent="."]
+script = ExtResource("5_respawn")
+
+[node name="CoopCamera" parent="." instance=ExtResource("6_camera")]
+position_smoothing_enabled = true
+
+[node name="LevelHUD" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="AttemptLabel" type="Label" parent="LevelHUD"]
+text = "Attempt #1"
+position = Vector2(120, 40)
+visible = false
+
+[node name="HUD" parent="LevelHUD" instance=ExtResource("9_hud")]
+
+[node name="PauseMenu" parent="LevelHUD" instance=ExtResource("10_pause")]
+
+[node name="CompletePopup" parent="LevelHUD" instance=ExtResource("11_popup")]

@@ -1,0 +1,43 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://components/laser_hazard.gd" id="1_laser"]
+[ext_resource type="Texture2D" path="res://assets/sprites/laser_emitter.png" id="2_emitter_tex"]
+
+[sub_resource type="RectangleShape2D" id="Rectangle_laser_beam"]
+size = Vector2(24, 120)
+
+[node name="LaserHazard" type="Area2D"]
+collision_layer = 8
+collision_mask = 0
+script = ExtResource("1_laser")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("Rectangle_laser_beam")
+
+[node name="Beam" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(-12, -60, 12, -60, 12, 60, -12, 60)
+color = Color(1, 0.3, 0.3, 0.95)
+
+[node name="CoreLine" type="Line2D" parent="."]
+points = PackedVector2Array(0, -60, 0, 60)
+width = 4.0
+default_color = Color(1, 1, 1, 0.95)
+
+[node name="PostTop" type="Polygon2D" parent="."]
+position = Vector2(0, -64)
+polygon = PackedVector2Array(-16, -6, 16, -6, 16, 6, -16, 6)
+color = Color(0.35, 0.38, 0.45, 1)
+
+[node name="EmitterTop" type="Sprite2D" parent="PostTop"]
+texture_filter = 1
+rotation = 3.14159
+texture = ExtResource("2_emitter_tex")
+
+[node name="PostBottom" type="Polygon2D" parent="."]
+position = Vector2(0, 64)
+polygon = PackedVector2Array(-16, -6, 16, -6, 16, 6, -16, 6)
+color = Color(0.35, 0.38, 0.45, 1)
+
+[node name="EmitterBottom" type="Sprite2D" parent="PostBottom"]
+texture_filter = 1
+texture = ExtResource("2_emitter_tex")
