@@ -1,0 +1,201 @@
+{
+  "level": 4,
+  "scene": "res://levels/level_04.tscn",
+  "passed": false,
+  "error": "P1 dash did not clear the pit (x=433.9)",
+  "p1": {
+    "x": 433.925262451172,
+    "y": 409.925170898438,
+    "vx": 0,
+    "vy": 0,
+    "form": "DASH",
+    "gravity": 1,
+    "locked": false
+  },
+  "p2": {
+    "x": 358.5,
+    "y": 409.9921875,
+    "vx": 0,
+    "vy": 0,
+    "form": "DASH",
+    "gravity": 1,
+    "locked": false
+  },
+  "steps": [
+    {
+      "t": "2026-11-28T18:37:35.268Z",
+      "kind": "spawn",
+      "p1": {
+        "x": 120,
+        "y": 409.9921875,
+        "vx": 0,
+        "vy": 0,
+        "form": "CUBE",
+        "gravity": 1,
+        "locked": false
+      },
+      "p2": {
+        "x": 180,
+        "y": 409.9921875,
+        "vx": 0,
+        "vy": 0,
+        "form": "CUBE",
+        "gravity": 1,
+        "locked": false
+      }
+    },
+    {
+      "t": "2026-11-28T18:37:36.034Z",
+      "kind": "walk",
+      "id": 1,
+      "targetX": 336,
+      "from": {
+        "x": 120,
+        "y": 410
+      },
+      "reached": {
+        "x": 358,
+        "y": 410,
+        "form": "DASH",
+        "gravity": 1
+      },
+      "frames": 16,
+      "jumps": 0,
+      "jumpXs": [],
+      "maxStep": 63.7,
+      "attempts": 0,
+      "died": false,
+      "trail": [
+        [
+          184,
+          410,
+          "C"
+        ],
+        [
+          233,
+          410,
+          "C"
+        ],
+        [
+          282,
+          410,
+          "C"
+        ],
+        [
+          331,
+          410,
+          "D"
+        ]
+      ]
+    },
+    {
+      "t": "2026-11-28T18:37:36.652Z",
+      "kind": "walk",
+      "id": 2,
+      "targetX": 336,
+      "from": {
+        "x": 180,
+        "y": 410
+      },
+      "reached": {
+        "x": 358.5,
+        "y": 410,
+        "form": "DASH",
+        "gravity": 1
+      },
+      "frames": 12,
+      "jumps": 0,
+      "jumpXs": [],
+      "maxStep": 53.2,
+      "attempts": 0,
+      "died": false,
+      "trail": [
+        [
+          233,
+          410,
+          "C"
+        ],
+        [
+          282,
+          410,
+          "C"
+        ],
+        [
+          331,
+          410,
+          "D"
+        ]
+      ]
+    },
+    {
+      "t": "2026-11-28T18:37:37.135Z",
+      "kind": "dash_forms",
+      "p1": {
+        "x": 358,
+        "y": 409.9921875,
+        "vx": 0,
+        "vy": 0,
+        "form": "DASH",
+        "gravity": 1,
+        "locked": false
+      },
+      "p2": {
+        "x": 358.5,
+        "y": 409.9921875,
+        "vx": 0,
+        "vy": 0,
+        "form": "DASH",
+        "gravity": 1,
+        "locked": false
+      }
+    },
+    {
+      "t": "2026-11-28T18:37:37.650Z",
+      "kind": "walk",
+      "id": 1,
+      "targetX": 424,
+      "from": {
+        "x": 358,
+        "y": 410
+      },
+      "reached": {
+        "x": 433.9,
+        "y": 409.9,
+        "form": "DASH",
+        "gravity": 1
+      },
+      "frames": 8,
+      "jumps": 0,
+      "jumpXs": [],
+      "maxStep": 49.7,
+      "attempts": 0,
+      "died": false,
+      "trail": [
+        [
+          408,
+          410,
+          "D"
+        ],
+        [
+          434,
+          410,
+          "D"
+        ]
+      ]
+    },
+    {
+      "t": "2026-11-28T18:37:38.651Z",
+      "kind": "after_dash",
+      "id": 1,
+      "p": {
+        "x": 433.925262451172,
+        "y": 409.925170898438,
+        "vx": 0,
+        "vy": 0,
+        "form": "DASH",
+        "gravity": 1,
+        "locked": false
+      }
+    }
+  ]
+}
