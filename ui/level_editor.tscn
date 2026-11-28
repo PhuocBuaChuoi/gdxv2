@@ -207,9 +207,10 @@ theme_override_constants/separation = 6
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="EditorCanvas" type="SubViewportContainer" parent="RootVBox/MainHSplit/CanvasFrame"]
+[node name="EditorCanvas" type="Control" parent="RootVBox/MainHSplit/CanvasFrame"]
+clip_contents = true
 layout_mode = 2
-stretch = true
+focus_mode = 1
 script = ExtResource("3_canvas")
 
 [node name="RightPanel" type="PanelContainer" parent="RootVBox/MainHSplit"]

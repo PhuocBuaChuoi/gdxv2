@@ -13,6 +13,8 @@ var level_data: Dictionary = {}
 var source_path: String = ""
 var _undo_stack: Array[Dictionary] = []
 var _redo_stack: Array[Dictionary] = []
+var _name_committed: String = ""
+var _dim_committed: float = 0.55
 
 @onready var _name_edit: LineEdit = $RootVBox/TopBar/TopRow/NameEdit
 @onready var _size_opt: OptionButton = $RootVBox/TopBar/TopRow/SizeOpt
@@ -84,15 +86,21 @@ func _setup_toolbar_options() -> void:
 
 
 func _sync_toolbar_from_data() -> void:
-	_name_edit.text = str(level_data.get("name", "Custom Stage"))
+	var n := str(level_data.get("name", "Custom Stage"))
+	_name_edit.text = n
+	_name_committed = n
 	var cols := int(level_data.get("grid_cols", 48))
 	var rows := int(level_data.get("grid_rows", 12))
+	var matched_idx := -1
 	for i in range(GRID_PRESETS.size()):
 		if GRID_PRESETS[i] == Vector2i(cols, rows):
-			_size_opt.selected = i
+			matched_idx = i
 			break
+	_size_opt.selected = matched_idx
 	_bg_btn.text = "%s %s" % [LocalePack.tr_key("ed_bg"), str(level_data.get("background", "FOREST"))]
-	_dim_slider.value = float(level_data.get("dim", 0.55))
+	var dv := float(level_data.get("dim", 0.55))
+	_dim_slider.set_value_no_signal(dv)
+	_dim_committed = dv
 	_p1_opt.selected = maxi(0, FORMS.find(str(level_data.get("start_form_p1", "CUBE"))))
 	_p2_opt.selected = maxi(0, FORMS.find(str(level_data.get("start_form_p2", "CUBE"))))
 
@@ -136,11 +144,26 @@ func _populate_palette() -> void:
 
 func _bind_signals() -> void:
 	_name_edit.text_changed.connect(func(nt: String) -> void: level_data["name"] = nt)
+	var commit_name := func() -> void:
+		if _name_edit.text != _name_committed:
+			_name_committed = _name_edit.text
+			level_data["name"] = _name_committed
+			_push_snapshot(level_data)
+	_name_edit.text_submitted.connect(func(_nt: String) -> void:
+		commit_name.call()
+		_name_edit.release_focus()
+	)
+	_name_edit.focus_exited.connect(commit_name)
 	_size_opt.item_selected.connect(_on_size_selected)
 	_bg_btn.pressed.connect(_on_bg_toggled)
 	_dim_slider.value_changed.connect(func(v: float) -> void:
 		level_data["dim"] = v
-		_canvas.rebuild_all()
+		_canvas.update_background_dim(v)
+	)
+	_dim_slider.drag_ended.connect(func(changed: bool) -> void:
+		if changed or not is_equal_approx(float(level_data.get("dim", 0.55)), _dim_committed):
+			_dim_committed = float(level_data.get("dim", 0.55))
+			_push_snapshot(level_data)
 	)
 	_p1_opt.item_selected.connect(func(idx: int) -> void:
 		level_data["start_form_p1"] = FORMS[idx]
@@ -193,26 +216,46 @@ func _bind_signals() -> void:
 	_inspector.request_delete.connect(func() -> void: _canvas.delete_object(_canvas.selected_id))
 
 
+func _input(event: InputEvent) -> void:
+	if event is InputEventKey:
+		var k := event as InputEventKey
+		if k.keycode == KEY_SPACE and not _is_typing_text() and _canvas != null and _canvas._hover_inside:
+			# Prevent focused toolbar/palette buttons from activating via ui_select while Space+Dragging to pan
+			var fo := get_viewport().gui_get_focus_owner()
+			if fo != null and fo != _canvas:
+				_canvas.grab_focus()
+				get_viewport().set_input_as_handled()
+
+
+func _is_typing_text() -> bool:
+	var fo := get_viewport().gui_get_focus_owner()
+	return fo is LineEdit or fo is TextEdit
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if not (event is InputEventKey):
 		return
 	var k := event as InputEventKey
 	if not k.pressed or k.echo:
 		return
-	if k.ctrl_pressed and k.keycode == KEY_Z:
+	var typing := _is_typing_text()
+	if k.ctrl_pressed and k.keycode == KEY_Z and not typing:
 		undo()
-	elif k.ctrl_pressed and k.keycode == KEY_Y:
+	elif k.ctrl_pressed and k.keycode == KEY_Y and not typing:
 		redo()
 	elif k.ctrl_pressed and k.keycode == KEY_S:
 		_on_save_pressed()
-	elif k.ctrl_pressed and k.keycode == KEY_D:
+	elif k.ctrl_pressed and k.keycode == KEY_D and not typing:
 		_canvas.duplicate_selected()
 	elif k.keycode == KEY_F5:
 		_on_playtest_pressed()
-	elif k.keycode == KEY_DELETE and not (_name_edit.has_focus()):
+	elif k.keycode == KEY_DELETE and not typing:
 		_canvas.delete_object(_canvas.selected_id)
-	elif k.keycode == KEY_R and not (_name_edit.has_focus()):
+	elif k.keycode == KEY_R and not typing:
 		_canvas.rotate_selected()
+	elif k.keycode == KEY_ESCAPE and str(_canvas.active_tool.get("kind", "")) == "link":
+		_canvas.set_tool({"kind": "select"})
+		_set_status(LocalePack.tr_key("ed_status_ready"))
 
 
 func _on_size_selected(idx: int) -> void:
@@ -295,6 +338,8 @@ func _on_save_pressed() -> String:
 		if mgr != null:
 			mgr.call("rescan")
 		_set_status(LocalePack.tr_key("ed_saved_ok", [saved]), Color(0.35, 1.0, 0.65))
+	else:
+		_set_status(LocalePack.tr_key("ed_saved_err"), Color(1.0, 0.4, 0.4))
 	return saved
 
 

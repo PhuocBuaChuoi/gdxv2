@@ -18,6 +18,22 @@ func bind_canvas(canvas: EditorCanvas) -> void:
 	rebuild()
 
 
+func _vec2_from(raw: Variant, fallback: Vector2) -> Vector2:
+	if raw is Array:
+		var arr := raw as Array
+		if arr.size() >= 2:
+			return Vector2(float(arr[0]), float(arr[1]))
+	return fallback
+
+
+func _vec2i_from(raw: Variant, fallback: Vector2i) -> Vector2i:
+	if raw is Array:
+		var arr := raw as Array
+		if arr.size() >= 2:
+			return Vector2i(int(arr[0]), int(arr[1]))
+	return fallback
+
+
 func rebuild() -> void:
 	_building = true
 	for c in get_children():
@@ -25,20 +41,15 @@ func rebuild() -> void:
 		c.queue_free()
 
 	if _canvas == null or _canvas.selected_id == "":
-		var empty_lbl := Label.new()
-		empty_lbl.text = LocalePack.tr_key("ed_insp_none")
-		empty_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		empty_lbl.add_theme_font_size_override("font_size", 15)
-		empty_lbl.add_theme_color_override("font_color", Color(0.76, 0.88, 0.98, 0.9))
-		add_child(empty_lbl)
+		_show_empty_hint()
 		_building = false
 		return
 
 	var sid := _canvas.selected_id
 	if sid == "spawn_p1" or sid == "spawn_p2":
 		_add_header("Spawn P1" if sid == "spawn_p1" else "Spawn P2")
-		var arr := _canvas.level_data.get(sid, [144.0, 384.0]) as Array
-		_add_vec2_row(LocalePack.tr_key("ed_insp_pos"), Vector2(float(arr[0]), float(arr[1])), func(v: Vector2) -> void:
+		var sp := _vec2_from(_canvas.level_data.get(sid, [144.0, 384.0]), Vector2(144.0, 384.0))
+		_add_vec2_row(LocalePack.tr_key("ed_insp_pos"), sp, func(v: Vector2) -> void:
 			_canvas.level_data[sid] = [v.x, v.y]
 			_canvas.rebuild_all()
 			property_changed.emit(true)
@@ -48,15 +59,18 @@ func rebuild() -> void:
 
 	var obj := _canvas.find_object(sid)
 	if obj.is_empty():
+		_show_empty_hint()
 		_building = false
 		return
 
 	var obj_type := str(obj.get("type", ""))
+	if not (obj.get("props") is Dictionary):
+		obj["props"] = {}
 	var props := obj["props"] as Dictionary
 	_add_header("%s" % obj_type)
 
-	var p_arr := obj.get("pos", [0.0, 0.0]) as Array
-	_add_vec2_row(LocalePack.tr_key("ed_insp_pos"), Vector2(float(p_arr[0]), float(p_arr[1])), func(v: Vector2) -> void:
+	var p_vec := _vec2_from(obj.get("pos", [0.0, 0.0]), Vector2.ZERO)
+	_add_vec2_row(LocalePack.tr_key("ed_insp_pos"), p_vec, func(v: Vector2) -> void:
 		obj["pos"] = [v.x, v.y]
 		_canvas.rebuild_all()
 		property_changed.emit(true)
@@ -121,6 +135,12 @@ func rebuild() -> void:
 				props["target_direction"] = 1 if v == 1 else -1
 				property_changed.emit(true)
 			)
+			var g_players := ["BOTH", "P1_ONLY", "P2_ONLY"]
+			var gp_idx := maxi(0, g_players.find(str(props.get("allowed_player", "BOTH"))))
+			_add_enum_row(LocalePack.tr_key("ed_prop_allowed_player"), g_players, gp_idx, func(v: int) -> void:
+				props["allowed_player"] = g_players[v]
+				property_changed.emit(true)
+			)
 			_add_check_row(LocalePack.tr_key("ed_prop_one_shot"), bool(props.get("one_shot", false)), func(v: bool) -> void:
 				props["one_shot"] = v
 				property_changed.emit(true)
@@ -146,13 +166,31 @@ func rebuild() -> void:
 				props["activator"] = v
 				property_changed.emit(true)
 			)
+			_add_spin_row(LocalePack.tr_key("ed_prop_pair_window"), 0.1, 3.0, 0.05, float(props.get("pair_window", 0.5)), func(v: float) -> void:
+				props["pair_window"] = v
+				property_changed.emit(true)
+			)
 			var pair_btn := Button.new()
 			pair_btn.text = LocalePack.tr_key("ed_insp_pair_btn")
 			pair_btn.pressed.connect(func() -> void: request_link_wire.emit(sid, "pair"))
 			add_child(pair_btn)
+			var cur_pair := str(props.get("paired_uid", ""))
+			if cur_pair != "":
+				var unpair_btn := Button.new()
+				unpair_btn.text = LocalePack.tr_key("ed_insp_unpair")
+				unpair_btn.pressed.connect(func() -> void:
+					var partner := _canvas.find_object(cur_pair)
+					if not partner.is_empty() and partner.get("props") is Dictionary:
+						(partner["props"] as Dictionary)["paired_uid"] = ""
+					props["paired_uid"] = ""
+					_canvas.rebuild_all()
+					property_changed.emit(true)
+					rebuild()
+				)
+				add_child(unpair_btn)
 		"MechanizedPlatform":
-			var off := props.get("move_offset", [0.0, -96.0]) as Array
-			_add_vec2_row("Offset", Vector2(float(off[0]), float(off[1])), func(v: Vector2) -> void:
+			var off := _vec2_from(props.get("move_offset", [0.0, -96.0]), Vector2(0.0, -96.0))
+			_add_vec2_row("Offset", off, func(v: Vector2) -> void:
 				props["move_offset"] = [v.x, v.y]
 				_canvas.rebuild_all()
 				property_changed.emit(true)
@@ -167,15 +205,21 @@ func rebuild() -> void:
 			)
 			_add_wire_controls(sid, props)
 		"EnergyGate":
-			var gs := props.get("gate_size", [2, 3]) as Array
-			_add_spin_row(LocalePack.tr_key("ed_prop_gate_w"), 1.0, 8.0, 1.0, float(gs[0]), func(v: float) -> void:
-				props["gate_size"] = [int(v), int(gs[1])]
+			var gs := _vec2i_from(props.get("gate_size", [2, 3]), Vector2i(2, 3))
+			_add_spin_row(LocalePack.tr_key("ed_prop_gate_w"), 1.0, 8.0, 1.0, float(gs.x), func(v: float) -> void:
+				var cur := _vec2i_from(props.get("gate_size", [2, 3]), Vector2i(2, 3))
+				props["gate_size"] = [int(v), cur.y]
 				_canvas.rebuild_all()
 				property_changed.emit(true)
 			)
-			_add_spin_row(LocalePack.tr_key("ed_prop_gate_h"), 1.0, 8.0, 1.0, float(gs[1]), func(v: float) -> void:
-				props["gate_size"] = [int(gs[0]), int(v)]
+			_add_spin_row(LocalePack.tr_key("ed_prop_gate_h"), 1.0, 8.0, 1.0, float(gs.y), func(v: float) -> void:
+				var cur := _vec2i_from(props.get("gate_size", [2, 3]), Vector2i(2, 3))
+				props["gate_size"] = [cur.x, int(v)]
 				_canvas.rebuild_all()
+				property_changed.emit(true)
+			)
+			_add_spin_row(LocalePack.tr_key("ed_prop_open_time"), 0.05, 2.0, 0.05, float(props.get("open_time", 0.18)), func(v: float) -> void:
+				props["open_time"] = v
 				property_changed.emit(true)
 			)
 			_add_check_row(LocalePack.tr_key("ed_prop_require_all"), bool(props.get("require_all", true)), func(v: bool) -> void:
@@ -183,6 +227,26 @@ func rebuild() -> void:
 				property_changed.emit(true)
 			)
 			_add_wire_controls(sid, props)
+		"BreakableDashBlock":
+			var bs := _vec2i_from(props.get("block_size", [1, 3]), Vector2i(1, 3))
+			_add_spin_row(LocalePack.tr_key("ed_prop_block_w"), 1.0, 6.0, 1.0, float(bs.x), func(v: float) -> void:
+				var cur := _vec2i_from(props.get("block_size", [1, 3]), Vector2i(1, 3))
+				props["block_size"] = [int(v), cur.y]
+				_canvas.rebuild_all()
+				property_changed.emit(true)
+			)
+			_add_spin_row(LocalePack.tr_key("ed_prop_block_h"), 1.0, 6.0, 1.0, float(bs.y), func(v: float) -> void:
+				var cur := _vec2i_from(props.get("block_size", [1, 3]), Vector2i(1, 3))
+				props["block_size"] = [cur.x, int(v)]
+				_canvas.rebuild_all()
+				property_changed.emit(true)
+			)
+		"BalancedFloatPair":
+			_add_spin_row(LocalePack.tr_key("ed_prop_float_sep"), 48.0, 320.0, 8.0, float(props.get("horizontal_separation", 96.0)), func(v: float) -> void:
+				props["horizontal_separation"] = v
+				_canvas.rebuild_all()
+				property_changed.emit(true)
+			)
 		"RestorePoint":
 			_add_spin_row(LocalePack.tr_key("ed_prop_checkpoint_order"), 0.0, 20.0, 1.0, float(props.get("checkpoint_order", 1)), func(v: float) -> void:
 				props["checkpoint_order"] = int(v)
@@ -213,16 +277,26 @@ func rebuild() -> void:
 			l.text = LocalePack.tr_key("ed_prop_sign_text")
 			add_child(l)
 			var te := LineEdit.new()
-			te.text = str(props.get("text", "P1 & P2 CO-OP!"))
+			var initial_txt := str(props.get("text", "P1 & P2 CO-OP!"))
+			te.text = initial_txt
+			te.set_meta("committed_text", initial_txt)
 			te.text_changed.connect(func(nt: String) -> void:
 				if _building: return
 				props["text"] = nt
 				_canvas.rebuild_all()
 				property_changed.emit(false)
 			)
+			var commit_fn := func() -> void:
+				if _building: return
+				var prev_txt := str(te.get_meta("committed_text", ""))
+				if te.text != prev_txt:
+					te.set_meta("committed_text", te.text)
+					props["text"] = te.text
+					property_changed.emit(true)
+			te.text_submitted.connect(func(_nt: String) -> void: commit_fn.call())
+			te.focus_exited.connect(commit_fn)
 			add_child(te)
 
-	# Action buttons (Rotate / Duplicate / Delete)
 	var sep := HSeparator.new()
 	add_child(sep)
 	if obj_type == "SpikeHazard" or obj_type == "DecoProp":
@@ -242,8 +316,18 @@ func rebuild() -> void:
 	_building = false
 
 
+func _show_empty_hint() -> void:
+	var empty_lbl := Label.new()
+	empty_lbl.text = LocalePack.tr_key("ed_insp_none")
+	empty_lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	empty_lbl.add_theme_font_size_override("font_size", 15)
+	empty_lbl.add_theme_color_override("font_color", Color(0.76, 0.88, 0.98, 0.9))
+	add_child(empty_lbl)
+
+
 func _add_wire_controls(sid: String, props: Dictionary) -> void:
-	var links := props.get("linked_uids", []) as Array
+	var links_raw: Variant = props.get("linked_uids", [])
+	var links: Array = links_raw if links_raw is Array else []
 	var lbl := Label.new()
 	lbl.text = LocalePack.tr_key("ed_insp_links", [links.size()])
 	lbl.add_theme_font_size_override("font_size", 15)
@@ -281,13 +365,13 @@ func _add_vec2_row(label_text: String, val: Vector2, on_change: Callable) -> voi
 	var sx := SpinBox.new()
 	sx.min_value = -2000
 	sx.max_value = 8000
-	sx.step = 12
+	sx.step = 1.0
 	sx.value = val.x
 	sx.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var sy := SpinBox.new()
 	sy.min_value = -2000
 	sy.max_value = 3000
-	sy.step = 12
+	sy.step = 1.0
 	sy.value = val.y
 	sy.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	sx.value_changed.connect(func(nx: float) -> void:
