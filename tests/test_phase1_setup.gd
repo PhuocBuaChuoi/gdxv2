@@ -62,3 +62,56 @@ func test_palette() -> void:
 func test_entry_files() -> void:
 	assert_true(load("res://scenes/main/Main.tscn") != null, "main scene load duoc")
 	assert_true(FileAccess.file_exists("res://assets/sprites/icon.svg"), "icon.svg ton tai (config/icon)")
+
+
+func test_input_key_counts() -> void:
+	var singles: Array[StringName] = [&"p1_left", &"p1_right", &"p1_action", &"p2_left", &"p2_right", &"p2_jump", &"p2_action", &"game_restart_checkpoint", &"game_pause"]
+	for a in singles:
+		assert_eq(action_keys(a).size(), 1, "action '%s' co dung 1 phim" % a)
+	assert_eq(action_keys(&"p1_jump").size(), 2, "p1_jump co dung 2 phim (W+Space)")
+
+
+func test_input_deadzones() -> void:
+	var actions: Array[StringName] = [&"p1_left", &"p1_right", &"p1_jump", &"p1_action", &"p2_left", &"p2_right", &"p2_jump", &"p2_action", &"game_restart_checkpoint", &"game_pause"]
+	for a in actions:
+		assert_near(InputMap.action_get_deadzone(a), 0.5, 0.0001, "deadzone '%s' = 0.5" % a)
+
+
+func test_input_no_duplicate_keys() -> void:
+	var actions: Array[StringName] = [&"p1_left", &"p1_right", &"p1_jump", &"p1_action", &"p2_left", &"p2_right", &"p2_jump", &"p2_action", &"game_restart_checkpoint", &"game_pause"]
+	var seen: Dictionary = {}
+	for a in actions:
+		for k in action_keys(a):
+			assert_true(not seen.has(k), "phim %d chi thuoc 1 action (trung '%s'/'%s')" % [k, str(seen.get(k, "?")), str(a)])
+			seen[k] = a
+
+
+func test_events_signals() -> void:
+	var scr: Script = load("res://autoloads/events.gd") as Script
+	assert_true(scr != null, "events.gd load duoc")
+	var want: Dictionary = {&"player_died": 2, &"checkpoint_activated": 3, &"player_form_changed": 2, &"player_entered_goal": 1, &"player_exited_goal": 1, &"level_completed": 3}
+	var got: Dictionary = {}
+	for s in scr.get_script_signal_list():
+		got[str(s["name"])] = (s["args"] as Array).size()
+	for sig_name in want.keys():
+		assert_true(got.has(sig_name), "signal '%s' ton tai" % sig_name)
+		if got.has(sig_name):
+			assert_eq(got[sig_name], want[sig_name], "signal '%s' dung so arg" % sig_name)
+	assert_eq(got.size(), want.size(), "khong thua/thieu signal")
+
+
+func test_settings_cross_check() -> void:
+	var main_scene: String = str(ProjectSettings.get_setting("application/run/main_scene"))
+	assert_true(FileAccess.file_exists(main_scene), "main_scene tro file ton tai")
+	var icon: String = str(ProjectSettings.get_setting("application/config/icon"))
+	assert_true(FileAccess.file_exists(icon), "icon tro file ton tai")
+	var inst: Node = (load(main_scene) as PackedScene).instantiate()
+	assert_true(inst is Node2D, "main scene goc la Node2D")
+	inst.free()
+
+
+func test_palette_coherence() -> void:
+	assert_true(Palette.COLOR_P1_CYAN != Palette.COLOR_P2_ORANGE, "P1 khac mau P2")
+	var bg: Color = Palette.COLOR_BG_DARK
+	assert_true((bg.r + bg.g + bg.b) / 3.0 < 0.15, "bg dark that su toi de neon noi")
+	assert_eq(Palette.COLOR_NEUTRAL_WHITE, Color.WHITE, "neutral white chuan")

@@ -27,8 +27,6 @@
                        "paths":  [
                                      "tests/gdx_test.gd",
                                      "tests/test_runner.gd",
-                                     "tests/test_phase1_setup.gd",
-                                     "tests/test_collab_registry.gd",
                                      "tools/",
                                      "README.md",
                                      ".agents/ownership.json",
@@ -44,8 +42,19 @@
                        "paths":  [
                                      "vfx/",
                                      "scripts/procedural_shapes.gd",
-                                     "levels/default_world_environment.tscn",
-                                     "tests/test_phase2_vfx.gd"
+                                     "levels/default_world_environment.tscn"
+                                 ],
+                       "status":  "active",
+                       "updated":  "2026-10-15"
+                   },
+                   {
+                       "id":  "harden-tests",
+                       "owner":  "opencode",
+                       "branch":  "feature/harden-tests",
+                       "paths":  [
+                                     "tests/test_phase1_setup.gd",
+                                     "tests/test_phase2_vfx.gd",
+                                     "tests/test_collab_registry.gd"
                                  ],
                        "status":  "active",
                        "updated":  "2026-10-15"

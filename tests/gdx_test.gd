@@ -8,6 +8,10 @@ var checks_passed: int = 0
 var checks_failed: int = 0
 var failures: Array[String] = []
 
+## Runner (SceneTree) tiêm vào trước khi chạy test — dùng cho các case
+## cần cây scene thật (add_child, to_local...). Mặc định null.
+var host_root: Window = null
+
 
 func _record(ok: bool, msg: String) -> void:
 	if ok:
