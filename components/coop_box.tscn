@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://components/floating_box.gd" id="1_box"]
 [ext_resource type="Texture2D" path="res://assets/sprites/coop_box.png" id="2_box_tex"]
@@ -6,11 +6,15 @@
 [sub_resource type="RectangleShape2D" id="Rectangle_box"]
 size = Vector2(40, 40)
 
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_box"]
+friction = 0.2
+
 [node name="CoopBox" type="RigidBody2D"]
 collision_layer = 128
 collision_mask = 1
 mass = 1.0
 linear_damp = 0.6
+physics_material_override = SubResource("PhysicsMaterial_box")
 script = ExtResource("1_box")
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]

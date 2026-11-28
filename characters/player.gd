@@ -292,6 +292,11 @@ func _enforce_vertical_bounds() -> void:
 func _push_blocks() -> void:
 	"""T6.09 - Cube day khoi Pushable_Blocks (layer 8) khi ap sat vao."""
 	var dir := signf(velocity.x)
+	if dir == 0.0:
+		# Sau move_and_slide, velocity.x bị triệt về 0 khi tì vào block, nên nếu chỉ
+		# đọc velocity thì lực đẩy chỉ tồn tại đúng 1 frame đầu va chạm và khối đứng yên.
+		# Lấy hướng theo ý định input để giữ lực đẩy liên tục.
+		dir = signf(get_move_axis())
 	var targets: Array = []
 	if dir != 0.0:
 		for i in range(get_slide_collision_count()):

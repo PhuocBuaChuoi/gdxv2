@@ -6,6 +6,10 @@ extends Area2D
 ## Giá trị là CHIỀU trọng lực trực tiếp: -1 = inverted, +1 = normal.
 ## (Dùng int thay vì export_enum vì enum chỉ có chỉ số 0/1 -> "Inverted" từng bị
 ##  gán thành +1 nên cổng không bao giờ đảo được trọng lực.)
+## Chỉ người chơi được chỉ định mới bị đảo trọng lực (BOTH / P1_ONLY / P2_ONLY).
+## Cùng quy ước với FormPortal — cổng "P1_ONLY" từng đảo luôn cả P2 vì cờ này
+## chỉ được khai báo trong scene chứ không hề được script đọc (phát hiện khi chơi live màn 3).
+@export_enum("BOTH", "P1_ONLY", "P2_ONLY") var allowed_player: String = "BOTH"
 @export var target_direction: int = -1
 @export var one_shot: bool = false
 @export_enum("FIXED", "TOGGLE") var direction_mode: int = 0
@@ -21,6 +25,19 @@ func _ready() -> void:
 	body_entered.connect(_on_body_entered)
 	add_to_group("gravity_portal")
 	SpriteAnim.setup_sheet(get_node_or_null("PortalSprite") as Sprite2D, PORTAL_SHEET, 4)
+
+
+func _player_allowed(body: Node2D) -> bool:
+	if body == null:
+		return false
+	var pid_v: Variant = body.get("player_id")
+	var pid := int(pid_v) if pid_v is int else 0
+	match allowed_player:
+		"P1_ONLY":
+			return pid == 1
+		"P2_ONLY":
+			return pid == 2
+	return true
 
 
 func _process(delta: float) -> void:
@@ -42,6 +59,8 @@ func _process(delta: float) -> void:
 		core.modulate.a = 0.35 + pulse * 0.35
 
 func _on_body_entered(body: Node2D) -> void:
+	if not _player_allowed(body):
+		return
 	if one_shot and _used_bodies.has(body.get_instance_id()):
 		return
 	# Khóa đổi chiều lặp khi đứng rung trong vùng (bonus T6).

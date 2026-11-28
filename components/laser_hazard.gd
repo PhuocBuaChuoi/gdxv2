@@ -25,7 +25,10 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
-	_phase = fmod(_phase + delta, period)
+	if period > 0.0:
+		_phase = fmod(_phase + delta, period)
+	else:
+		_phase += delta
 	var want := _want_on_at(_phase)
 	if want != is_on:
 		is_on = want

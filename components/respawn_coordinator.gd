@@ -83,6 +83,10 @@ func capture_checkpoint() -> bool:
 	checkpoint = CheckpointSnapshot.from_players(player_one, player_two)
 	return true
 
+func is_respawning() -> bool:
+	return _respawn_timer >= 0.0
+
+
 func request_respawn(death_player_id: int) -> bool:
 	if death_player_id not in [1, 2] or checkpoint == null or player_one == null or player_two == null or _respawn_timer >= 0.0:
 		return false
