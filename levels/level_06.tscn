@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://levels/level_controller.gd" id="1"]
 [ext_resource type="PackedScene" path="res://levels/default_world_environment.tscn" id="2"]
@@ -22,6 +22,7 @@
 [ext_resource type="PackedScene" path="res://components/coop_box.tscn" id="20_box"]
 [ext_resource type="PackedScene" path="res://components/jump_pad.tscn" id="21_pad"]
 [ext_resource type="PackedScene" path="res://components/deco_prop.tscn" id="22_deco"]
+[ext_resource type="PackedScene" path="res://components/energy_gate.tscn" id="23_gate"]
 
 [node name="LevelRoot" type="Node2D"]
 script = ExtResource("1")
@@ -163,16 +164,14 @@ mode = 2
 activator = 2
 paired_button = NodePath("../ButtonTopSync")
 
-[node name="MiddleWall" parent="Mechanisms" instance=ExtResource("18_platform")]
-position = Vector2(1392, 118)
+[node name="MiddleWall" parent="Mechanisms" instance=ExtResource("23_gate")]
+position = Vector2(1392, 168)
 linked_triggers = [NodePath("../ButtonTopSync"), NodePath("../ButtonBottomSync")]
-move_offset = Vector2(0, -96)
 require_all = true
 
-[node name="LowerWall" parent="Mechanisms" instance=ExtResource("18_platform")]
-position = Vector2(1392, 408)
+[node name="LowerWall" parent="Mechanisms" instance=ExtResource("23_gate")]
+position = Vector2(1392, 360)
 linked_triggers = [NodePath("../ButtonTopSync"), NodePath("../ButtonBottomSync")]
-move_offset = Vector2(0, -96)
 require_all = true
 
 [node name="BreakableDashWall" parent="Mechanisms" instance=ExtResource("19_dash_block")]

@@ -1,4 +1,4 @@
-[gd_scene load_steps=22 format=3]
+[gd_scene load_steps=23 format=3]
 
 [ext_resource type="Script" path="res://levels/level_controller.gd" id="1"]
 [ext_resource type="PackedScene" path="res://levels/default_world_environment.tscn" id="2"]
@@ -21,6 +21,7 @@
 [ext_resource type="PackedScene" path="res://components/jump_orb.tscn" id="19_orb"]
 [ext_resource type="PackedScene" path="res://components/coop_box.tscn" id="20_box"]
 [ext_resource type="PackedScene" path="res://components/deco_prop.tscn" id="21_deco"]
+[ext_resource type="PackedScene" path="res://components/energy_gate.tscn" id="22_gate"]
 
 [node name="LevelRoot" type="Node2D"]
 script = ExtResource("1")
@@ -166,10 +167,9 @@ position = Vector2(1260, 420)
 mode = 1
 activator = 2
 
-[node name="MidGate" parent="Mechanisms" instance=ExtResource("16_platform")]
-position = Vector2(1344, 384)
+[node name="MidGate" parent="Mechanisms" instance=ExtResource("22_gate")]
+position = Vector2(1344, 360)
 linked_triggers = [NodePath("../ButtonCyan"), NodePath("../ButtonOrange")]
-move_offset = Vector2(0, -96)
 require_all = true
 
 [node name="ButtonHigh" parent="Mechanisms" instance=ExtResource("15_button")]
