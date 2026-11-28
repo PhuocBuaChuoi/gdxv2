@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3]
+
+[sub_resource type="Environment" id="Environment_gdx"]
+background_mode = 3
+background_color = Color(0.05, 0.06, 0.1, 1)
+glow_enabled = true
+glow_intensity = 0.8
+glow_bloom = 0.2
+glow_blend_mode = 0
+
+[node name="DefaultWorldEnvironment" type="WorldEnvironment"]
+environment = SubResource("Environment_gdx")
