@@ -79,6 +79,9 @@ func _on_form_changed(player_id: int, new_form: StringName) -> void:
 
 
 func _refresh_title() -> void:
+	if _level != null and bool(_level.get_meta("is_custom_level", false)):
+		_title.text = LocalePack.tr_key("hud_level_custom", [str(_level.get_meta("custom_level_name", "Custom"))])
+		return
 	_title.text = LocalePack.tr_key("hud_level", [_level_index + 1])
 
 

@@ -1,0 +1,247 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://editor/level_editor.gd" id="1_ed"]
+[ext_resource type="Theme" path="res://resources/editor_theme.tres" id="2_theme"]
+[ext_resource type="Script" path="res://editor/editor_canvas.gd" id="3_canvas"]
+[ext_resource type="Script" path="res://editor/editor_inspector.gd" id="4_insp"]
+
+[node name="LevelEditor" type="Control"]
+clip_contents = true
+texture_filter = 1
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_ed")
+
+[node name="Backdrop" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.02, 0.035, 0.075, 1)
+
+[node name="RootVBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -8.0
+theme_override_constants/separation = 8
+
+[node name="TopBar" type="PanelContainer" parent="RootVBox"]
+layout_mode = 2
+
+[node name="TopRow" type="HBoxContainer" parent="RootVBox/TopBar"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="NameEdit" type="LineEdit" parent="RootVBox/TopBar/TopRow"]
+custom_minimum_size = Vector2(180, 38)
+layout_mode = 2
+placeholder_text = "Tên màn custom..."
+
+[node name="SizeOpt" type="OptionButton" parent="RootVBox/TopBar/TopRow"]
+custom_minimum_size = Vector2(86, 38)
+layout_mode = 2
+
+[node name="BgBtn" type="Button" parent="RootVBox/TopBar/TopRow"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = "Nền: FOREST"
+
+[node name="DimSlider" type="HSlider" parent="RootVBox/TopBar/TopRow"]
+custom_minimum_size = Vector2(76, 24)
+layout_mode = 2
+size_flags_vertical = 4
+min_value = 0.0
+max_value = 0.9
+step = 0.05
+value = 0.55
+
+[node name="P1Opt" type="OptionButton" parent="RootVBox/TopBar/TopRow"]
+custom_minimum_size = Vector2(96, 38)
+layout_mode = 2
+
+[node name="P2Opt" type="OptionButton" parent="RootVBox/TopBar/TopRow"]
+custom_minimum_size = Vector2(96, 38)
+layout_mode = 2
+
+[node name="Spacer" type="Control" parent="RootVBox/TopBar/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="UndoBtn" type="Button" parent="RootVBox/TopBar/TopRow"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = "Hoàn tác"
+
+[node name="RedoBtn" type="Button" parent="RootVBox/TopBar/TopRow"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = "Làm lại"
+
+[node name="GridBtn" type="Button" parent="RootVBox/TopBar/TopRow"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = "Lưới"
+
+[node name="ValidateBtn" type="Button" parent="RootVBox/TopBar/TopRow"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = "Kiểm tra"
+
+[node name="PlaytestBtn" type="Button" parent="RootVBox/TopBar/TopRow"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = "Chơi thử (F5)"
+
+[node name="SaveBtn" type="Button" parent="RootVBox/TopBar/TopRow"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = "Lưu (.gdx.json)"
+
+[node name="ExportBtn" type="Button" parent="RootVBox/TopBar/TopRow"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = "Export JSON"
+
+[node name="ExitBtn" type="Button" parent="RootVBox/TopBar/TopRow"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+text = "Thoát"
+
+[node name="MainHSplit" type="HBoxContainer" parent="RootVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="LeftPanel" type="PanelContainer" parent="RootVBox/MainHSplit"]
+custom_minimum_size = Vector2(350, 0)
+layout_mode = 2
+
+[node name="LeftVBox" type="VBoxContainer" parent="RootVBox/MainHSplit/LeftPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="QuickTools" type="HBoxContainer" parent="RootVBox/MainHSplit/LeftPanel/LeftVBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="SelectBtn" type="Button" parent="RootVBox/MainHSplit/LeftPanel/LeftVBox/QuickTools"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
+text = "Chọn / Kéo"
+clip_text = true
+
+[node name="EraseBtn" type="Button" parent="RootVBox/MainHSplit/LeftPanel/LeftVBox/QuickTools"]
+custom_minimum_size = Vector2(0, 38)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 14
+text = "Tẩy Ô / Xoá"
+clip_text = true
+
+[node name="PaletteTabs" type="TabContainer" parent="RootVBox/MainHSplit/LeftPanel/LeftVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="Terrain" type="ScrollContainer" parent="RootVBox/MainHSplit/LeftPanel/LeftVBox/PaletteTabs"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="VBox" type="VBoxContainer" parent="RootVBox/MainHSplit/LeftPanel/LeftVBox/PaletteTabs/Terrain"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="Hazards" type="ScrollContainer" parent="RootVBox/MainHSplit/LeftPanel/LeftVBox/PaletteTabs"]
+visible = false
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="VBox" type="VBoxContainer" parent="RootVBox/MainHSplit/LeftPanel/LeftVBox/PaletteTabs/Hazards"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="Portals" type="ScrollContainer" parent="RootVBox/MainHSplit/LeftPanel/LeftVBox/PaletteTabs"]
+visible = false
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="VBox" type="VBoxContainer" parent="RootVBox/MainHSplit/LeftPanel/LeftVBox/PaletteTabs/Portals"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="Mech" type="ScrollContainer" parent="RootVBox/MainHSplit/LeftPanel/LeftVBox/PaletteTabs"]
+visible = false
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="VBox" type="VBoxContainer" parent="RootVBox/MainHSplit/LeftPanel/LeftVBox/PaletteTabs/Mech"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="Deco" type="ScrollContainer" parent="RootVBox/MainHSplit/LeftPanel/LeftVBox/PaletteTabs"]
+visible = false
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="VBox" type="VBoxContainer" parent="RootVBox/MainHSplit/LeftPanel/LeftVBox/PaletteTabs/Deco"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="CanvasFrame" type="PanelContainer" parent="RootVBox/MainHSplit"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="EditorCanvas" type="SubViewportContainer" parent="RootVBox/MainHSplit/CanvasFrame"]
+layout_mode = 2
+stretch = true
+script = ExtResource("3_canvas")
+
+[node name="RightPanel" type="PanelContainer" parent="RootVBox/MainHSplit"]
+custom_minimum_size = Vector2(315, 0)
+layout_mode = 2
+
+[node name="InspectorScroll" type="ScrollContainer" parent="RootVBox/MainHSplit/RightPanel"]
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="EditorInspector" type="VBoxContainer" parent="RootVBox/MainHSplit/RightPanel/InspectorScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+script = ExtResource("4_insp")
+
+[node name="StatusBar" type="HBoxContainer" parent="RootVBox"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="StatusLabel" type="Label" parent="RootVBox/StatusBar"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 15
+text = "Ready"
+clip_text = true
+text_overrun_behavior = 3
+
+[node name="CoordsLabel" type="Label" parent="RootVBox/StatusBar"]
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.28, 1)
+theme_override_font_sizes/font_size = 15
+text = "(0, 0)"
+horizontal_alignment = 2

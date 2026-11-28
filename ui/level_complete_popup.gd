@@ -15,6 +15,7 @@ var _last_deaths: int = 0
 @onready var _next_btn: Button = get_node_or_null("PanelBox/NextBtn") as Button
 @onready var _retry_btn: Button = get_node_or_null("PanelBox/RetryBtn") as Button
 @onready var _menu_btn: Button = get_node_or_null("PanelBox/MenuBtn") as Button
+@onready var _return_editor_btn: Button = get_node_or_null("PanelBox/ReturnEditorBtn") as Button
 
 
 func _ready() -> void:
@@ -46,6 +47,8 @@ func _apply_locale() -> void:
 		_retry_btn.text = LocalePack.tr_key("win_retry")
 	if _menu_btn != null:
 		_menu_btn.text = LocalePack.tr_key("win_menu")
+	if _return_editor_btn != null:
+		_return_editor_btn.text = LocalePack.tr_key("win_return_editor")
 	if _time != null:
 		_time.text = LocalePack.tr_key("win_time", [fmt_time(_last_time)])
 	if _deaths != null:
@@ -87,6 +90,12 @@ func show_result(time_taken: float, death_count: int) -> int:
 	var stars := stars_for(death_count)
 	_apply_locale()
 	_stars.text = "★".repeat(stars) + "☆".repeat(3 - stars)
+	var mgr: Node = manager if manager != null else get_node_or_null("/root/LevelManager")
+	var playtesting := mgr != null and bool(mgr.get("is_playtest"))
+	if _return_editor_btn != null:
+		_return_editor_btn.visible = playtesting
+	if _next_btn != null:
+		_next_btn.visible = not playtesting
 	visible = true
 	return stars
 
@@ -115,3 +124,10 @@ func _on_retry_pressed() -> bool:
 func _on_menu_pressed() -> bool:
 	AudioManager.play_sfx("click")
 	return get_tree().change_scene_to_file(SELECT_SCENE) == OK
+
+
+func _on_return_editor_pressed() -> void:
+	AudioManager.play_sfx("click")
+	var mgr: Node = manager if manager != null else get_node_or_null("/root/LevelManager")
+	if mgr != null and mgr.has_method("return_to_editor"):
+		mgr.call("return_to_editor")

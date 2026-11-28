@@ -4,6 +4,7 @@ extends Control
 ## Manager inject được để test headless (không đổi scene thật).
 
 const SELECT_SCENE := "res://ui/level_select.tscn"
+const HUB_SCENE := "res://ui/custom_levels_hub.tscn"
 
 var manager: Node = null
 
@@ -13,6 +14,7 @@ var manager: Node = null
 @onready var _console_tag: Label = $MenuBox/ConsoleTag
 @onready var _play_btn: Button = $MenuBox/PlayBtn
 @onready var _select_btn: Button = $MenuBox/SelectBtn
+@onready var _editor_btn: Button = get_node_or_null("MenuBox/EditorBtn") as Button
 @onready var _settings_btn: Button = $MenuBox/SettingsBtn
 @onready var _quit_btn: Button = $MenuBox/QuitBtn
 @onready var _vol_label: Label = $SettingsPanel/SettingsBox/VolumeRow/VolumeLabel
@@ -30,6 +32,8 @@ func _ready() -> void:
 		var db := float(audio.get("volume_db"))
 		_volume.value = db
 		_refresh_volume_label(db)
+	if audio != null:
+		audio.call("play_music") # T8.06: bật nhạc nền ngay từ menu
 	LocalePack.subscribe(Callable(self, "_on_locale_changed"))
 	_apply_locale()
 
@@ -49,6 +53,8 @@ func _apply_locale() -> void:
 		_play_btn.text = LocalePack.tr_key("menu_play")
 	if _select_btn != null:
 		_select_btn.text = LocalePack.tr_key("menu_select")
+	if _editor_btn != null:
+		_editor_btn.text = LocalePack.tr_key("menu_editor")
 	if _settings_btn != null:
 		_settings_btn.text = LocalePack.tr_key("menu_settings")
 	if _quit_btn != null:
@@ -85,6 +91,11 @@ func _on_play_pressed() -> bool:
 func _on_select_pressed() -> bool:
 	AudioManager.play_sfx("click")
 	return get_tree().change_scene_to_file(SELECT_SCENE) == OK
+
+
+func _on_editor_pressed() -> bool:
+	AudioManager.play_sfx("click")
+	return get_tree().change_scene_to_file(HUB_SCENE) == OK
 
 
 func _on_settings_pressed() -> void:

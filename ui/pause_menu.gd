@@ -9,6 +9,7 @@ const SELECT_SCENE := "res://ui/level_select.tscn"
 @onready var _ckpt_btn: Button = get_node_or_null("MenuBox/CheckpointBtn") as Button
 @onready var _restart_btn: Button = get_node_or_null("MenuBox/RestartBtn") as Button
 @onready var _select_btn: Button = get_node_or_null("MenuBox/SelectBtn") as Button
+@onready var _return_editor_btn: Button = get_node_or_null("MenuBox/ReturnEditorBtn") as Button
 
 
 func _ready() -> void:
@@ -37,6 +38,17 @@ func _apply_locale() -> void:
 		_restart_btn.text = LocalePack.tr_key("pause_restart")
 	if _select_btn != null:
 		_select_btn.text = LocalePack.tr_key("pause_select")
+	if _return_editor_btn != null:
+		_return_editor_btn.text = LocalePack.tr_key("pause_return_editor")
+
+
+func _sync_playtest_mode() -> void:
+	var mgr := get_node_or_null("/root/LevelManager")
+	var playtesting := mgr != null and bool(mgr.get("is_playtest"))
+	if _return_editor_btn != null:
+		_return_editor_btn.visible = playtesting
+	if _select_btn != null:
+		_select_btn.visible = not playtesting
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -49,6 +61,7 @@ func toggle() -> void:
 	if get_tree().paused:
 		resume()
 	else:
+		_sync_playtest_mode()
 		get_tree().paused = true
 		visible = true
 
@@ -84,6 +97,15 @@ func _on_select_pressed() -> bool:
 	get_tree().paused = false
 	visible = false
 	return get_tree().change_scene_to_file(SELECT_SCENE) == OK
+
+
+func _on_return_editor_pressed() -> void:
+	AudioManager.play_sfx("click")
+	get_tree().paused = false
+	visible = false
+	var mgr := get_node_or_null("/root/LevelManager")
+	if mgr != null and mgr.has_method("return_to_editor"):
+		mgr.call("return_to_editor")
 
 
 func _coordinator() -> Node:

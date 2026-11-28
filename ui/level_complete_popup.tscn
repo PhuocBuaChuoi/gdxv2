@@ -153,6 +153,14 @@ layout_mode = 2
 theme_override_font_sizes/font_size = 23
 text = "Về Chọn Màn"
 
+[node name="ReturnEditorBtn" type="Button" parent="PanelBox"]
+visible = false
+custom_minimum_size = Vector2(0, 54)
+layout_mode = 2
+theme_override_font_sizes/font_size = 23
+text = "Quay Lại Editor"
+
 [connection signal="pressed" from="PanelBox/NextBtn" to="." method="_on_next_pressed"]
 [connection signal="pressed" from="PanelBox/RetryBtn" to="." method="_on_retry_pressed"]
 [connection signal="pressed" from="PanelBox/MenuBtn" to="." method="_on_menu_pressed"]
+[connection signal="pressed" from="PanelBox/ReturnEditorBtn" to="." method="_on_return_editor_pressed"]
