@@ -50,9 +50,13 @@ func rebuild() -> void:
 		c.free()
 	if manager == null:
 		return
-	var levels: Array = manager.get("levels")
+	if manager.has_method("rescan"):
+		manager.call("rescan")
+	var levels_v: Variant = manager.get("levels")
+	var levels: Array = levels_v as Array if levels_v is Array else []
 	var unlocked: int = int(manager.get("unlocked"))
-	var best: Dictionary = manager.get("best")
+	var best_v: Variant = manager.get("best")
+	var best: Dictionary = best_v as Dictionary if best_v is Dictionary else {}
 	var camp_count := int(manager.call("campaign_count")) if manager.has_method("campaign_count") else mini(6, levels.size())
 	var custom_count := maxi(0, levels.size() - camp_count)
 	if _progress != null:
@@ -82,20 +86,30 @@ func _make_card(index: int, locked: bool, is_custom: bool, best: Dictionary) -> 
 	b.custom_minimum_size = Vector2(0, 62)
 	b.add_theme_font_size_override("font_size", 23)
 	if is_custom:
-		var meta: Dictionary = manager.call("custom_info_at", index) as Dictionary if manager.has_method("custom_info_at") else {}
+		var meta_v: Variant = manager.call("custom_info_at", index) if manager.has_method("custom_info_at") else {}
+		var meta: Dictionary = meta_v as Dictionary if meta_v is Dictionary else {}
 		var cname := str(meta.get("name", "Custom"))
-		var rec := manager.call("best_record_for", index) as Dictionary if manager.has_method("best_record_for") else {}
+		var rec_v: Variant = manager.call("best_record_for", index) if manager.has_method("best_record_for") else {}
+		var rec: Dictionary = rec_v as Dictionary if rec_v is Dictionary else {}
 		if not rec.is_empty():
-			b.text = LocalePack.tr_key("select_custom_best", [index + 1, cname, _fmt_time(float(rec["time"])), int(rec["deaths"])])
+			var t_v: Variant = rec.get("time", 0.0)
+			var d_v: Variant = rec.get("deaths", 0)
+			var rec_time := float(t_v) if (t_v is int or t_v is float) else 0.0
+			var rec_deaths := int(d_v) if (d_v is int or d_v is float) else 0
+			b.text = LocalePack.tr_key("select_custom_best", [index + 1, cname, _fmt_time(rec_time), rec_deaths])
 		else:
 			b.text = LocalePack.tr_key("select_custom_none", [index + 1, cname])
 	elif locked:
 		b.text = LocalePack.tr_key("select_locked", [index + 1])
 		b.disabled = true
 		return b
-	elif best.has(str(index)):
+	elif best.has(str(index)) and best[str(index)] is Dictionary:
 		var rec := best[str(index)] as Dictionary
-		b.text = LocalePack.tr_key("select_unlocked_best", [index + 1, _fmt_time(float(rec["time"])), int(rec["deaths"])])
+		var t_v: Variant = rec.get("time", 0.0)
+		var d_v: Variant = rec.get("deaths", 0)
+		var rec_time := float(t_v) if (t_v is int or t_v is float) else 0.0
+		var rec_deaths := int(d_v) if (d_v is int or d_v is float) else 0
+		b.text = LocalePack.tr_key("select_unlocked_best", [index + 1, _fmt_time(rec_time), rec_deaths])
 	else:
 		b.text = LocalePack.tr_key("select_unlocked_none", [index + 1])
 	var idx := index

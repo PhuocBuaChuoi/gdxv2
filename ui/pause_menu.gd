@@ -51,8 +51,21 @@ func _sync_playtest_mode() -> void:
 		_select_btn.visible = not playtesting
 
 
+func _is_complete_popup_visible() -> bool:
+	var parent := get_parent()
+	if parent == null:
+		return false
+	for sibling_name in ["CompletePopup", "LevelCompletePopup"]:
+		var sibling := parent.get_node_or_null(sibling_name) as CanvasItem
+		if sibling != null and sibling.visible:
+			return true
+	return false
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("game_pause"):
+		if not get_tree().paused and _is_complete_popup_visible():
+			return
 		toggle()
 		get_viewport().set_input_as_handled()
 
@@ -61,6 +74,8 @@ func toggle() -> void:
 	if get_tree().paused:
 		resume()
 	else:
+		if _is_complete_popup_visible():
+			return
 		_sync_playtest_mode()
 		get_tree().paused = true
 		visible = true
@@ -81,6 +96,8 @@ func _on_checkpoint_pressed() -> void:
 	var coord := _coordinator()
 	get_tree().paused = false
 	visible = false
+	if coord != null and coord.has_method("is_respawning") and bool(coord.call("is_respawning")):
+		return
 	if coord == null or not bool(coord.call("request_respawn", 1)):
 		_manager_reload()
 
@@ -96,6 +113,9 @@ func _on_select_pressed() -> bool:
 	AudioManager.play_sfx("click")
 	get_tree().paused = false
 	visible = false
+	var mgr := get_node_or_null("/root/LevelManager")
+	if mgr != null and mgr.has_method("exit_to_level_select"):
+		mgr.call("exit_to_level_select")
 	return get_tree().change_scene_to_file(SELECT_SCENE) == OK
 
 

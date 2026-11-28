@@ -96,6 +96,8 @@ func show_result(time_taken: float, death_count: int) -> int:
 		_return_editor_btn.visible = playtesting
 	if _next_btn != null:
 		_next_btn.visible = not playtesting
+	if _menu_btn != null:
+		_menu_btn.visible = not playtesting
 	visible = true
 	return stars
 
@@ -123,6 +125,9 @@ func _on_retry_pressed() -> bool:
 
 func _on_menu_pressed() -> bool:
 	AudioManager.play_sfx("click")
+	var mgr: Node = manager if manager != null else get_node_or_null("/root/LevelManager")
+	if mgr != null and mgr.has_method("exit_to_level_select"):
+		mgr.call("exit_to_level_select")
 	return get_tree().change_scene_to_file(SELECT_SCENE) == OK
 
 

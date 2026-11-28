@@ -20,6 +20,8 @@ var best: Dictionary = {}
 var is_playtest: bool = false
 var playtest_data: Dictionary = {}
 var playtest_source_path: String = ""
+var _active_custom_data: Dictionary = {}
+var _active_custom_path: String = ""
 var pending_editor_data: Dictionary = {}
 var pending_editor_path: String = ""
 
@@ -96,6 +98,10 @@ func load_level(index: int) -> bool:
 	if index < 0 or index >= levels.size():
 		return false
 	is_playtest = false
+	playtest_data = {}
+	playtest_source_path = ""
+	_active_custom_data = {}
+	_active_custom_path = ""
 	var target := levels[index]
 	if target.ends_with(".gdx.json"):
 		var scene := CustomLevelBuilder.build_from_file(target, index, false)
@@ -106,7 +112,11 @@ func load_level(index: int) -> bool:
 			return false
 		current_index = index
 		return true
-	if get_tree().change_scene_to_file(target) != OK:
+	var tree := get_tree()
+	if tree == null:
+		return false
+	tree.paused = false
+	if tree.change_scene_to_file(target) != OK:
 		return false
 	current_index = index
 	return true
@@ -114,6 +124,12 @@ func load_level(index: int) -> bool:
 
 func play_custom_data(data: Dictionary, source_path: String = "") -> bool:
 	is_playtest = false
+	playtest_data = {}
+	playtest_source_path = ""
+	return _swap_to_custom_data(data, source_path)
+
+
+func _swap_to_custom_data(data: Dictionary, source_path: String = "") -> bool:
 	var idx := -1
 	if source_path != "":
 		idx = levels.find(source_path)
@@ -124,11 +140,15 @@ func play_custom_data(data: Dictionary, source_path: String = "") -> bool:
 		scene.free()
 		return false
 	current_index = idx
+	_active_custom_data = data.duplicate(true)
+	_active_custom_path = source_path
 	return true
 
 
 func start_playtest(data: Dictionary, source_path: String = "") -> bool:
 	is_playtest = true
+	_active_custom_data = {}
+	_active_custom_path = ""
 	playtest_data = data.duplicate(true)
 	playtest_source_path = source_path
 	pending_editor_data = data.duplicate(true)
@@ -136,9 +156,13 @@ func start_playtest(data: Dictionary, source_path: String = "") -> bool:
 	var scene := CustomLevelBuilder.build_scene(playtest_data, -1, source_path, true)
 	if scene == null:
 		is_playtest = false
+		playtest_data = {}
+		playtest_source_path = ""
 		return false
 	if not _swap_current_scene(scene):
 		is_playtest = false
+		playtest_data = {}
+		playtest_source_path = ""
 		scene.free()
 		return false
 	current_index = -1
@@ -147,16 +171,46 @@ func start_playtest(data: Dictionary, source_path: String = "") -> bool:
 
 func return_to_editor() -> bool:
 	is_playtest = false
-	get_tree().paused = false
-	return get_tree().change_scene_to_file(EDITOR_SCENE) == OK
+	playtest_data = {}
+	playtest_source_path = ""
+	_active_custom_data = {}
+	_active_custom_path = ""
+	current_index = -1
+	var tree := get_tree()
+	if tree == null:
+		return false
+	tree.paused = false
+	return tree.change_scene_to_file(EDITOR_SCENE) == OK
 
 
 func open_editor(data: Dictionary = {}, source_path: String = "") -> bool:
 	is_playtest = false
+	playtest_data = {}
+	playtest_source_path = ""
+	_active_custom_data = {}
+	_active_custom_path = ""
+	current_index = -1
 	pending_editor_data = data.duplicate(true)
 	pending_editor_path = source_path
-	get_tree().paused = false
-	return get_tree().change_scene_to_file(EDITOR_SCENE) == OK
+	var tree := get_tree()
+	if tree == null:
+		return false
+	tree.paused = false
+	return tree.change_scene_to_file(EDITOR_SCENE) == OK
+
+
+func exit_to_level_select() -> void:
+	is_playtest = false
+	playtest_data = {}
+	playtest_source_path = ""
+	_active_custom_data = {}
+	_active_custom_path = ""
+	pending_editor_data = {}
+	pending_editor_path = ""
+	current_index = -1
+	var tree := get_tree()
+	if tree != null:
+		tree.paused = false
 
 
 func consume_pending_editor_state() -> Dictionary:
@@ -183,7 +237,7 @@ func _swap_current_scene(new_scene: Node) -> bool:
 
 
 func load_next_level() -> bool:
-	if is_playtest:
+	if is_playtest or current_index < 0:
 		return false
 	return load_level(current_index + 1)
 
@@ -191,6 +245,8 @@ func load_next_level() -> bool:
 func reload_current_level() -> bool:
 	if is_playtest and not playtest_data.is_empty():
 		return start_playtest(playtest_data, playtest_source_path)
+	if current_index < 0 and not _active_custom_data.is_empty():
+		return _swap_to_custom_data(_active_custom_data, _active_custom_path)
 	return load_level(current_index)
 
 

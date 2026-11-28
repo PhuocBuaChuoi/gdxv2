@@ -65,6 +65,8 @@ theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 2
 theme_override_font_sizes/font_size = 24
 text = "Màn 1"
+clip_text = true
+text_overrun_behavior = 3
 
 [node name="AttemptLabel" type="Label" parent="TopLeft"]
 layout_mode = 2

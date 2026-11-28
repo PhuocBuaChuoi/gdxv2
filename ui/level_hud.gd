@@ -15,6 +15,9 @@ var _forms := {1: &"CUBE", 2: &"CUBE"}
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_IGNORE
+	if _title != null:
+		_title.clip_text = true
+		_title.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
 	_level = _find_level_root()
 	if _level != null:
 		var level_index = _level.get("level_index")
