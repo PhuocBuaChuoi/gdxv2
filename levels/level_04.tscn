@@ -111,7 +111,7 @@ hazard_type = 0
 [node name="DashPortal" parent="Portals" instance=ExtResource("12_portal")]
 position = Vector2(340, 388)
 target_form = "DASH"
-allowed_player = "P1_ONLY"
+allowed_player = "BOTH"
 
 [node name="ShipPortal" parent="Portals" instance=ExtResource("12_portal")]
 position = Vector2(920, 388)
