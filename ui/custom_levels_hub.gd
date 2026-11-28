@@ -100,6 +100,8 @@ func _build_styles() -> void:
 	_confirm_import_button.focus_next = _import_input.get_path()
 	_confirm_import_button.focus_previous = _cancel_import_button.get_path()
 	_confirm_import_button.focus_neighbor_left = _cancel_import_button.get_path()
+	_import_input.focus_next = _cancel_import_button.get_path()
+	_import_input.focus_previous = _confirm_import_button.get_path()
 
 
 func _connect_signals() -> void:
@@ -132,6 +134,9 @@ func _apply_locale() -> void:
 
 
 func _refresh_levels() -> void:
+	var mgr := get_node_or_null("/root/LevelManager")
+	if mgr != null and mgr.has_method("rescan"):
+		mgr.call("rescan")
 	_entries.clear()
 	var raw_list: Array = CustomLevelStore.list_levels()
 	for raw_item in raw_list:
@@ -366,6 +371,7 @@ func _on_duplicate_entry(path: String) -> void:
 		return
 	var dup_path: String = CustomLevelStore.duplicate_file(path)
 	if dup_path == "":
+		_show_status(LocalePack.tr_key("hub_io_err"))
 		return
 	LevelManager.rescan()
 	_refresh_levels()
@@ -381,6 +387,7 @@ func _on_delete_entry(path: String) -> void:
 	if path == "":
 		return
 	if not CustomLevelStore.delete_file(path):
+		_show_status(LocalePack.tr_key("hub_io_err"))
 		return
 	LevelManager.rescan()
 	_refresh_levels()
@@ -418,6 +425,9 @@ func _on_confirm_import_pressed() -> void:
 
 	var imported_raw: Variant = null
 	if _looks_like_file_path(raw):
+		if not FileAccess.file_exists(raw) and not FileAccess.file_exists(ProjectSettings.globalize_path(raw)):
+			_show_import_error("hub_import_not_found")
+			return
 		imported_raw = CustomLevelStore.import_from_file(raw)
 	else:
 		imported_raw = CustomLevelStore.import_json_string(raw)
@@ -441,7 +451,7 @@ func _on_confirm_import_pressed() -> void:
 	var already_saved: bool = (imported.has("ok") and bool(imported["ok"])) or not already_saved_path.is_empty()
 	if not already_saved:
 		if not _save_imported_level(level_data):
-			_show_import_error()
+			_show_import_error("hub_import_write_err")
 			return
 
 	LevelManager.rescan()
@@ -472,8 +482,8 @@ func _save_imported_level(data: Dictionary) -> bool:
 	return res != null
 
 
-func _show_import_error() -> void:
-	_import_error_label.text = LocalePack.tr_key("hub_import_err")
+func _show_import_error(key: String = "hub_import_err") -> void:
+	_import_error_label.text = LocalePack.tr_key(key)
 	_import_error_label.visible = true
 
 

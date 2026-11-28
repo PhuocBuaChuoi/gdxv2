@@ -100,7 +100,7 @@ const PALETTE_ITEMS: Array[Dictionary] = [
 		"id": "gravity_portal", "kind": "object", "tab": 2, "type": "GravityPortal", "container": "Portals",
 		"scene": "res://components/gravity_portal.tscn",
 		"label_key": "ed_obj_gravity_portal", "icon": "res://assets/sprites/gravity_portal.png",
-		"default_props": {"direction_mode": 1, "target_direction": -1, "one_shot": false},
+		"default_props": {"direction_mode": 1, "target_direction": -1, "one_shot": false, "allowed_player": "BOTH"},
 	},
 	{
 		"id": "pad_yellow", "kind": "object", "tab": 2, "type": "JumpPad", "container": "Mechanisms",
@@ -162,7 +162,7 @@ const PALETTE_ITEMS: Array[Dictionary] = [
 		"id": "breakable_wall", "kind": "object", "tab": 3, "type": "BreakableDashBlock", "container": "Mechanisms",
 		"scene": "res://components/breakable_dash_block.tscn",
 		"label_key": "ed_obj_breakable_wall", "icon": "res://assets/sprites/breakable_dash_wall.png",
-		"default_props": {},
+		"default_props": {"block_size": [1, 3]},
 	},
 	{
 		"id": "coop_box", "kind": "object", "tab": 3, "type": "CoopBox", "container": "Mechanisms",
@@ -283,36 +283,77 @@ static func find_palette_item(item_id: String) -> Dictionary:
 	return {}
 
 
+static func _as_dict(v: Variant) -> Dictionary:
+	return v as Dictionary if v is Dictionary else {}
+
+
+static func _as_array(v: Variant) -> Array:
+	return v as Array if v is Array else []
+
+
+static func _as_str(v: Variant, fallback: String = "") -> String:
+	if v == null:
+		return fallback
+	return str(v)
+
+
+static func _is_num(v: Variant) -> bool:
+	if v is int:
+		return true
+	if v is float:
+		return not (is_nan(v as float) or is_inf(v as float))
+	return false
+
+
+static func _as_int(v: Variant, fallback: int = 0) -> int:
+	if _is_num(v):
+		return int(v)
+	if v is String and (v as String).is_valid_int():
+		return int(v)
+	return fallback
+
+
+static func _is_vec2_array(v: Variant) -> bool:
+	if not (v is Array):
+		return false
+	var arr := v as Array
+	return arr.size() >= 2 and _is_num(arr[0]) and _is_num(arr[1])
+
+
 static func icon_for_object(obj: Dictionary) -> String:
-	var obj_type := str(obj.get("type", ""))
-	var props := obj.get("props", {}) as Dictionary
+	if obj == null:
+		return "res://assets/sprites/coop_box.png"
+	var obj_type := _as_str(obj.get("type", ""))
+	var props := _as_dict(obj.get("props", {}))
 	match obj_type:
 		"SpikeHazard":
-			var ht := int(props.get("hazard_type", 0))
+			var ht := _as_int(props.get("hazard_type", 0), 0)
 			if ht == 1:
 				return "res://assets/sprites/spike_cyan.png"
 			if ht == 2:
 				return "res://assets/sprites/spike_orange.png"
 			return "res://assets/sprites/spike_red.png"
 		"FormPortal":
-			var f := str(props.get("target_form", "CUBE")).to_lower()
+			var f := _as_str(props.get("target_form", "CUBE"), "CUBE").to_lower()
+			if f not in ["cube", "ship", "ufo", "dash"]:
+				f = "cube"
 			return "res://assets/sprites/portal_%s.png" % f
 		"JumpPad":
-			var pt := int(props.get("pad_type", 0))
+			var pt := _as_int(props.get("pad_type", 0), 0)
 			if pt == 1:
 				return "res://assets/sprites/jump_pad_pink.png"
 			if pt == 2:
 				return "res://assets/sprites/jump_pad_red.png"
 			return "res://assets/sprites/jump_pad_yellow.png"
 		"JumpOrb":
-			var ot := int(props.get("orb_type", 0))
+			var ot := _as_int(props.get("orb_type", 0), 0)
 			if ot == 1:
 				return "res://assets/sprites/jump_orb_blue.png"
 			if ot == 2:
 				return "res://assets/sprites/jump_orb_pink.png"
 			return "res://assets/sprites/jump_orb_yellow.png"
 		"DecoProp":
-			var dp := int(props.get("prop_type", 0))
+			var dp := _as_int(props.get("prop_type", 0), 0)
 			var paths := [
 				"res://assets/sprites/deco_pylon.png",
 				"res://assets/sprites/deco_crystals.png",
@@ -378,7 +419,8 @@ static func resize_ascii_map(ascii_map: Array, cols: int, rows: int) -> Array[St
 	var r := clampi(rows, 10, 24)
 	var out: Array[String] = []
 	for y in range(r):
-		var src := str(ascii_map[y]) if y < ascii_map.size() else ""
+		var raw: Variant = ascii_map[y] if y < ascii_map.size() else ""
+		var src := str(raw) if raw is String else ""
 		if src.length() < c:
 			src += " ".repeat(c - src.length())
 		elif src.length() > c:
@@ -391,29 +433,126 @@ static func validate_level_data(data: Dictionary) -> Dictionary:
 	var errors: Array[String] = []
 	var warnings: Array[String] = []
 
-	var p1 := data.get("spawn_p1", []) as Array
-	var p2 := data.get("spawn_p2", []) as Array
-	if p1.size() < 2 or p2.size() < 2:
+	if data == null or data.is_empty():
+		errors.append("Level data is empty or null.")
+		return {"ok": false, "errors": errors, "warnings": warnings}
+
+	var amap_v: Variant = data.get("ascii_map", null)
+	var map_valid := false
+	if amap_v is Array:
+		var amap := amap_v as Array
+		if not amap.is_empty():
+			map_valid = true
+			for row_v in amap:
+				if not (row_v is String) or (row_v as String).is_empty():
+					map_valid = false
+					break
+	if not map_valid:
+		var map_err := LocalePack.tr_key("ed_err_empty_map")
+		if map_err == "ed_err_empty_map":
+			map_err = "ed_err_empty_map: ascii_map must be a non-empty Array of non-empty Strings!"
+		errors.append(map_err)
+
+	if not _is_vec2_array(data.get("spawn_p1", null)) or not _is_vec2_array(data.get("spawn_p2", null)):
 		errors.append(LocalePack.tr_key("ed_err_no_spawn"))
 
-	var objs := data.get("objects", []) as Array
+	if data.has("background"):
+		var bg_v: Variant = data.get("background")
+		if not (bg_v is String) or (bg_v as String).strip_edges() == "":
+			warnings.append("Invalid or null background value; defaulting to FOREST.")
+
+	if data.has("dim"):
+		var dim_v: Variant = data.get("dim")
+		if not _is_num(dim_v):
+			warnings.append("Invalid or null dim value; defaulting to 0.55.")
+
+	var objs_v: Variant = data.get("objects", [])
+	var objs: Array = []
+	if objs_v is Array:
+		objs = objs_v as Array
+	else:
+		errors.append("Invalid objects list (expected Array).")
+
+	var uid_map: Dictionary = {}
+	var dup_uids: Dictionary = {}
+	for item in objs:
+		if not (item is Dictionary):
+			errors.append("Invalid object entry (expected Dictionary).")
+			continue
+		var obj := item as Dictionary
+		var uid := _as_str(obj.get("uid", ""))
+		var t := _as_str(obj.get("type", ""))
+		var label := uid if uid != "" else (t if t != "" else "unknown")
+		if obj.has("pos") and not _is_vec2_array(obj.get("pos")):
+			warnings.append("Object '%s' has invalid pos." % label)
+		if obj.has("props") and not (obj.get("props") is Dictionary):
+			warnings.append("Object '%s' has invalid props (expected Dictionary)." % label)
+		if uid != "":
+			if uid_map.has(uid):
+				if not dup_uids.has(uid):
+					errors.append("Duplicate object UID '%s'." % uid)
+					dup_uids[uid] = true
+			else:
+				uid_map[uid] = obj
+
 	var has_gate := false
 	var unlinked := 0
+	var checkpoint_orders: Dictionary = {}
 	for item in objs:
 		if not (item is Dictionary):
 			continue
 		var obj := item as Dictionary
-		var t := str(obj.get("type", ""))
-		var props := obj.get("props", {}) as Dictionary
+		var uid := _as_str(obj.get("uid", ""))
+		var t := _as_str(obj.get("type", ""))
+		var label := uid if uid != "" else (t if t != "" else "unknown")
+		var props := _as_dict(obj.get("props", {}))
 		if t == "DualExitGate":
 			has_gate = true
 		elif t == "MechanizedPlatform" or t == "EnergyGate":
-			var links := props.get("linked_uids", []) as Array
+			var raw_links: Variant = props.get("linked_uids", [])
+			if props.has("linked_uids") and not (raw_links is Array):
+				warnings.append("Object '%s' has invalid linked_uids (expected Array)." % label)
+			var links := _as_array(raw_links)
 			if links.is_empty():
 				unlinked += 1
-		elif t == "PressureButton" and int(props.get("mode", 0)) == 2:
-			if str(props.get("paired_uid", "")) == "":
+			else:
+				for lu_v in links:
+					var luid := _as_str(lu_v)
+					if luid == "":
+						warnings.append("Object '%s' has empty linked_uid." % label)
+					elif uid != "" and luid == uid:
+						errors.append("Self-link in linked_uids on '%s'." % label)
+					elif not uid_map.has(luid):
+						errors.append("Dangling linked_uid '%s' on '%s'." % [luid, label])
+					else:
+						var target_obj := uid_map[luid] as Dictionary
+						if _as_str(target_obj.get("type", "")) != "PressureButton":
+							errors.append("Linked target '%s' on '%s' is not a PressureButton." % [luid, label])
+		elif t == "PressureButton":
+			var mode := _as_int(props.get("mode", 0), 0)
+			var paired := _as_str(props.get("paired_uid", ""))
+			if mode == 2 and paired == "":
 				unlinked += 1
+			if paired != "":
+				if uid != "" and paired == uid:
+					errors.append("Self-link paired_uid on PressureButton '%s'." % label)
+				elif not uid_map.has(paired):
+					errors.append("Dangling paired_uid '%s' on PressureButton '%s'." % [paired, label])
+				else:
+					var partner := uid_map[paired] as Dictionary
+					if _as_str(partner.get("type", "")) != "PressureButton":
+						errors.append("paired_uid '%s' on '%s' is not a PressureButton." % [paired, label])
+					else:
+						var partner_props := _as_dict(partner.get("props", {}))
+						var partner_mode := _as_int(partner_props.get("mode", 0), 0)
+						if mode != 2 or partner_mode != 2:
+							warnings.append("Mismatched PressureButton pairing mode between '%s' (mode %d) and '%s' (mode %d)." % [label, mode, paired, partner_mode])
+		elif t == "RestorePoint":
+			var order := _as_int(props.get("checkpoint_order", 1), 1)
+			if checkpoint_orders.has(order):
+				warnings.append("Duplicate RestorePoint checkpoint_order: %d." % order)
+			else:
+				checkpoint_orders[order] = label
 
 	if not has_gate:
 		errors.append(LocalePack.tr_key("ed_err_no_gate"))
